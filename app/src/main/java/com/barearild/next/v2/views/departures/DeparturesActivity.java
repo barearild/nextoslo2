@@ -20,6 +20,7 @@ import android.view.View;
 
 import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
+import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,6 +47,8 @@ public class DeparturesActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, SwipeRefreshLayout.OnRefreshListener {
 
+    public static final String STATE_LAST_RESULT = "lastResult";
+
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
@@ -55,6 +58,8 @@ public class DeparturesActivity extends AppCompatActivity implements
     private LinearLayoutManager mLayoutParams;
     private Long mLastUpdate = null;
     private FloatingActionButton fab;
+    private StopVisitsResult mLastResult;
+    private GetAllDeparturesTask mAllDeparturesTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +104,25 @@ public class DeparturesActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(STATE_LAST_RESULT, mLastResult);
+        outState.putBoolean("isRefreshing", mAllDeparturesTask != null && mAllDeparturesTask.getStatus() == AsyncTask.Status.RUNNING);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mLastResult = savedInstanceState.getParcelable(STATE_LAST_RESULT);
+
+        if(mLastResult != null) {
+            mLastUpdate = mLastResult.getTimeOfSearch().getTime();
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult), getBaseContext()), true);
+            mSwipeView.setRefreshing(false);
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_departures, menu);
@@ -127,9 +151,13 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     @Override
     protected void onStop() {
+        if(mAllDeparturesTask != null && mAllDeparturesTask.getStatus() == AsyncTask.Status.RUNNING) {
+            mAllDeparturesTask.cancel(true);
+        }
         mGoogleApiClient.disconnect();
         super.onStop();
     }
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -181,8 +209,11 @@ public class DeparturesActivity extends AppCompatActivity implements
 
 
         if(mLastUpdate == null || secondsSince(mLastUpdate) > 30) {
-            GetAllDeparturesTask allDeparturesTask = new GetAllDeparturesTask();
-            allDeparturesTask.execute(location);
+            if(mAllDeparturesTask != null) {
+                mAllDeparturesTask.cancel(true);
+            }
+            mAllDeparturesTask = new GetAllDeparturesTask();
+            mAllDeparturesTask.execute(location);
         }
     }
 
@@ -209,7 +240,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
             List<Stop> closestStopsToLocation = Requests.getClosestStopsToLocation(params[0], 15, 1400);
 
-            final List<StopVisit> allDepartures = new ArrayList<>();
+            mLastResult = new StopVisitsResult(new Date());
 
             final ExecutorService es = Executors.newCachedThreadPool();
             for (final Stop stop : closestStopsToLocation) {
@@ -218,8 +249,8 @@ public class DeparturesActivity extends AppCompatActivity implements
                     public void run() {
                        List<StopVisit> departures;
                         departures = Requests.getAllDepartures(stop);
-                        synchronized (allDepartures) {
-                            allDepartures.addAll(departures);
+                        synchronized (mLastResult) {
+                            mLastResult.addAll(departures);
                         }
                     }
 
@@ -232,13 +263,7 @@ public class DeparturesActivity extends AppCompatActivity implements
                 Log.e("GetDepartures", e.getMessage(), e);
             }
 
-
-            List<Object> data = new ArrayList<>();
-            data.add(new Date());
-
-            data.addAll(orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(allDepartures))));
-
-            return data;
+            return convertToListData(mLastResult);
         }
 
         @Override
@@ -256,5 +281,14 @@ public class DeparturesActivity extends AppCompatActivity implements
             mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext()), true);
             mSwipeView.setRefreshing(false);
         }
+    }
+
+    private static List<Object> convertToListData(StopVisitsResult result) {
+        List<Object> data = new ArrayList<>();
+        data.add(new Date());
+
+        data.addAll(orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(result))));
+
+        return data;
     }
 }
