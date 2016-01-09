@@ -17,4 +17,5 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="Timestamp" parent="TextAppearance.AppCompat.SearchResult.Subtitle"></style>
 </resources>

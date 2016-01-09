@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/departure_list_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="1dp"
+    android:paddingEnd="8dp"
+    android:paddingRight="8dp"
+    tools:layout_height="?android:attr/listPreferredItemHeight">
+
+    <Button
+        android:id="@+id/departure_menu"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="@null" />
+
+    <TextView
+        android:id="@+id/departure_lineRef"
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/defaultColorPrimary"
+        android:gravity="center"
+        android:minWidth="60dp"
+        android:singleLine="true"
+        android:textAppearance="@android:style/TextAppearance.Holo.Large"
+        android:textColor="#ffffff"
+        android:transitionName="@string/transition_line_number"
+        tools:text="54" />
+
+    <TextView
+        android:id="@+id/departure_destinationName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/departure_deviation_warning"
+        android:layout_toEndOf="@+id/departure_lineRef"
+        android:layout_toLeftOf="@+id/departure_first"
+        android:layout_toRightOf="@+id/departure_lineRef"
+        android:layout_toStartOf="@+id/departure_first"
+        android:paddingBottom="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="4dp"
+        android:singleLine="true"
+        android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+        android:textColor="@color/defaultColorPrimaryDark"
+        tools:text="Aker brygge" />
+
+    <ImageView
+        android:id="@+id/departure_menu_drawable"
+        android:layout_width="15dp"
+        android:layout_height="25dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="@null"
+        android:contentDescription="@string/departureOverflowDescription"
+        android:scaleType="fitEnd"
+        android:src="@drawable/ic_action_overflow_dark" />
+
+    <TextView
+        android:id="@+id/departure_first"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/departure_lineRef"
+        android:layout_toLeftOf="@id/departure_menu_drawable"
+        android:layout_toStartOf="@id/departure_menu_drawable"
+        android:gravity="end|center_vertical"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="4dp"
+        android:singleLine="true"
+        android:textAppearance="@android:style/TextAppearance.Holo.Medium"
+        android:textColor="@color/defaultColorPrimaryDark"
+        tools:text="7 min" />
+
+    <TextView
+        android:id="@+id/departure_second"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/departure_first"
+        android:layout_toLeftOf="@id/departure_menu_drawable"
+        android:layout_toStartOf="@id/departure_menu_drawable"
+        android:gravity="end|center_vertical"
+        android:paddingBottom="4dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="4dp"
+        android:singleLine="true"
+        android:textAppearance="@android:style/TextAppearance.Holo.Small"
+        android:textColor="@color/ruter_dark_grey_60"
+        tools:text="22:33" />
+
+    <TextView
+        android:id="@+id/departure_stopName"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/departure_lineRef"
+        android:layout_below="@id/departure_destinationName"
+        android:layout_toEndOf="@+id/departure_lineRef"
+        android:layout_toLeftOf="@+id/departure_first"
+        android:layout_toRightOf="@+id/departure_lineRef"
+        android:layout_toStartOf="@+id/departure_first"
+        android:paddingBottom="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="4dp"
+        android:singleLine="true"
+        android:textColor="@color/ruter_dark_grey_60"
+        tools:text="Alexander Kiellands plass" />
+
+    <ImageView
+        android:id="@+id/departure_deviation_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="2dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="4dp"
+        android:src="@drawable/warning_sign"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</RelativeLayout>

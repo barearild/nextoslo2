@@ -52,8 +52,19 @@ public class Requests {
         Type listType = new TypeToken<List<StopVisit>>() {
         }.getType();
 
-        GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateJodaDeserializer());
-        return gsonBuilder.create().fromJson(data.toString(), listType);
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new DateJodaDeserializer())
+                .registerTypeAdapter(VehicleMode.class, new VehicleModeDeserializer())
+                .registerTypeAdapter(Transporttype.class, new TransporttypeDeserializer())
+                ;
+
+        List<StopVisit> stopVisits = gsonBuilder.create().fromJson(data.toString(), listType);
+
+        for (StopVisit stopVisit : stopVisits) {
+            stopVisit.setStop(stop);
+        }
+
+        return stopVisits;
     }
 
     private static JSONArray doRequest(String request) {

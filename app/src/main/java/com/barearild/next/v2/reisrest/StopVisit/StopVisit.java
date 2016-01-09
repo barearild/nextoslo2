@@ -1,6 +1,5 @@
 package com.barearild.next.v2.reisrest.StopVisit;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -83,10 +82,9 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         return extensions.getOccupancyData().getOccupancyPercentage();
     }
 
-    public String time(Context context) {
-        return "";
+//    public String time(Context context) {
 //        return monitoredVehicleJourney.getMonitoredCall().getExpectedDepartureTime().toString(context);
-    }
+//    }
 
     public int getLineColor() {
         Log.d("nextnext", getMonitoredVehicleJourney().getVehicleMode().toString());

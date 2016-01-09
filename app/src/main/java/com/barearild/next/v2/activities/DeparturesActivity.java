@@ -9,16 +9,16 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
-import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +35,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import v2.next.barearild.com.R;
+
+import static com.barearild.next.v2.StopVisitFilters.convertToListItems;
+import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
+import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDeparture;
 
 public class DeparturesActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -44,7 +49,9 @@ public class DeparturesActivity extends AppCompatActivity implements
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
 
-    private TextView mText;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLayoutParams;
+    private Long mLastUpdate = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +69,13 @@ public class DeparturesActivity extends AppCompatActivity implements
             }
         });
 
-        mText = (TextView) findViewById(R.id.text);
+        mLayoutParams = new LinearLayoutManager(this);
+        mLayoutParams.setOrientation(LinearLayoutManager.VERTICAL);
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.departure_list);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mLayoutParams);
+        mRecyclerView.setAdapter(new DeparturesAdapter(new ArrayList<>(), getBaseContext()));
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -146,8 +159,11 @@ public class DeparturesActivity extends AppCompatActivity implements
         String tidsstempel = DateFormat.getDateTimeInstance().format(new Date(location.getTime()));
         Log.d("nextnext", String.format("Location changed [%.3f,%.3f] accuracy=%.3f, time=%s", location.getLatitude(), location.getLongitude(), location.getAccuracy(), tidsstempel));
 
-        GetAllDeparturesTask allDeparturesTask = new GetAllDeparturesTask();
-        allDeparturesTask.execute(location);
+
+        if(mLastUpdate == null || secondsSince(mLastUpdate) > 60) {
+            GetAllDeparturesTask allDeparturesTask = new GetAllDeparturesTask();
+            allDeparturesTask.execute(location);
+        }
     }
 
     @Override
@@ -155,7 +171,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         Log.d("nextnext", "Connection failed");
     }
 
-    private class GetAllDeparturesTask extends AsyncTask<Location, Void, StopVisitsResult> {
+    private class GetAllDeparturesTask extends AsyncTask<Location, Void, List<Object>> {
 
         private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "http://api.ruter.no/ReisRest/Stop/GetClosestStopsAdvancedByCoordinates/?coordinates=(x=%d,y=%d)"
                 + "&proposals=%d&walkingDistance=%d";
@@ -164,11 +180,11 @@ public class DeparturesActivity extends AppCompatActivity implements
                 + "&proposals=%d&walkingDistance=%d";
 
         @Override
-        protected StopVisitsResult doInBackground(Location... params) {
+        protected List<Object> doInBackground(Location... params) {
 
             List<Stop> closestStopsToLocation = Requests.getClosestStopsToLocation(params[0], 15, 1400);
 
-            final StopVisitsResult result = new StopVisitsResult(new Date());
+            final List<StopVisit> allDepartures = new ArrayList<>();
 
             final ExecutorService es = Executors.newCachedThreadPool();
             for (final Stop stop : closestStopsToLocation) {
@@ -177,8 +193,8 @@ public class DeparturesActivity extends AppCompatActivity implements
                     public void run() {
                        List<StopVisit> departures;
                         departures = Requests.getAllDepartures(stop);
-                        synchronized (result) {
-                            result.addAll(departures);
+                        synchronized (allDepartures) {
+                            allDepartures.addAll(departures);
                         }
                     }
 
@@ -191,16 +207,22 @@ public class DeparturesActivity extends AppCompatActivity implements
                 Log.e("GetDepartures", e.getMessage(), e);
             }
 
-            Log.d("nextnext", closestStopsToLocation.toString());
-            Log.d("nextnext", result.toString());
-            return result;
+
+            List<Object> data = new ArrayList<>();
+            data.add(new Date());
+
+            data.addAll(orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(allDepartures))));
+
+            return data;
         }
 
         @Override
-        protected void onPostExecute(StopVisitsResult result) {
+        protected void onPostExecute(List<Object> result) {
             super.onPostExecute(result);
 
-            mText.setText(result.toString());
+            Log.d("nextnext", "OnPostExecute " + result.toString());
+            mLastUpdate = System.currentTimeMillis();
+            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext()), true);
         }
     }
 }
