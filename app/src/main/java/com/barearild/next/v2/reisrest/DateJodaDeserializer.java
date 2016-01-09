@@ -7,10 +7,8 @@ import com.google.gson.JsonParseException;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.tz.DateTimeZoneBuilder;
 
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

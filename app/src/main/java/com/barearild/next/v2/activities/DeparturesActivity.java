@@ -26,8 +26,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.json.JSONArray;
-
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;

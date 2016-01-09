@@ -2,7 +2,6 @@ package com.barearild.next.v2.reisrest.StopVisit;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class StopVisitsResult extends ArrayList<StopVisit> {
     private final Date timeOfSearch;
