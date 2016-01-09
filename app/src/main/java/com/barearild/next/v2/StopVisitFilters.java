@@ -1,6 +1,9 @@
 package com.barearild.next.v2;
 
+import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
+import com.barearild.next.v2.reisrest.Transporttype;
+import com.barearild.next.v2.reisrest.VehicleMode;
 import com.barearild.next.v2.views.departures.StopVisitListItem;
 
 import java.util.ArrayList;
@@ -62,5 +65,53 @@ public class StopVisitFilters {
     public static List<StopVisit> orderByWalkingDistance(List<StopVisit> stopVisits) {
         Collections.sort(stopVisits, byWalkingDistance());
         return stopVisits;
+    }
+
+    public static List<StopVisit> onlyFavorites(List<StopVisit> unfilteredDepartures) {
+        List<StopVisit> filteredDepartures = new ArrayList<StopVisit>();
+        for (StopVisit departure : unfilteredDepartures) {
+            if (FavouritesService.isFavourite(departure)) {
+                filteredDepartures.add(departure);
+            }
+        }
+
+        return filteredDepartures;
+    }
+
+    public static List<StopVisit> withoutFavourites(List<StopVisit> unfilteredDepartures) {
+        List<StopVisit> filteredDepartures = new ArrayList<StopVisit>();
+        for (StopVisit departure : unfilteredDepartures) {
+            if (!FavouritesService.isFavourite(departure)) {
+                filteredDepartures.add(departure);
+            }
+        }
+
+        return filteredDepartures;
+    }
+
+    public static List<StopVisit> removeTransportTypes(List<StopVisit> unfilteredDepartures) {
+        List<StopVisit> filteredDepartures = new ArrayList<StopVisit>();
+        for (StopVisit departure : unfilteredDepartures) {
+            if (showTransportType(departure)) {
+                filteredDepartures.add(departure);
+            }
+        }
+
+        return filteredDepartures;
+    }
+
+    private static boolean showTransportType(StopVisit departure) {
+        if (NextOsloApp.SHOW_TRANSPORT_TYPE.isEmpty()) {
+            return true;
+        }
+
+
+        VehicleMode vehicleMode = departure.getMonitoredVehicleJourney().getVehicleMode();
+        Transporttype transporttype = vehicleMode.transporttype();
+        if (Transporttype.isRegionalBus(departure)) {
+            transporttype = Transporttype.RegionalBus;
+        }
+
+        return NextOsloApp.SHOW_TRANSPORT_TYPE.get(transporttype);
     }
 }

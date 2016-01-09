@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
@@ -39,8 +40,11 @@ import java.util.concurrent.TimeUnit;
 import v2.next.barearild.com.R;
 
 import static com.barearild.next.v2.StopVisitFilters.convertToListItems;
+import static com.barearild.next.v2.StopVisitFilters.onlyFavorites;
 import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
 import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDeparture;
+import static com.barearild.next.v2.StopVisitFilters.removeTransportTypes;
+import static com.barearild.next.v2.StopVisitFilters.withoutFavourites;
 
 public class DeparturesActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
@@ -115,7 +119,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         super.onRestoreInstanceState(savedInstanceState);
         mLastResult = savedInstanceState.getParcelable(STATE_LAST_RESULT);
 
-        if(mLastResult != null) {
+        if (mLastResult != null) {
             mLastUpdate = mLastResult.getTimeOfSearch().getTime();
             mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult), getBaseContext()), true);
             mSwipeView.setRefreshing(false);
@@ -151,7 +155,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     @Override
     protected void onStop() {
-        if(mAllDeparturesTask != null && mAllDeparturesTask.getStatus() == AsyncTask.Status.RUNNING) {
+        if (mAllDeparturesTask != null && mAllDeparturesTask.getStatus() == AsyncTask.Status.RUNNING) {
             mAllDeparturesTask.cancel(true);
         }
         mGoogleApiClient.disconnect();
@@ -176,12 +180,12 @@ public class DeparturesActivity extends AppCompatActivity implements
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        if(force) {
+        if (force) {
             mLastUpdate = null;
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        if(mLastLocation == null || secondsSince(mLastLocation.getTime()) > 60) {
+        if (mLastLocation == null || secondsSince(mLastLocation.getTime()) > 60) {
             mLocationRequest = LocationRequest.create();
             mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             mLocationRequest.setInterval(1000);
@@ -208,8 +212,8 @@ public class DeparturesActivity extends AppCompatActivity implements
         Log.d("nextnext", String.format("Location changed [%.3f,%.3f] accuracy=%.3f, time=%s", location.getLatitude(), location.getLongitude(), location.getAccuracy(), tidsstempel));
 
 
-        if(mLastUpdate == null || secondsSince(mLastUpdate) > 30) {
-            if(mAllDeparturesTask != null) {
+        if (mLastUpdate == null || secondsSince(mLastUpdate) > 30) {
+            if (mAllDeparturesTask != null) {
                 mAllDeparturesTask.cancel(true);
             }
             mAllDeparturesTask = new GetAllDeparturesTask();
@@ -247,7 +251,7 @@ public class DeparturesActivity extends AppCompatActivity implements
                 es.execute(new Runnable() {
                     @Override
                     public void run() {
-                       List<StopVisit> departures;
+                        List<StopVisit> departures;
                         departures = Requests.getAllDepartures(stop);
                         synchronized (mLastResult) {
                             mLastResult.addAll(departures);
@@ -287,7 +291,17 @@ public class DeparturesActivity extends AppCompatActivity implements
         List<Object> data = new ArrayList<>();
         data.add(new Date());
 
-        data.addAll(orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(result))));
+        List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(result)))));
+        List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(result)))));
+
+        if(favourites.isEmpty()) {
+            data.add(NextOsloApp.DEPARTURES_HEADER_NO_FAVOURITES);
+        } else {
+
+        }
+
+        data.add(NextOsloApp.DEPARTURES_HEADER_OTHERS);
+        data.addAll(others);
 
         return data;
     }

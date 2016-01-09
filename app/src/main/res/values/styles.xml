@@ -18,4 +18,128 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="Timestamp" parent="TextAppearance.AppCompat.SearchResult.Subtitle"></style>
+
+    <style name="NextTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="NextTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="NextTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:actionBarStyle">@style/nextActionBar</item>
+        <!--<item name="drawerArrowStyle">@style/nextDrawerArrowToggle</item>-->
+        <!--<item name="android:windowActionBar">false</item>-->
+        <!--<item name="toolbarStyle">@style/nextActionBar</item>-->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorPrimaryInverse">@color/colorPrimaryDark</item>
+    </style>
+
+    <attr name="transport_type_icon" format="reference" />
+    <attr name="transport_type_name" format="reference" />
+
+    <style name="BusTheme" parent="NextTheme">
+        <item name="colorPrimary">@color/busColorPrimary</item>
+        <item name="colorPrimaryDark">@color/busColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_bus</item>
+        <item name="transport_type_name">@string/settings_show_bus</item>
+    </style>
+
+    <style name="TramTheme" parent="NextTheme">
+        <item name="colorPrimary">@color/tramColorPrimary</item>
+        <item name="colorPrimaryDark">@color/tramColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_tram</item>
+        <item name="transport_type_name">@string/settings_show_tram</item>
+    </style>
+
+    <style name="MetroTheme" parent="NextTheme">
+        <item name="colorPrimary">@color/metroColorPrimary</item>
+        <item name="colorPrimaryDark">@color/metroColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_metro</item>
+        <item name="transport_type_name">@string/settings_show_metro</item>
+    </style>
+
+    <style name="TrainTheme" parent="NextTheme">
+        <item name="colorPrimary">@color/trainColorPrimary</item>
+        <item name="colorPrimaryDark">@color/trainColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_train</item>
+        <item name="transport_type_name">@string/settings_show_train</item>
+    </style>
+
+    <style name="RegionalBusTheme" parent="NextTheme">
+        <item name="colorPrimary">@color/regionalBusColorPrimary</item>
+        <item name="colorPrimaryDark">@color/regionalBusColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_bus</item>
+        <item name="transport_type_name">@string/settings_show_regional_bus</item>
+    </style>
+
+    <style name="BoatTheme" parent="NextTheme">
+        <item name="colorPrimary">@color/boatColorPrimary</item>
+        <item name="colorPrimaryDark">@color/boatColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_boat</item>
+        <item name="transport_type_name">@string/settings_show_boat</item>
+    </style>
+
+
+    <style name="DepartureListHeader" parent="android:TextAppearance.Holo.Large">
+        <item name="android:textColor">@color/header_text_color</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="DetailsHeaderText" parent="android:TextAppearance.Holo.Large">
+        <item name="android:textColor">@color/toolbar_text_color</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:drawablePadding">20dp</item>
+        <item name="android:gravity">left|top</item>
+    </style>
+
+    <style name="DetailsSubHeaderText" parent="DetailsHeaderText">
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingBottom">64dp</item>
+        <item name="android:drawablePadding">16dp</item>
+    </style>
+
+    <style name="DetailsSpinnerItem" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
+        <item name="android:textSize">?android:attr/textAppearanceLarge</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="DetailsSpinnerDropDownItem">
+        <item name="android:textSize">?android:attr/textAppearanceLarge</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="DetailsBorderlessButton" parent="android:Widget.DeviceDefault.Button.Borderless">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="DetailsDepartureTimeText" parent="android:TextAppearance.Holo.Medium">
+        <item name="android:textColor">@color/card_white</item>
+    </style>
+
+    <style name="HeaderTextInfo" parent="android:TextAppearance.Holo.Medium">
+        <item name="android:textColor">@color/tramColorPrimary</item>
+    </style>
+
+    <style name="HeaderTextTimestamp" parent="android:TextAppearance.Holo.Small">
+        <item name="android:textColor">@color/toolbar_text_color</item>
+    </style>
+
+    <style name="nextActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:background">?attr/colorPrimary</item>
+    </style>
+
+    <style name="NextTheme.ActionBar.TitleTextStyle" parent="android:TextAppearance.Holo.Widget.ActionBar.Title.Inverse">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="nextDrawerArrowToggle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="android:color">@android:color/white</item>
+    </style>
+
 </resources>

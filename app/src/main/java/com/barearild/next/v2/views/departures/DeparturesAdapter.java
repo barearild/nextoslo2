@@ -63,7 +63,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case TYPE_HEADER:
-//                return new HeaderViewHolder(inflater.inflate(R.layout.departure_list_item_header, parent, false));
+                return new HeaderViewHolder(inflater.inflate(R.layout.departure_list_header, parent, false));
             case TYPE_DEPARTURE:
                 View departureView = inflater.inflate(R.layout.departure_item, parent, false);
                 return new DepartureListItemHolder(departureView);
@@ -87,6 +87,10 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 break;
             case TYPE_TIMESTAMP:
                 onBindTimestampViewHolder((TimestampViewHolder) viewHolder, position);
+                break;
+            case TYPE_HEADER:
+                onBindHeaderViewHolder((HeaderViewHolder)viewHolder, position);
+                break;
 
         }
     }
@@ -151,6 +155,12 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         viewHolder.timestamp.setText(dateFormat.format(timeOfLastUpdate) + " " + timeFormat.format(timeOfLastUpdate));
     }
 
+    private void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int position) {
+        DeparturesHeader header = (DeparturesHeader) data.get(position);
+
+        viewHolder.headerText.setText(header.text);
+    }
+
     @Override
     public int getItemCount() {
         return data.size();
@@ -163,6 +173,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_DEPARTURE;
         } else if (item instanceof Date) {
             return TYPE_TIMESTAMP;
+        } else if (item instanceof DeparturesHeader) {
+            return TYPE_HEADER;
         } else {
             return TYPE_HEADER;
         }
@@ -179,6 +191,16 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public TimestampViewHolder(View itemView) {
             super(itemView);
             timestamp = (TextView) itemView.findViewById(R.id.departure_list_timestamp);
+        }
+    }
+
+    class HeaderViewHolder extends RecyclerView.ViewHolder {
+
+        TextView headerText;
+
+        public HeaderViewHolder(View itemView) {
+            super(itemView);
+            headerText = (TextView) itemView.findViewById(R.id.departure_list_item_header);
         }
     }
 }
