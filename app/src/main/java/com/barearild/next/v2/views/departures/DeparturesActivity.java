@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -59,6 +60,9 @@ public class DeparturesActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_departures);
+
+        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -85,6 +89,13 @@ public class DeparturesActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                mSwipeView.setEnabled(verticalOffset == 0);
+            }
+        });
     }
 
     @Override
@@ -123,10 +134,10 @@ public class DeparturesActivity extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle bundle) {
         Log.d("nextnext", "onConnected");
-        updateData();
+        updateData(false);
     }
 
-    private void updateData() {
+    private void updateData(boolean force) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -136,6 +147,9 @@ public class DeparturesActivity extends AppCompatActivity implements
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return;
+        }
+        if(force) {
+            mLastUpdate = null;
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
@@ -179,7 +193,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     @Override
     public void onRefresh() {
-        updateData();
+        updateData(true);
     }
 
     private class GetAllDeparturesTask extends AsyncTask<Location, Void, List<Object>> {
