@@ -1,7 +1,7 @@
 package com.barearild.next.v2;
 
-import com.barearild.next.v2.activities.StopVisitListItem;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
+import com.barearild.next.v2.views.departures.StopVisitListItem;
 
 import java.util.ArrayList;
 import java.util.Collections;

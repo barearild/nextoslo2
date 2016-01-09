@@ -1,4 +1,4 @@
-package com.barearild.next.v2.activities;
+package com.barearild.next.v2.views.departures;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -1,4 +1,4 @@
-package com.barearild.next.v2.activities;
+package com.barearild.next.v2.views.departures;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

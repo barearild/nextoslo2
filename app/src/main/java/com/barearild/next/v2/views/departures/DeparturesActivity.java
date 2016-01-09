@@ -1,4 +1,4 @@
-package com.barearild.next.v2.activities;
+package com.barearild.next.v2.views.departures;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -160,7 +160,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         Log.d("nextnext", String.format("Location changed [%.3f,%.3f] accuracy=%.3f, time=%s", location.getLatitude(), location.getLongitude(), location.getAccuracy(), tidsstempel));
 
 
-        if(mLastUpdate == null || secondsSince(mLastUpdate) > 60) {
+        if(mLastUpdate == null || secondsSince(mLastUpdate) > 30) {
             GetAllDeparturesTask allDeparturesTask = new GetAllDeparturesTask();
             allDeparturesTask.execute(location);
         }
