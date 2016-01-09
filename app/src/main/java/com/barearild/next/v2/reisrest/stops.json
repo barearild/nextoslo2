@@ -1,0 +1,324 @@
+[
+  {
+    "District": "Oslo",
+    "ID": 3010330,
+    "Name": "Alexander Kiellands plass",
+    "Rank": 0,
+    "ShortName": "AKP",
+    "Stops": [],
+    "Type": 0,
+    "X": 597780,
+    "Y": 6644720,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 21,
+        "LineName": "21",
+        "Transportation": 2
+      },
+      {
+        "LineID": 33,
+        "LineName": "33",
+        "Transportation": 2
+      },
+      {
+        "LineID": 34,
+        "LineName": "34",
+        "Transportation": 2
+      },
+      {
+        "LineID": 54,
+        "LineName": "54",
+        "Transportation": 2
+      },
+      {
+        "LineID": 3954,
+        "LineName": "N54",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 3
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010331,
+    "Name": "Telthusbakken",
+    "Rank": 0,
+    "ShortName": "TELT",
+    "Stops": [],
+    "Type": 0,
+    "X": 597857,
+    "Y": 6644295,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 34,
+        "LineName": "34",
+        "Transportation": 2
+      },
+      {
+        "LineID": 54,
+        "LineName": "54",
+        "Transportation": 2
+      },
+      {
+        "LineID": 3954,
+        "LineName": "N54",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 6
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010333,
+    "Name": "Evald Ryghs gate",
+    "Rank": 0,
+    "ShortName": "ERG",
+    "Stops": [],
+    "Type": 0,
+    "X": 597747,
+    "Y": 6644987,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 34,
+        "LineName": "34",
+        "Transportation": 2
+      },
+      {
+        "LineID": 54,
+        "LineName": "54",
+        "Transportation": 2
+      },
+      {
+        "LineID": 3954,
+        "LineName": "N54",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 7
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010332,
+    "Name": "Falck Ytters plass",
+    "Rank": 0,
+    "ShortName": "FYP",
+    "Stops": [],
+    "Type": 0,
+    "X": 597531,
+    "Y": 6644438,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 21,
+        "LineName": "21",
+        "Transportation": 2
+      },
+      {
+        "LineID": 33,
+        "LineName": "33",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 8
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010521,
+    "Name": "Sannergata",
+    "Rank": 0,
+    "ShortName": "SANG",
+    "Stops": [],
+    "Type": 0,
+    "X": 598336,
+    "Y": 6644742,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 21,
+        "LineName": "21",
+        "Transportation": 2
+      },
+      {
+        "LineID": 33,
+        "LineName": "33",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 8
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010520,
+    "Name": "Birkelunden [trikk]",
+    "Rank": 0,
+    "ShortName": "BLU",
+    "Stops": [],
+    "Type": 0,
+    "X": 598385,
+    "Y": 6644612,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 11,
+        "LineName": "11",
+        "Transportation": 7
+      },
+      {
+        "LineID": 12,
+        "LineName": "12",
+        "Transportation": 7
+      },
+      {
+        "LineID": 13,
+        "LineName": "13",
+        "Transportation": 7
+      },
+      {
+        "LineID": 111,
+        "LineName": "111",
+        "Transportation": 2
+      },
+      {
+        "LineID": 112,
+        "LineName": "112",
+        "Transportation": 2
+      },
+      {
+        "LineID": 3912,
+        "LineName": "N12",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 10
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010321,
+    "Name": "St. Hanshaugen (ved Bergstien)",
+    "Rank": 0,
+    "ShortName": "STHA",
+    "Stops": [],
+    "Type": 0,
+    "X": 597378,
+    "Y": 6644278,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 21,
+        "LineName": "21",
+        "Transportation": 2
+      },
+      {
+        "LineID": 33,
+        "LineName": "33",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 11
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010519,
+    "Name": "Birkelunden (i Toftes g.)",
+    "Rank": 0,
+    "ShortName": "BILU",
+    "Stops": [],
+    "Type": 0,
+    "X": 598438,
+    "Y": 6644571,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 30,
+        "LineName": "30",
+        "Transportation": 2
+      }
+    ],
+    "RealTimeStop": true,
+    "StopPoints": [],
+    "WalkingDistance": 11
+  },
+  {
+    "District": "Oslo",
+    "ID": 3010527,
+    "Name": "Biermanns gate",
+    "Rank": 0,
+    "ShortName": "BIEG",
+    "Stops": [],
+    "Type": 0,
+    "X": 598430,
+    "Y": 6644975,
+    "Zone": "1",
+    "AlightingAllowed": false,
+    "ArrivalTime": null,
+    "BoardingAllowed": false,
+    "DepartureTime": null,
+    "Deviations": [],
+    "Lines": [
+      {
+        "LineID": 11,
+        "LineName": "11",
+        "Transportation": 7
+      },
+      {
+        "LineID": 12,
+        "LineName": "12",
+        "Transportation": 7
+      }

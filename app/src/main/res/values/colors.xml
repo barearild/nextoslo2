@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#ff006bb3</color>
+    <color name="colorPrimaryDark">#ff003152</color>
+    <color name="colorAccent">#FFF07800</color>
+
+    <color name="ruter_red_60">#99E60000</color>
+    <color name="ruter_blue_60">#9918a3b6</color>
+    <color name="ruter_dark_grey_60">#9932374B</color>
+    <!--suppress AndroidLintUnusedResources -->
+    <color name="ruter_dark_grey_20">#3332374B</color>
+    <color name="ruter_mellomgraa">#FF555555</color>
+    <!--suppress AndroidLintUnusedResources -->
+    <color name="ruter_grey_60">#99AAAAB4</color>
+    <color name="ruter_grey_20">#33AAAAB4</color>
+    <!--suppress AndroidLintUnusedResources -->
+    <color name="ruter_orange_60">#99F07800</color>
+
+    <color name="header_text_color">#9932374B</color>
+    <color name="toolbar_text_color">#ffffffff</color>
+
+    <color name="second_grey">#ff999999</color>
+    <color name="card_white">#ffffffff</color>
+    <color name="card_shadow">#8c666666</color>
+
+    <color name="defaultColorPrimary">#FFAAAAB4</color>
+    <color name="defaultColorPrimaryDark">#FF32374B</color>
+
+    <color name="busColorPrimary">#FFE60000</color>
+    <color name="busColorPrimaryDark">#FF6E0A14</color>
+
+    <color name="trainColorPrimary">#FF004899</color>
+    <color name="trainColorPrimaryDark">#00244d</color>
+
+    <color name="boatColorPrimary">#FF682c88</color>
+    <color name="boatColorPrimaryDark">#FF441c4a</color>
+
+    <color name="tramColorPrimary">#FF18a3b6</color>
+    <color name="tramColorPrimaryDark">#FF0a474f</color>
+
+    <color name="metroColorPrimary">#FFF07800</color>
+    <color name="metroColorPrimaryDark">#FF7a3b11</color>
+
+    <color name="regionalBusColorPrimary">#FF76a300</color>
+    <color name="regionalBusColorPrimaryDark">#486300</color>
+</resources>
