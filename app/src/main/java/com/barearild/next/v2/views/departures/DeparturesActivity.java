@@ -8,9 +8,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -43,15 +43,17 @@ import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDeparture;
 public class DeparturesActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener, SwipeRefreshLayout.OnRefreshListener {
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
 
-    private RecyclerView mRecyclerView;
+    private DeparturesSwipeRefreshLayout mSwipeView;
+    private DeparturesRecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutParams;
     private Long mLastUpdate = null;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,13 +71,14 @@ public class DeparturesActivity extends AppCompatActivity implements
             }
         });
 
+        mSwipeView = (DeparturesSwipeRefreshLayout) findViewById(R.id.departure_list_swipe);
+        mSwipeView.setOnRefreshListener(this);
+
         mLayoutParams = new LinearLayoutManager(this);
         mLayoutParams.setOrientation(LinearLayoutManager.VERTICAL);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.departure_list);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mLayoutParams);
-        mRecyclerView.setAdapter(new DeparturesAdapter(new ArrayList<>(), getBaseContext()));
+        mRecyclerView = (DeparturesRecyclerView) findViewById(R.id.departure_list);
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -120,7 +123,10 @@ public class DeparturesActivity extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle bundle) {
         Log.d("nextnext", "onConnected");
+        updateData();
+    }
 
+    private void updateData() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -171,6 +177,11 @@ public class DeparturesActivity extends AppCompatActivity implements
         Log.d("nextnext", "Connection failed");
     }
 
+    @Override
+    public void onRefresh() {
+        updateData();
+    }
+
     private class GetAllDeparturesTask extends AsyncTask<Location, Void, List<Object>> {
 
         private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "http://api.ruter.no/ReisRest/Stop/GetClosestStopsAdvancedByCoordinates/?coordinates=(x=%d,y=%d)"
@@ -217,12 +228,19 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mSwipeView.setRefreshing(true);
+        }
+
+        @Override
         protected void onPostExecute(List<Object> result) {
             super.onPostExecute(result);
 
             Log.d("nextnext", "OnPostExecute " + result.toString());
             mLastUpdate = System.currentTimeMillis();
             mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext()), true);
+            mSwipeView.setRefreshing(false);
         }
     }
 }
