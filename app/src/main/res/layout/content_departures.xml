@@ -21,6 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:listitem="@layout/departure_item"
+        app:popupTheme="@style/NextTheme.PopupOverlay"
  />
 
 </com.barearild.next.v2.views.departures.DeparturesSwipeRefreshLayout>

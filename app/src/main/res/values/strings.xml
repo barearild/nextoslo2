@@ -12,13 +12,17 @@
     <string name="departure_list_empty">Oh no, we couldn\'t find any departures\n\n<a href="tel:02323">Call a cab instead</a></string>
     <string name="departure_list_empty_tag" translatable="false">empty</string>
     <string name="settings_show_header">Show</string>
-    <string name="settings_show_metro">Metro</string>
-    <string name="settings_show_bus">Bus</string>
-    <string name="settings_show_tram">Tram</string>
-    <string name="settings_show_all">All</string>
-    <string name="settings_show_regional_bus">Regional bus</string>
-    <string name="settings_show_boat">Boat</string>
-    <string name="settings_show_train">Train</string>
+    <string name="transport_walking">Walking</string>
+    <string name="transport_dummy">Dummy</string>
+    <string name="transport_airportbus">Airport bus</string>
+    <string name="transport_airporttrain">Airport train</string>
+    <string name="transport_metro">Metro</string>
+    <string name="transport_bus">Bus</string>
+    <string name="transport_tram">Tram</string>
+    <string name="transport_all">All</string>
+    <string name="transport_regional_bus">Regional bus</string>
+    <string name="transport_boat">Boat</string>
+    <string name="transport_train">Train</string>
     <string name="settings">Settings</string>
     <string name="departure_result_was_empty">Couldn\'t find any departures</string>
     <string name="added_line_to_favourites">Added %s to favourites</string>

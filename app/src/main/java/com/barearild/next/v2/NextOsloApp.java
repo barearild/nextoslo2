@@ -49,4 +49,11 @@ public class NextOsloApp extends Application {
             SHOW_TRANSPORT_TYPE.put(transporttype, prefs.getBoolean(transporttype.name(), true));
         }
     }
+
+//    static void updateTransportTypePrefs(Transporttype transporttype, boolean checked) {
+//        SHOW_TRANSPORT_TYPE.put(transporttype, checked);
+//
+//        prefs.edit().putBoolean(transporttype.name(), checked).apply();
+//    }
+
 }

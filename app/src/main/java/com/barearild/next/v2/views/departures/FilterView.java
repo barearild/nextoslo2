@@ -4,9 +4,15 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.GridView;
-import android.widget.SimpleAdapter;
+import android.widget.Switch;
 
+import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.Transporttype;
 
 import java.util.ArrayList;
@@ -18,6 +24,9 @@ import v2.next.barearild.com.R;
 public class FilterView extends GridView {
 
     public static final String SWITCH_TEXT = "text";
+
+    private CompoundButton.OnCheckedChangeListener onCheckedChangeListener;
+    private DeparturesAdapter.OnDepartureItemClickListener onDepartureItemClickListener;
 
     public FilterView(Context context) {
         super(context);
@@ -40,56 +49,98 @@ public class FilterView extends GridView {
         init(context);
     }
 
+    public void setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener onCheckedChangeListener) {
+        this.onCheckedChangeListener = onCheckedChangeListener;
+    }
+
+    public void setOnDepartureItemClickListener(DeparturesAdapter.OnDepartureItemClickListener onDepartureItemClickListener) {
+        this.onDepartureItemClickListener = onDepartureItemClickListener;
+    }
+
     private void init(Context context) {
 
         List<HashMap<String, String>> data = new ArrayList<>();
 
         for (Transporttype transporttype : Transporttype.onlyRealTimeTransporttypes) {
             HashMap<String, String> transportMap = new HashMap<>();
-            transportMap.put(SWITCH_TEXT, transporttype.name());
+            transportMap.put(SWITCH_TEXT, getResources().getString(transporttype.getTextId()));
             data.add(transportMap);
         }
 
         String[] from = {SWITCH_TEXT};
         int[] to = {R.id.filter_switch};
 
-        setAdapter(new SimpleAdapter(context, data, R.layout.departure_filter_switch, from, to));
+        setAdapter(new FilterAdapter(context));
     }
 
-//    private class FilterAdapter extends BaseAdapter {
+    static class FilterType {
+
+    }
+
+//    private class FilterAdapter extends SimpleAdapter {
 //
-//        private final Transporttype[] data = Transporttype.onlyRealTimeTransporttypes.toArray(new Transporttype[Transporttype.onlyRealTimeTransporttypes.size()]);
-//        private final LayoutInflater mInflater;
-//
-//        public FilterAdapter(Context context) {
-//            mInflater = LayoutInflater.from(context);
+//        public FilterAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
+//            super(context, data, resource, from, to);
 //        }
 //
-//        @Override
-//        public int getCount() {
-//            return data.length;
-//        }
 //
-//        @Override
-//        public Transporttype getItem(int position) {
-//            return data[position];
-//        }
-//
-//        @Override
-//        public long getItemId(int position) {
-//            return data[position].ordinal();
-//        }
-//
-//        @Override
-//        public View getView(int position, View convertView, ViewGroup parent) {
-//            Transporttype transporttype = getItem(position);
-//
-//            inflater.inflate()
-//            return null;
-//        }
-//
-//        private class FilterViewHolder {
-//            Switch filterSwitch;
-//        }
 //    }
+
+        private class FilterAdapter extends BaseAdapter {
+
+        private final Transporttype[] data = Transporttype.onlyRealTimeTransporttypes.toArray(new Transporttype[Transporttype.onlyRealTimeTransporttypes.size()]);
+        private final LayoutInflater mInflater;
+
+        public FilterAdapter(Context context) {
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public int getCount() {
+            return data.length;
+        }
+
+        @Override
+        public Transporttype getItem(int position) {
+            return data[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return data[position].ordinal();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final Transporttype transporttype = getItem(position);
+
+            FilterViewHolder viewHolder = new FilterViewHolder();
+
+            if(convertView == null) {
+                convertView = mInflater.inflate(R.layout.departure_filter_switch, parent, false);
+                viewHolder.filterSwitch = (Switch) convertView.findViewById(R.id.filter_switch);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (FilterViewHolder) convertView.getTag();
+            }
+
+            viewHolder.filterSwitch.setText(transporttype.getTextId());
+            viewHolder.filterSwitch.setChecked(NextOsloApp.SHOW_TRANSPORT_TYPE.get(transporttype));
+
+            viewHolder.filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    onDepartureItemClickListener.onFilterUpdate(transporttype, b);
+                }
+            });
+
+            return convertView;
+        }
+
+    }
+
+
+    static class FilterViewHolder {
+        Switch filterSwitch;
+    }
 }

@@ -1,16 +1,18 @@
 package com.barearild.next.v2.views.departures;
 
 import android.content.Context;
-import android.content.Intent;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.barearild.next.v2.reisrest.place.Stop;
-import com.barearild.next.v2.views.details.DetailsActivity;
+import com.barearild.next.v2.favourites.FavouritesService;
+import com.barearild.next.v2.reisrest.Transporttype;
 
 import org.joda.time.DateTime;
 
@@ -28,6 +30,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_SPACE = 2;
     private static final int TYPE_TIMESTAMP = 3;
     private static final int TYPE_EMPTY = 4;
+    private static final int TYPE_FILTER = 5;
 
     private final List<Object> data;
     private final java.text.DateFormat dateFormat;
@@ -35,6 +38,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private final Context context;
 
     private final OnDepartureItemClickListener onDepartureItemClickListener;
+    private LayoutInflater inflater;
 
     public DeparturesAdapter(Context context) {
         this(new ArrayList<>(), context, null);
@@ -50,6 +54,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         dateFormat = DateFormat.getDateFormat(context);
         timeFormat = DateFormat.getTimeFormat(context);
+
+        inflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -65,6 +71,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return TYPE_SPACE;
             case TYPE_TIMESTAMP:
                 return TYPE_TIMESTAMP;
+            case TYPE_FILTER:
+                return TYPE_FILTER;
         }
 
         return super.getItemId(position);
@@ -72,7 +80,6 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case TYPE_HEADER:
                 return new HeaderViewHolder(inflater.inflate(R.layout.departure_list_header, parent, false));
@@ -83,6 +90,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 //                return new SpaceViewHolder(inflater.inflate(R.layout.departure_list_item_space, parent, false));
             case TYPE_TIMESTAMP:
                 return new TimestampViewHolder(inflater.inflate(R.layout.departure_list_timestamp, parent, false));
+            case TYPE_FILTER:
+                return new FilterViewHolder(inflater.inflate(R.layout.departure_filter, parent, false));
             case TYPE_EMPTY:
 //                return new EmptyViewHolder(inflater.inflate(R.layout.departure_list_empty, parent, false));
         }
@@ -103,11 +112,81 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_HEADER:
                 onBindHeaderViewHolder((HeaderViewHolder)viewHolder, position);
                 break;
+            case TYPE_FILTER:
+                onBindFilterViewHolder((FilterViewHolder)viewHolder, position);
+                break;
 
         }
     }
 
+    private void onBindFilterViewHolder(FilterViewHolder viewHolder, int position) {
+
+    }
+
+    private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, int position) {
+        final StopVisitListItem stopVisit = (StopVisitListItem) data.get(position);
+
+        viewHolder.firstDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.firstDeparture())));
+        viewHolder.secondDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.secondDeparture())));
+
+        viewHolder.destinationName.setText(stopVisit.getDestinationName());
+        viewHolder.lineRef.setText(stopVisit.getLinePublishedName());
+        viewHolder.stopName.setText(stopVisit.getStop().getName());
+
+        viewHolder.setColor(stopVisit.getTransporttype());
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDepartureItemClickListener.onItemClick(stopVisit);
+            }
+        });
+
+        setupPopupMenu(viewHolder, stopVisit, position);
+    }
+
+    private void onBindTimestampViewHolder(TimestampViewHolder viewHolder, int position) {
+        Date timeOfLastUpdate = ((Date) data.get(position));
+
+        viewHolder.timestamp.setText(dateFormat.format(timeOfLastUpdate) + " " + timeFormat.format(timeOfLastUpdate));
+    }
+
+    private void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int position) {
+        DeparturesHeader header = (DeparturesHeader) data.get(position);
+
+        viewHolder.headerText.setText(header.text);
+    }
+
+    @Override
+    public int getItemCount() {
+        return data.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Object item = data.get(position);
+        if (item instanceof StopVisitListItem) {
+            return TYPE_DEPARTURE;
+        } else if (item instanceof Date) {
+            return TYPE_TIMESTAMP;
+        } else if (item instanceof DeparturesHeader) {
+            return TYPE_HEADER;
+        } else if(item instanceof FilterView.FilterType){
+            return TYPE_FILTER;
+        }
+        else {
+            return TYPE_HEADER;
+        }
+    }
+
+    public Object getItem(int position) {
+        return data.get(position);
+    }
+
     private String timeAsString(DateTime time) {
+        if(time == null) {
+            return null;
+        }
         final java.text.DateFormat timeFormat = DateFormat.getTimeFormat(context);
         DateTime currentTime = DateTime.now(time.getZone());
 
@@ -148,60 +227,45 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, int position) {
-        final StopVisitListItem stopVisit = (StopVisitListItem) data.get(position);
-
-        viewHolder.firstDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.firstDeparture())));
-        viewHolder.secondDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.secondDeparture())));
-
-        viewHolder.destinationName.setText(stopVisit.getDestinationName());
-        viewHolder.lineRef.setText(stopVisit.getLinePublishedName());
-        viewHolder.stopName.setText(stopVisit.getStop().getName());
-
-        viewHolder.setColor(stopVisit.getTransporttype());
-
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+    private void setupPopupMenu(DepartureListItemHolder viewHolder, final StopVisitListItem item, final int position) {
+        viewHolder.menu.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                onDepartureItemClickListener.onItemClick(stopVisit);
+            public void onClick(View view) {
+                final PopupMenu popupMenu = new PopupMenu(context, view);
+                popupMenu.inflate(R.menu.menu_departure_popup);
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.action_add_to_favourites:
+                                Log.d("MenuItem clicked", "Add to favourites");
+                                onDepartureItemClickListener.addToFavourite(item);
+                                break;
+                            case R.id.action_delete_from_favourites:
+                                Log.d("MenuItem clicked", "Remove from favourites");
+                                onDepartureItemClickListener.removeFromFavourite(item);
+                                break;
+                            case R.id.action_show_in_map:
+                                onDepartureItemClickListener.showInMap(item);
+                                break;
+                        }
+                        return true;
+                    }
+                });
+                MenuItem addToFavourites = popupMenu.getMenu().findItem(R.id.action_add_to_favourites);
+                if (FavouritesService.isFavourite(item)) {
+                    addToFavourites.setVisible(false);
+                    popupMenu.getMenu().findItem(R.id.action_delete_from_favourites).setVisible(true);
+                } else {
+                    addToFavourites.setVisible(true);
+                    popupMenu.getMenu().findItem(R.id.action_delete_from_favourites).setVisible(false);
+                }
+                popupMenu.show();
             }
         });
     }
 
-    private void onBindTimestampViewHolder(TimestampViewHolder viewHolder, int position) {
-        Date timeOfLastUpdate = ((Date) data.get(position));
 
-        viewHolder.timestamp.setText(dateFormat.format(timeOfLastUpdate) + " " + timeFormat.format(timeOfLastUpdate));
-    }
-
-    private void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int position) {
-        DeparturesHeader header = (DeparturesHeader) data.get(position);
-
-        viewHolder.headerText.setText(header.text);
-    }
-
-    @Override
-    public int getItemCount() {
-        return data.size();
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        Object item = data.get(position);
-        if (item instanceof StopVisitListItem) {
-            return TYPE_DEPARTURE;
-        } else if (item instanceof Date) {
-            return TYPE_TIMESTAMP;
-        } else if (item instanceof DeparturesHeader) {
-            return TYPE_HEADER;
-        } else {
-            return TYPE_HEADER;
-        }
-    }
-
-    public Object getItem(int position) {
-        return data.get(position);
-    }
 
     private class TimestampViewHolder extends RecyclerView.ViewHolder {
 
@@ -225,5 +289,21 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public interface OnDepartureItemClickListener {
         void onItemClick(StopVisitListItem stopVisitListItem);
+        void onFilterUpdate(Transporttype transporttype, boolean isChecked);
+        void addToFavourite(StopVisitListItem item);
+        void removeFromFavourite(StopVisitListItem item);
+        void showInMap(StopVisitListItem item);
+    }
+
+    private class FilterViewHolder extends RecyclerView.ViewHolder {
+
+        FilterView filterView;
+
+        public FilterViewHolder(View itemView) {
+            super(itemView);
+
+            filterView = (FilterView) itemView.findViewById(R.id.departure_filter_view);
+            filterView.setOnDepartureItemClickListener(onDepartureItemClickListener);
+        }
     }
 }

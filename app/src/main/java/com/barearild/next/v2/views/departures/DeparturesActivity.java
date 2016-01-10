@@ -7,9 +7,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -19,13 +17,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
+import android.view.WindowManager;
 
 import com.barearild.next.v2.NextOsloApp;
+import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
+import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.views.details.DetailsActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -70,17 +69,18 @@ public class DeparturesActivity extends AppCompatActivity implements
     private FloatingActionButton fab;
     private StopVisitsResult mLastResult;
     private GetAllDeparturesTask mAllDeparturesTask;
+    private FavouritesService mFavouriteService;
 
-    private boolean isShowingFilters = false;
+    private boolean mIsShowingFilters = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_departures);
 
-        final AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        final FilterView filterGrid = (FilterView) findViewById(R.id.departure_filter_view);
+        final AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -89,24 +89,17 @@ public class DeparturesActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mIsShowingFilters = !mIsShowingFilters;
 
-                if (isShowingFilters) {
-                    float heightDp = getResources().getDisplayMetrics().heightPixels / 3;
-                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-                    lp.height = (int) heightDp;
-                    filterGrid.setVisibility(View.GONE);
+                List<Object> data = new ArrayList<>();
+
+                if (mLastResult != null) {
+                    data.addAll(convertToListData(mLastResult, mIsShowingFilters));
                 } else {
-                    float heightDp = getResources().getDisplayMetrics().heightPixels / 2;
-                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-                    lp.height = (int) heightDp;
-                    filterGrid.setVisibility(View.VISIBLE);
-                    expand(view);
+                    data.add(new FilterView.FilterType());
                 }
 
-                isShowingFilters = !isShowingFilters;
-
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                mRecyclerView.swapAdapter(new DeparturesAdapter(data, getBaseContext(), DeparturesActivity.this), false);
             }
         });
 
@@ -130,34 +123,8 @@ public class DeparturesActivity extends AppCompatActivity implements
                 mSwipeView.setEnabled(verticalOffset == 0);
             }
         });
-    }
 
-    public static void expand(final View v) {
-        v.measure(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT);
-        final int targetHeight = v.getMeasuredHeight();
-
-        // Older versions of android (pre API 21) cancel animations for views with a height of 0.
-        v.getLayoutParams().height = 1;
-        v.setVisibility(View.VISIBLE);
-        Animation a = new Animation()
-        {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                v.getLayoutParams().height = interpolatedTime == 1
-                        ? AppBarLayout.LayoutParams.WRAP_CONTENT
-                        : (int)(targetHeight * interpolatedTime);
-                v.requestLayout();
-            }
-
-            @Override
-            public boolean willChangeBounds() {
-                return true;
-            }
-        };
-
-        // 1dp/ms
-        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density));
-        v.startAnimation(a);
+        mFavouriteService = new FavouritesService(getApplicationContext());
     }
 
     @Override
@@ -174,7 +141,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         if (mLastResult != null) {
             mLastUpdate = mLastResult.getTimeOfSearch().getTime();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult), getBaseContext(), this), true);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), getBaseContext(), this), true);
             mSwipeView.setRefreshing(false);
         }
     }
@@ -236,12 +203,11 @@ public class DeparturesActivity extends AppCompatActivity implements
         if (force) {
             mLastUpdate = null;
         }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+//        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         if (mLastLocation == null || secondsSince(mLastLocation.getTime()) > 60) {
             mLocationRequest = LocationRequest.create();
             mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            mLocationRequest.setInterval(1000);
             mLocationRequest.setNumUpdates(1);
 
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -291,6 +257,31 @@ public class DeparturesActivity extends AppCompatActivity implements
         startActivity(details);
     }
 
+    @Override
+    public void onFilterUpdate(Transporttype transporttype, boolean isChecked) {
+        NextOsloApp.SHOW_TRANSPORT_TYPE.put(transporttype, isChecked);
+        getSharedPreferences(NextOsloApp.USER_PREFERENCES, MODE_PRIVATE).edit().putBoolean(transporttype.name(), isChecked).apply();
+
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), this, this), false);
+    }
+
+    @Override
+    public void addToFavourite(StopVisitListItem item) {
+        mFavouriteService.addFavourite(item);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), this, this), false);
+    }
+
+    @Override
+    public void removeFromFavourite(StopVisitListItem item) {
+        mFavouriteService.removeFavourite(item);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), this, this), false);
+    }
+
+    @Override
+    public void showInMap(StopVisitListItem item) {
+
+    }
+
     private class GetAllDeparturesTask extends AsyncTask<Location, Void, List<Object>> {
 
         private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "http://api.ruter.no/ReisRest/Stop/GetClosestStopsAdvancedByCoordinates/?coordinates=(x=%d,y=%d)"
@@ -327,7 +318,7 @@ public class DeparturesActivity extends AppCompatActivity implements
                 Log.e("GetDepartures", e.getMessage(), e);
             }
 
-            return convertToListData(mLastResult);
+            return convertToListData(mLastResult, mIsShowingFilters);
         }
 
         @Override
@@ -342,14 +333,18 @@ public class DeparturesActivity extends AppCompatActivity implements
 
             Log.d("nextnext", "OnPostExecute " + result.toString());
             mLastUpdate = System.currentTimeMillis();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext(), DeparturesActivity.this), true);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext(), DeparturesActivity.this), false);
             mSwipeView.setRefreshing(false);
         }
     }
 
-    private static List<Object> convertToListData(StopVisitsResult result) {
+    private static List<Object> convertToListData(StopVisitsResult result, boolean showFilters) {
         List<Object> data = new ArrayList<>();
-        data.add(new Date());
+
+        if (showFilters) {
+            data.add(new FilterView.FilterType());
+        }
+        data.add(result.getTimeOfSearch());
 
         List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(result)))));
         List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(result)))));
