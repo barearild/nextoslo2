@@ -80,6 +80,8 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         final AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
 
+        final FilterView filterGrid = (FilterView) findViewById(R.id.departure_filter_view);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -92,10 +94,12 @@ public class DeparturesActivity extends AppCompatActivity implements
                     float heightDp = getResources().getDisplayMetrics().heightPixels / 3;
                     CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
                     lp.height = (int) heightDp;
+                    filterGrid.setVisibility(View.GONE);
                 } else {
                     float heightDp = getResources().getDisplayMetrics().heightPixels / 2;
                     CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
                     lp.height = (int) heightDp;
+                    filterGrid.setVisibility(View.VISIBLE);
                     expand(view);
                 }
 
