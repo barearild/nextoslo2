@@ -1,11 +1,13 @@
 package com.barearild.next.v2.views.departures;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -17,12 +19,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.place.Stop;
+import com.barearild.next.v2.views.details.DetailsActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -49,7 +54,8 @@ import static com.barearild.next.v2.StopVisitFilters.withoutFavourites;
 public class DeparturesActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, SwipeRefreshLayout.OnRefreshListener {
+        LocationListener, SwipeRefreshLayout.OnRefreshListener,
+        DeparturesAdapter.OnDepartureItemClickListener {
 
     public static final String STATE_LAST_RESULT = "lastResult";
 
@@ -65,12 +71,14 @@ public class DeparturesActivity extends AppCompatActivity implements
     private StopVisitsResult mLastResult;
     private GetAllDeparturesTask mAllDeparturesTask;
 
+    private boolean isShowingFilters = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_departures);
 
-        AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+        final AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -79,6 +87,20 @@ public class DeparturesActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                if (isShowingFilters) {
+                    float heightDp = getResources().getDisplayMetrics().heightPixels / 3;
+                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                    lp.height = (int) heightDp;
+                } else {
+                    float heightDp = getResources().getDisplayMetrics().heightPixels / 2;
+                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
+                    lp.height = (int) heightDp;
+                    expand(view);
+                }
+
+                isShowingFilters = !isShowingFilters;
+
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -92,7 +114,6 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         mRecyclerView = (DeparturesRecyclerView) findViewById(R.id.departure_list);
 
-
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -105,6 +126,34 @@ public class DeparturesActivity extends AppCompatActivity implements
                 mSwipeView.setEnabled(verticalOffset == 0);
             }
         });
+    }
+
+    public static void expand(final View v) {
+        v.measure(AppBarLayout.LayoutParams.MATCH_PARENT, AppBarLayout.LayoutParams.WRAP_CONTENT);
+        final int targetHeight = v.getMeasuredHeight();
+
+        // Older versions of android (pre API 21) cancel animations for views with a height of 0.
+        v.getLayoutParams().height = 1;
+        v.setVisibility(View.VISIBLE);
+        Animation a = new Animation()
+        {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                v.getLayoutParams().height = interpolatedTime == 1
+                        ? AppBarLayout.LayoutParams.WRAP_CONTENT
+                        : (int)(targetHeight * interpolatedTime);
+                v.requestLayout();
+            }
+
+            @Override
+            public boolean willChangeBounds() {
+                return true;
+            }
+        };
+
+        // 1dp/ms
+        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density));
+        v.startAnimation(a);
     }
 
     @Override
@@ -121,7 +170,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         if (mLastResult != null) {
             mLastUpdate = mLastResult.getTimeOfSearch().getTime();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult), getBaseContext()), true);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult), getBaseContext(), this), true);
             mSwipeView.setRefreshing(false);
         }
     }
@@ -231,6 +280,13 @@ public class DeparturesActivity extends AppCompatActivity implements
         updateData(true);
     }
 
+    @Override
+    public void onItemClick(StopVisitListItem stopVisitListItem) {
+        Intent details = new Intent(this, DetailsActivity.class);
+        details.putExtra("stopvisit", stopVisitListItem);
+        startActivity(details);
+    }
+
     private class GetAllDeparturesTask extends AsyncTask<Location, Void, List<Object>> {
 
         private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "http://api.ruter.no/ReisRest/Stop/GetClosestStopsAdvancedByCoordinates/?coordinates=(x=%d,y=%d)"
@@ -282,7 +338,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
             Log.d("nextnext", "OnPostExecute " + result.toString());
             mLastUpdate = System.currentTimeMillis();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext()), true);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext(), DeparturesActivity.this), true);
             mSwipeView.setRefreshing(false);
         }
     }
@@ -294,7 +350,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(result)))));
         List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(result)))));
 
-        if(favourites.isEmpty()) {
+        if (favourites.isEmpty()) {
             data.add(NextOsloApp.DEPARTURES_HEADER_NO_FAVOURITES);
         } else {
 

@@ -6,8 +6,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 
-import java.util.ArrayList;
-
 public class DeparturesRecyclerView extends RecyclerView {
 
     final LinearLayoutManager layoutManager;
@@ -34,6 +32,6 @@ public class DeparturesRecyclerView extends RecyclerView {
         setHasFixedSize(true);
         setLayoutManager(layoutManager);
         setItemAnimator(new DefaultItemAnimator());
-        setAdapter(new DeparturesAdapter(new ArrayList<>(), context));
+        setAdapter(new DeparturesAdapter(context));
     }
 }

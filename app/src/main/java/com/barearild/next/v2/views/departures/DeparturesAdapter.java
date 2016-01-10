@@ -1,6 +1,7 @@
 package com.barearild.next.v2.views.departures;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -8,8 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.barearild.next.v2.reisrest.place.Stop;
+import com.barearild.next.v2.views.details.DetailsActivity;
+
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -29,10 +34,17 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private final java.text.DateFormat timeFormat;
     private final Context context;
 
-    public DeparturesAdapter(List<Object> data, Context context) {
+    private final OnDepartureItemClickListener onDepartureItemClickListener;
+
+    public DeparturesAdapter(Context context) {
+        this(new ArrayList<>(), context, null);
+    }
+
+    public DeparturesAdapter(List<Object> data, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
         super();
         this.data = data;
         this.context = context;
+        this.onDepartureItemClickListener = onDepartureItemClickListener;
 
         setHasStableIds(true);
 
@@ -137,16 +149,23 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, int position) {
-        StopVisitListItem stopVisit = (StopVisitListItem) data.get(position);
+        final StopVisitListItem stopVisit = (StopVisitListItem) data.get(position);
 
-        viewHolder.firstDeparture.setText(timeAsString(stopVisit.firstDeparture().getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime()));
-        viewHolder.secondDeparture.setText(timeAsString(stopVisit.secondDeparture().getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime()));
+        viewHolder.firstDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.firstDeparture())));
+        viewHolder.secondDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.secondDeparture())));
 
         viewHolder.destinationName.setText(stopVisit.getDestinationName());
         viewHolder.lineRef.setText(stopVisit.getLinePublishedName());
         viewHolder.stopName.setText(stopVisit.getStop().getName());
 
         viewHolder.setColor(stopVisit.getTransporttype());
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDepartureItemClickListener.onItemClick(stopVisit);
+            }
+        });
     }
 
     private void onBindTimestampViewHolder(TimestampViewHolder viewHolder, int position) {
@@ -202,5 +221,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             super(itemView);
             headerText = (TextView) itemView.findViewById(R.id.departure_list_item_header);
         }
+    }
+
+    public interface OnDepartureItemClickListener {
+        void onItemClick(StopVisitListItem stopVisitListItem);
     }
 }

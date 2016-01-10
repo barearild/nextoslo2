@@ -8,6 +8,8 @@ import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.place.Stop;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,5 +174,16 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
 
     public boolean isStopVisitsEmpty() {
         return stopVisits.isEmpty();
+    }
+
+
+    public static DateTime getExpectedDepartureTime(StopVisit stopVisit) {
+        if(stopVisit != null && stopVisit.getMonitoredVehicleJourney() != null &&
+                stopVisit.getMonitoredVehicleJourney().getMonitoredCall() != null
+                ) {
+            return stopVisit.getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime();
+        }
+
+        return null;
     }
 }
