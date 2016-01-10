@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -73,12 +74,16 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     private boolean mIsShowingFilters = false;
 
+    private NextOsloApp mApplication;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_departures);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        mApplication = (NextOsloApp) getApplication();
 
         final AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
 
@@ -89,17 +94,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mIsShowingFilters = !mIsShowingFilters;
-
-                List<Object> data = new ArrayList<>();
-
-                if (mLastResult != null) {
-                    data.addAll(convertToListData(mLastResult, mIsShowingFilters));
-                } else {
-                    data.add(new FilterView.FilterType());
-                }
-
-                mRecyclerView.swapAdapter(new DeparturesAdapter(data, getBaseContext(), DeparturesActivity.this), false);
+                showFilters();
             }
         });
 
@@ -125,6 +120,34 @@ public class DeparturesActivity extends AppCompatActivity implements
         });
 
         mFavouriteService = new FavouritesService(getApplicationContext());
+    }
+
+    private void showPullToUpdateInfo() {
+        if (mApplication.getPrefs().getBoolean(NextOsloApp.SHOW_PULL_DOWN_INFO, true)) {
+            Snackbar
+                    .make(findViewById(R.id.coordinatorLayout), getString(R.string.info_pull_down_to_update), Snackbar.LENGTH_LONG)
+                    .setAction(R.string.info_do_not_show_again, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mApplication.getPrefs().edit().putBoolean(NextOsloApp.SHOW_PULL_DOWN_INFO, false).apply();
+                        }
+                    })
+                    .show();
+        }
+    }
+
+    private void showFilters() {
+        mIsShowingFilters = !mIsShowingFilters;
+
+        List<Object> data = new ArrayList<>();
+
+        if (mLastResult != null) {
+            data.addAll(convertToListData(mLastResult, mIsShowingFilters));
+        } else {
+            data.add(new FilterView.FilterType());
+        }
+
+        mRecyclerView.swapAdapter(new DeparturesAdapter(data, getBaseContext(), DeparturesActivity.this), false);
     }
 
     @Override
@@ -161,7 +184,9 @@ public class DeparturesActivity extends AppCompatActivity implements
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_update) {
+            showPullToUpdateInfo();
+            updateData(true);
             return true;
         }
         return super.onOptionsItemSelected(item);

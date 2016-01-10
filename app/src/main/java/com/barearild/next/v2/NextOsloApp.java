@@ -14,6 +14,9 @@ import v2.next.barearild.com.R;
 
 public class NextOsloApp extends Application {
 
+    public static final String GOOGLE_API_KEY = "AIzaSyC0XTqTESWXZSYmjset6oXOsY9BmGeTrso";
+    public static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
+
     public static final DeparturesHeader DEPARTURES_HEADER_NO_FAVOURITES = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_OTHERS = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_FAVOURITES = new DeparturesHeader();
@@ -26,6 +29,8 @@ public class NextOsloApp extends Application {
 
     public static final String FAVOURITES = "favourites";
     public static final String DEPARTURES = "departures";
+
+    public static final String SHOW_PULL_DOWN_INFO = "prefs_first_time_update_button";
 
     public static final HashMap<Transporttype, Boolean> SHOW_TRANSPORT_TYPE = new HashMap<Transporttype, Boolean>();
 
@@ -50,6 +55,10 @@ public class NextOsloApp extends Application {
         for (Transporttype transporttype : Transporttype.onlyRealTimeTransporttypes) {
             SHOW_TRANSPORT_TYPE.put(transporttype, prefs.getBoolean(transporttype.name(), true));
         }
+    }
+
+    public SharedPreferences getPrefs() {
+        return prefs;
     }
 
 //    static void updateTransportTypePrefs(Transporttype transporttype, boolean checked) {

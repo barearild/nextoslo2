@@ -6,4 +6,46 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="BusTheme" parent="NextTheme.NoActionBar">
+        <item name="colorPrimary">@color/busColorPrimary</item>
+        <item name="colorPrimaryDark">@color/busColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_bus</item>
+        <item name="transport_type_name">@string/transport_bus</item>
+    </style>
+
+    <style name="TramTheme" parent="NextTheme.NoActionBar">
+        <item name="colorPrimary">@color/tramColorPrimary</item>
+        <item name="colorPrimaryDark">@color/tramColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_tram</item>
+        <item name="transport_type_name">@string/transport_tram</item>
+    </style>
+
+    <style name="MetroTheme" parent="NextTheme.NoActionBar">
+        <item name="colorPrimary">@color/metroColorPrimary</item>
+        <item name="colorPrimaryDark">@color/metroColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_metro</item>
+        <item name="transport_type_name">@string/transport_metro</item>
+    </style>
+
+    <style name="TrainTheme" parent="NextTheme.NoActionBar">
+        <item name="colorPrimary">@color/trainColorPrimary</item>
+        <item name="colorPrimaryDark">@color/trainColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_train</item>
+        <item name="transport_type_name">@string/transport_train</item>
+    </style>
+
+    <style name="RegionalBusTheme" parent="NextTheme.NoActionBar">
+        <item name="colorPrimary">@color/regionalBusColorPrimary</item>
+        <item name="colorPrimaryDark">@color/regionalBusColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_bus</item>
+        <item name="transport_type_name">@string/transport_regional_bus</item>
+    </style>
+
+    <style name="BoatTheme" parent="NextTheme.NoActionBar">
+        <item name="colorPrimary">@color/boatColorPrimary</item>
+        <item name="colorPrimaryDark">@color/boatColorPrimaryDark</item>
+        <item name="transport_type_icon">@drawable/ic_menu_transport_boat</item>
+        <item name="transport_type_name">@string/transport_boat</item>
+    </style>
 </resources>
