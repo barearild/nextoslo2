@@ -33,7 +33,6 @@ public class DeparturesRecyclerView extends RecyclerView {
         setLayoutManager(layoutManager);
         setItemAnimator(new DefaultItemAnimator());
         setAdapter(new DeparturesAdapter(context));
-
     }
 
 }

@@ -16,7 +16,8 @@
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:background="@null" />
+        android:background="@null"
+        />
 
     <TextView
         android:id="@+id/departure_lineRef"
@@ -130,7 +131,7 @@
         tools:visibility="visible" />
 
     <View
-        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/ruter_grey_20"/>
@@ -138,7 +139,7 @@
     <!--<View-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="1dp"-->
-        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentTop="true"-->
         <!--android:background="@color/ruter_grey_20"/>-->
 
 </RelativeLayout>

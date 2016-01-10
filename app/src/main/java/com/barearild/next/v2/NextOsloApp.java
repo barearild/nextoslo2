@@ -16,6 +16,7 @@ public class NextOsloApp extends Application {
 
     public static final DeparturesHeader DEPARTURES_HEADER_NO_FAVOURITES = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_OTHERS = new DeparturesHeader();
+    public static final DeparturesHeader DEPARTURES_HEADER_FAVOURITES = new DeparturesHeader();
 
     public static final String PACKAGE_NAME = "com.barearild.next.v2";
     public static final String USER_PREFERENCES = "user_preferences";
@@ -37,6 +38,7 @@ public class NextOsloApp extends Application {
         prefs = getSharedPreferences(USER_PREFERENCES, MODE_PRIVATE);
 
         DEPARTURES_HEADER_NO_FAVOURITES.text = getText(R.string.no_favourites).toString();
+        DEPARTURES_HEADER_FAVOURITES.text = getText(R.string.favourites).toString();
         DEPARTURES_HEADER_OTHERS.text = getText(R.string.all_others).toString();
 
         setActiveTransportTypes();

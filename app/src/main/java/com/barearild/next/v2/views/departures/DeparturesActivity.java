@@ -352,12 +352,32 @@ public class DeparturesActivity extends AppCompatActivity implements
         if (favourites.isEmpty()) {
             data.add(NextOsloApp.DEPARTURES_HEADER_NO_FAVOURITES);
         } else {
-
+            data.add(NextOsloApp.DEPARTURES_HEADER_FAVOURITES);
+            data.addAll(favourites);
+            data.add(new SpaceItem());
         }
 
         data.add(NextOsloApp.DEPARTURES_HEADER_OTHERS);
         data.addAll(others);
 
         return data;
+
+        /*
+        *
+        if (filteredItems.isEmpty() && favouriteItems.isEmpty()) {
+            data.add(new EmptyItem());
+            return data;
+        }
+
+        if (!favouriteItems.isEmpty()) {
+            data.add(favouritesHeader);
+            data.addAll(favouriteItems);
+            data.add(new SpaceItem());
+        } else {
+            data.add(noFavouritesHeader);
+        }
+        data.add(allOthersHeader);
+        data.addAll(filteredItems);
+        * */
     }
 }

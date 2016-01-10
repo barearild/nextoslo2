@@ -1,7 +1,6 @@
 package com.barearild.next.v2.views.departures;
 
 import android.content.Context;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -9,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.barearild.next.v2.favourites.FavouritesService;
@@ -87,7 +87,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 View departureView = inflater.inflate(R.layout.departure_item, parent, false);
                 return new DepartureListItemHolder(departureView);
             case TYPE_SPACE:
-//                return new SpaceViewHolder(inflater.inflate(R.layout.departure_list_item_space, parent, false));
+                return new SpaceViewHolder(inflater.inflate(R.layout.departure_item_space, parent, false));
             case TYPE_TIMESTAMP:
                 return new TimestampViewHolder(inflater.inflate(R.layout.departure_list_timestamp, parent, false));
             case TYPE_FILTER:
@@ -112,15 +112,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_HEADER:
                 onBindHeaderViewHolder((HeaderViewHolder)viewHolder, position);
                 break;
-            case TYPE_FILTER:
-                onBindFilterViewHolder((FilterViewHolder)viewHolder, position);
-                break;
-
         }
-    }
-
-    private void onBindFilterViewHolder(FilterViewHolder viewHolder, int position) {
-
     }
 
     private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, int position) {
@@ -173,6 +165,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_HEADER;
         } else if(item instanceof FilterView.FilterType){
             return TYPE_FILTER;
+        } else if(item instanceof SpaceItem) {
+            return TYPE_SPACE;
         }
         else {
             return TYPE_HEADER;
@@ -304,6 +298,12 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             filterView = (FilterView) itemView.findViewById(R.id.departure_filter_view);
             filterView.setOnDepartureItemClickListener(onDepartureItemClickListener);
+        }
+    }
+
+    private class SpaceViewHolder extends RecyclerView.ViewHolder {
+        public SpaceViewHolder(View itemView) {
+            super(itemView);
         }
     }
 }
