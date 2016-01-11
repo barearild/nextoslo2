@@ -41,7 +41,23 @@ public class Requests {
 
         Type listType = new TypeToken<List<Stop>>() {
         }.getType();
-        return new Gson().fromJson(data.toString(), listType);
+        List<Stop> stops = new Gson().fromJson(data.toString(), listType);
+
+        calculateWalkingDistanceToStops(stops, location);
+
+        return stops;
+    }
+
+    private static void calculateWalkingDistanceToStops(List<Stop> stops, Location location) {
+        for (Stop stop : stops) {
+            double[] latLonForStop = CoordinateConversion.utm2LatLon(stop.getX(), stop.getY());
+            float[] result = new float[3];
+            Location.distanceBetween(location.getLatitude(), location.getLongitude(), latLonForStop[0], latLonForStop[1], result);
+
+            stop.setWalkingDistance((int) result[0]);
+
+            Log.d("nextnext", "walking distance to " + stop.getName() + " is " + stop.getWalkingDistance());
+        }
     }
 
     public static List<StopVisit> getAllDepartures(Stop stop) {

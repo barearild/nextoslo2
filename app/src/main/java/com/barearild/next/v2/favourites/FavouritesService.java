@@ -155,7 +155,7 @@ public class FavouritesService {
         saveFavouritesToPreferences(favourites);
     }
 
-    public void removeAsFavouriteEverywhere(StopVisitListItem stopvisit) {
+    public void setAsFavouriteOnStopOnly(StopVisitListItem stopvisit) {
         favourites.get(stopvisit.getId()).remove(ALL_STOPS);
         favourites.get(stopvisit.getId()).add(stopvisit.getStop().getID());
         saveFavouritesToPreferences(favourites);

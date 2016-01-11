@@ -14,12 +14,9 @@ import android.widget.TextView;
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.Transporttype;
 
-import org.joda.time.DateTime;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import v2.next.barearild.com.R;
 
@@ -118,8 +115,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, int position) {
         final StopVisitListItem stopVisit = (StopVisitListItem) data.get(position);
 
-        viewHolder.firstDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.firstDeparture())));
-        viewHolder.secondDeparture.setText(timeAsString(StopVisitListItem.getExpectedDepartureTime(stopVisit.secondDeparture())));
+        viewHolder.firstDeparture.setText(StopVisitListItem.departureTimeString(stopVisit.firstDeparture(), context));
+        viewHolder.secondDeparture.setText(StopVisitListItem.departureTimeString(stopVisit.secondDeparture(), context));
 
         viewHolder.destinationName.setText(stopVisit.getDestinationName());
         viewHolder.lineRef.setText(stopVisit.getLinePublishedName());
@@ -175,50 +172,6 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public Object getItem(int position) {
         return data.get(position);
-    }
-
-    private String timeAsString(DateTime time) {
-        if(time == null) {
-            return null;
-        }
-        final java.text.DateFormat timeFormat = DateFormat.getTimeFormat(context);
-        DateTime currentTime = DateTime.now(time.getZone());
-
-        int timeDiffInMinutes = timediffInMinutes(time.getMillis() - currentTime.getMillis());
-
-        if (timeDiffInMinutes == 0) {
-            return context.getResources().getString(R.string.departure_now);
-        } else if (timeDiffInMinutes < 10) {
-            return String.format(context.getResources().getString(R.string.departure_minutes), timeDiffInMinutes);
-        } else {
-            return timeFormat.format(time.toDate());
-        }
-    }
-
-    private static final long FORTY_FIVE_SECONDS = 45000;
-    private static final long ONE_MINUTE = 60000L;
-
-    static int timediffInMinutes(long milliseconds) {
-        if (milliseconds < 0) {
-            return (int) TimeUnit.MILLISECONDS.toMinutes(milliseconds);
-        }
-
-        if (milliseconds < FORTY_FIVE_SECONDS) {
-            return 0;
-        }
-
-        if (milliseconds <= ONE_MINUTE) {
-            return 1;
-        }
-
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds) - TimeUnit.MINUTES.toSeconds(minutes);
-
-        if (seconds <= 30) {
-            return (int) minutes;
-        } else {
-            return (int) (minutes + 1);
-        }
     }
 
     private void setupPopupMenu(DepartureListItemHolder viewHolder, final StopVisitListItem item, final int position) {

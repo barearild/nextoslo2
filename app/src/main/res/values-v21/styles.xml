@@ -1,10 +1,29 @@
-<resources>>
+<resources>
+
+    <style name="NextTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/nextActionBar</item>
+        <!--<item name="drawerArrowStyle">@style/nextDrawerArrowToggle</item>-->
+        <!--<item name="android:windowActionBar">false</item>-->
+        <!--<item name="toolbarStyle">@style/nextActionBar</item>-->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:popupMenuStyle">@style/NextTheme.PopupOverlay</item>
+        <item name="android:popupBackground">@android:color/white</item>
+        <item name="android:windowContentTransitions">true</item>
+        <!-- specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">
+            @transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition">
+            @transition/change_image_transform</item>
+    </style>
 
     <style name="NextTheme.NoActionBar" parent="NextTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentTransitions">true</item>
     </style>
 
     <style name="BusTheme" parent="NextTheme.NoActionBar">

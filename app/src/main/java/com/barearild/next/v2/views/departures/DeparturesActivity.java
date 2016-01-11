@@ -193,6 +193,15 @@ public class DeparturesActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        if (mLastResult != null && !mLastResult.isEmpty()) {
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), getBaseContext(), DeparturesActivity.this), false);
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
@@ -309,12 +318,6 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     private class GetAllDeparturesTask extends AsyncTask<Location, Void, List<Object>> {
 
-        private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "http://api.ruter.no/ReisRest/Stop/GetClosestStopsAdvancedByCoordinates/?coordinates=(x=%d,y=%d)"
-                + "&proposals=%d&walkingDistance=%d";
-
-        private static final String PLACE_GET_CLOSEST_STOPS = "http://api.ruter.no/ReisRest/Place/GetClosestStops?coordinates=(x=%d,y=%d)"
-                + "&proposals=%d&walkingDistance=%d";
-
         @Override
         protected List<Object> doInBackground(Location... params) {
 
@@ -370,6 +373,8 @@ public class DeparturesActivity extends AppCompatActivity implements
             data.add(new FilterView.FilterType());
         }
         data.add(result.getTimeOfSearch());
+
+//        orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(removeTransportTypes(removeFavorites(result.getDepartures())))))
 
         List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(result)))));
         List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(result)))));
