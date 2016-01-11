@@ -2,6 +2,7 @@ package com.barearild.next.v2.views.details;
 
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,7 +11,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.barearild.next.v2.NextOsloApp;
@@ -20,10 +24,23 @@ import com.squareup.picasso.Picasso;
 
 import v2.next.barearild.com.R;
 
-public class DetailsActivity extends AppCompatActivity {
+public class DetailsActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
 
-    private ImageView mMapView;
+    private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR  = 0.9f;
+    private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS     = 0.7f;
+    private static final int ALPHA_ANIMATIONS_DURATION              = 400;
+
+    private boolean mIsTheTitleVisible          = false;
+    private boolean mIsTheTitleContainerVisible = true;
+
     private View mRoot;
+    private Toolbar mToolbar;
+    private TextView mTitle;
+    private LinearLayout mTitleContainer;
+    private AppBarLayout mAppBarLayout;
+    private ImageView mImageparallax;
+    private FrameLayout mFrameParallax;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,33 +73,64 @@ public class DetailsActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_details);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        mRoot = findViewById(R.id.coordinatorLayout);
-        mMapView = (ImageView) findViewById(R.id.map);
+        bindActivity();
 
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
+        mToolbar.setTitle("");
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mAppBarLayout.addOnOffsetChangedListener(this);
+
+        mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        TextView title = (TextView) findViewById(R.id.title);
+//        ImageView icon = (ImageView) findViewById(R.id.icon);
+        TextView title = (TextView) findViewById(R.id.title);
         TextView subtitle = (TextView) findViewById(R.id.subtitle);
 
-//        title.setText(stopVisitListItem.getLineName());
+//        icon.setImageResource(stopVisitListItem.getTransporttype().getImageResId());
+
+        title.setText(stopVisitListItem.getLineName());
         subtitle.setText(stopVisitListItem.getStop().getName());
-        collapsingToolbarLayout.setTitle(stopVisitListItem.getLineName());
+
+        mTitle.setText(stopVisitListItem.getLineName());
+
+        startAlphaAnimation(mToolbar, 0, View.INVISIBLE);
+        startAlphaAnimation(mTitle, 0, View.INVISIBLE);
+        initParallaxValues();
 
         downloadMap(stopVisitListItem);
+    }
 
+    private void bindActivity() {
+        mRoot = findViewById(R.id.coordinatorLayout);
+        mToolbar        = (Toolbar) findViewById(R.id.toolbar);
+        mTitle          = (TextView) findViewById(R.id.main_textview_title);
+        mTitleContainer = (LinearLayout) findViewById(R.id.main_linearlayout_title);
+        mAppBarLayout   = (AppBarLayout) findViewById(R.id.app_bar);
+        mImageparallax = (ImageView) findViewById(R.id.map);
+        mFrameParallax  = (FrameLayout) findViewById(R.id.mainFramelayoutTitle);
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+    }
+
+    private void initParallaxValues() {
+        CollapsingToolbarLayout.LayoutParams petDetailsLp =
+                (CollapsingToolbarLayout.LayoutParams) mImageparallax.getLayoutParams();
+
+        CollapsingToolbarLayout.LayoutParams petBackgroundLp =
+                (CollapsingToolbarLayout.LayoutParams) mFrameParallax.getLayoutParams();
+
+        petDetailsLp.setParallaxMultiplier(0.9f);
+        petBackgroundLp.setParallaxMultiplier(0.3f);
+
+        mImageparallax.setLayoutParams(petDetailsLp);
+        mFrameParallax.setLayoutParams(petBackgroundLp);
     }
 
     private void downloadMap(StopVisitListItem stopVisitListItem) {
@@ -99,32 +147,76 @@ public class DetailsActivity extends AppCompatActivity {
         Picasso.with(getApplicationContext())
                 .load(url)
                 .resize(imageSize.x, imageSize.y)
-                .into(mMapView);
+                .into(mImageparallax);
     }
 
     private Point calculateImageSize() {
         Point screnSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screnSize);
-        Log.d("nextnext", "screnSize = " + screnSize.toString());
-        mRoot.measure(screnSize.x, screnSize.y);
-        float actualWidth = mMapView.getMeasuredWidth();
-        float actualHeight = mMapView.getMeasuredHeight();
-        float imgRatio = actualWidth / actualHeight;
-        float maxRatio = screnSize.x / screnSize.y;
 
-        if (imgRatio != maxRatio) {
-            if (imgRatio < maxRatio) {
-                imgRatio = screnSize.y / actualHeight;
-                actualWidth = imgRatio * actualWidth;
-                actualHeight = screnSize.y;
-            } else {
-                imgRatio = screnSize.x / actualWidth;
-                actualHeight = imgRatio * actualHeight;
-                actualWidth = screnSize.x;
+        screnSize.y = (int) getResources().getDimension(R.dimen.app_bar_details_height);
+
+        return screnSize;
+
+    }
+
+    @Override
+    public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+        int maxScroll = appBarLayout.getTotalScrollRange();
+        float percentage = (float) Math.abs(verticalOffset) / (float) maxScroll;
+
+        handleAlphaOnTitle(percentage);
+        handleToolbarTitleVisibility(percentage);
+    }
+
+    private void handleToolbarTitleVisibility(float percentage) {
+        if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
+
+            if(!mIsTheTitleVisible) {
+                startAlphaAnimation(mToolbar, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                startAlphaAnimation(mTitle, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleVisible = true;
             }
+
+
+
+        } else {
+
+            if (mIsTheTitleVisible) {
+                startAlphaAnimation(mToolbar, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                startAlphaAnimation(mTitle, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleVisible = false;
+            }
+
+
         }
+    }
 
-        return new Point((int) mRoot.getMeasuredWidth(), (int) getResources().getDimension(R.dimen.app_bar_details_height));
+    private void handleAlphaOnTitle(float percentage) {
+        if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
+            if(mIsTheTitleContainerVisible) {
+                startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                mIsTheTitleContainerVisible = false;
+            }
+            mFab.hide();
 
+        } else {
+
+            if (!mIsTheTitleContainerVisible) {
+                startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                mIsTheTitleContainerVisible = true;
+            }
+            mFab.show();
+        }
+    }
+
+    public static void startAlphaAnimation (View v, long duration, int visibility) {
+        AlphaAnimation alphaAnimation = (visibility == View.VISIBLE)
+                ? new AlphaAnimation(0f, 1f)
+                : new AlphaAnimation(1f, 0f);
+
+        alphaAnimation.setDuration(duration);
+        alphaAnimation.setFillAfter(true);
+        v.startAnimation(alphaAnimation);
     }
 }
