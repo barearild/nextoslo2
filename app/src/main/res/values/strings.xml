@@ -73,4 +73,12 @@
     <string name="info_do_not_show_again">Hide forever</string>
     <string name="title_activity_maps">Map</string>
     <string name="transition_map">transition_map</string>
+    <string name="error_connection_failed">An error occurred while getting your location</string>
+    <string name="try_again">Try again</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="until_further_notice">Until further notice</string>
+    <string name="updated">Updated: %s</string>
+    <string name="valid">Valid: %1$s - %2$s</string>
+    <string name="transition_title">transition_title</string>
 </resources>

@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.text.format.DateFormat;
 
+import com.barearild.next.v2.reisrest.StopVisit.Deviation;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.place.Stop;
@@ -181,9 +182,66 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
         return stopVisits.isEmpty();
     }
 
+    public List<Deviation> getAllWarnings(Context context) {
+        List<Deviation> allWarnings = new ArrayList<>();
+
+        StopVisit firstDeparture = firstDeparture();
+        StopVisit secondDeparture = secondDeparture();
+        StopVisit thirdDeparture = thirdDeparture();
+        StopVisit fourthDeparture = fourthDeparture();
+
+        if (isDepartureInCongestion(firstDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.first_departure_in_congestion)));
+        }
+        if(isDepartureInCongestion(secondDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.second_departure_in_congestion)));
+        }
+        if(isDepartureInCongestion(thirdDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.third_departure_in_congestion)));
+        }
+        if(isDepartureInCongestion(fourthDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.fourth_departure_in_congestion)));
+        }
+
+        if (isAlmostFull(firstDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.warning_occupancy_first_departure, firstDeparture.getOccupancyPercentage())));
+        }
+        if(isAlmostFull(secondDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.warning_occupancy_second_departure, secondDeparture.getOccupancyPercentage())));
+        }
+        if(isAlmostFull(thirdDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.warning_occupancy_third_departure, thirdDeparture.getOccupancyPercentage())));
+        }
+        if(isAlmostFull(fourthDeparture)) {
+            allWarnings.add(new Deviation(context.getString(R.string.warning_occupancy_fourth_departure, fourthDeparture.getOccupancyPercentage())));
+        }
+
+        allWarnings.addAll(getDeviations());
+
+        return allWarnings;
+    }
+
+    public List<Deviation> getDeviations() {
+        List<Deviation> allDeviations = new ArrayList<>();
+        for (StopVisit stopvisit : stopVisits) {
+            if (stopvisit.getExtensions() != null && stopvisit.getExtensions().getDeviations() != null)
+                allDeviations.addAll(stopvisit.getExtensions().getDeviations());
+        }
+
+        return allDeviations;
+    }
+
+    public boolean shouldShowWarningInList() {
+        return getDeviations().size() > 0 ||
+                isDepartureInCongestion(firstDeparture()) ||
+                isDepartureInCongestion(secondDeparture()) ||
+                isAlmostFull(firstDeparture()) ||
+                isAlmostFull(secondDeparture());
+    }
+
 
     public static DateTime getExpectedDepartureTime(StopVisit stopVisit) {
-        if(stopVisit != null && stopVisit.getMonitoredVehicleJourney() != null &&
+        if (stopVisit != null && stopVisit.getMonitoredVehicleJourney() != null &&
                 stopVisit.getMonitoredVehicleJourney().getMonitoredCall() != null
                 ) {
             return stopVisit.getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime();
@@ -195,7 +253,7 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
     public static String departureTimeString(StopVisit stopVisit, Context context) {
         DateTime expectedDepartureTime = getExpectedDepartureTime(stopVisit);
 
-        if(expectedDepartureTime == null) {
+        if (expectedDepartureTime == null) {
             return null;
         }
         final java.text.DateFormat timeFormat = DateFormat.getTimeFormat(context);

@@ -1,6 +1,8 @@
 package com.barearild.next.v2.views.departures;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -44,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 import v2.next.barearild.com.R;
 
+import static com.barearild.next.v2.NextOsloApp.LOG_TAG;
 import static com.barearild.next.v2.StopVisitFilters.convertToListItems;
 import static com.barearild.next.v2.StopVisitFilters.onlyFavorites;
 import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
@@ -276,7 +279,21 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d("nextnext", "Connection failed");
+        Log.d(LOG_TAG, "Connection failed");
+        new AlertDialog.Builder(this).setMessage(R.string.error_connection_failed)
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                })
+                .setPositiveButton(R.string.try_again, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mGoogleApiClient.reconnect();
+                    }
+                }).create()
+                .show();
     }
 
     @Override
@@ -287,7 +304,7 @@ public class DeparturesActivity extends AppCompatActivity implements
     @Override
     public void onItemClick(StopVisitListItem stopVisitListItem) {
         Intent details = new Intent(this, DetailsActivity.class);
-        details.putExtra("stopvisit", stopVisitListItem);
+        details.putExtra(StopVisitListItem.class.getSimpleName(), stopVisitListItem);
         startActivity(details);
     }
 
@@ -373,8 +390,6 @@ public class DeparturesActivity extends AppCompatActivity implements
             data.add(new FilterView.FilterType());
         }
         data.add(result.getTimeOfSearch());
-
-//        orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(removeTransportTypes(removeFavorites(result.getDepartures())))))
 
         List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(result)))));
         List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(result)))));

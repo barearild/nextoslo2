@@ -1,5 +1,6 @@
 package com.barearild.next.v2.reisrest.StopVisit;
 
+import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -30,6 +31,8 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
     @SerializedName("Extensions")
     @Expose
     private Extensions extensions;
+    @SerializedName("InCongestion")
+    @Expose
     private boolean inCongestion;
 
     public StopVisit() {
@@ -82,12 +85,12 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         return extensions.getOccupancyData().getOccupancyPercentage();
     }
 
-//    public String time(Context context) {
-//        return monitoredVehicleJourney.getMonitoredCall().getExpectedDepartureTime().toString(context);
-//    }
-
     public int getLineColor() {
         Log.d("nextnext", getMonitoredVehicleJourney().getVehicleMode().toString());
+
+        if(extensions != null && extensions.getLineColour() != null && !extensions.getLineColour().isEmpty()) {
+            return Color.parseColor(extensions.getLineColour());
+        }
 
         switch (getMonitoredVehicleJourney().getVehicleMode()) {
             case Boat:

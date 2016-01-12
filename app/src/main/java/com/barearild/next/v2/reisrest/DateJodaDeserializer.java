@@ -54,7 +54,7 @@ public class DateJodaDeserializer implements JsonDeserializer<DateTime> {
         Pattern pattern = Pattern.compile("(.*?)(\\+.*)?");
         Matcher matcher = pattern.matcher(jsonDate);
 
-        if(matcher.matches()) {
+        if (matcher.matches()) {
             return TimeZone.getTimeZone("GMT" + matcher.group(2));
         }
 
@@ -65,7 +65,12 @@ public class DateJodaDeserializer implements JsonDeserializer<DateTime> {
             throws JsonParseException {
         String jsonDateString = json.getAsJsonPrimitive().getAsString();
 
-        return new DateTime(jsonDateString, DateTimeZone.forTimeZone(getTimeZoneId(jsonDateString)));
+        if (jsonDateString.contains("Date")) {
+            return deserializer(jsonDateString);
+        } else {
+            return new DateTime(jsonDateString, DateTimeZone.forTimeZone(getTimeZoneId(jsonDateString)));
+        }
+
     }
 
 

@@ -3,4 +3,8 @@
     <dimen name="app_bar_details_height">350dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="dialog_text_padding_lr">24dp</dimen>
+    <dimen name="dialog_text_padding_tb_1">8dp</dimen>
+    <dimen name="dialog_text_padding_tb_2">16dp</dimen>
+
 </resources>

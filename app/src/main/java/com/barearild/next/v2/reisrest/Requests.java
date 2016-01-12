@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.barearild.next.v2.location.libs.CoordinateConversion;
 import com.barearild.next.v2.location.libs.UtmLocation;
+import com.barearild.next.v2.reisrest.StopVisit.DeviationDetails;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.gson.Gson;
@@ -26,9 +27,10 @@ import java.util.Scanner;
 public class Requests {
 
     private static final String RUTER_API = "http://reisapi.ruter.no/";
-    private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "Place/GetClosestStops/?coordinates=(x=%d,y=%d)"
+    private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "http://reisapi.ruter.no/Place/GetClosestStops/?coordinates=(x=%d,y=%d)"
             + "&proposals=%d&walkingDistance=%d";
-    private static final String GET_ALL_DEPARTURES = "StopVisit/GetDepartures/%d";
+    private static final String GET_ALL_DEPARTURES = "http://reisapi.ruter.no/StopVisit/GetDepartures/%d";
+    private static final String GET_DEVIATION_DETAILS = "http://devi.ruter.no/devirest.svc/json/deviationids/%d";
 
     public static List<Stop> getClosestStopsToLocation(Location location, int numberOfStops, int walkingDistance) {
         CoordinateConversion coordinateConversion = new CoordinateConversion();
@@ -83,13 +85,28 @@ public class Requests {
         return stopVisits;
     }
 
+    public static DeviationDetails getDeviationDetails(int deviationId) {
+        String requestString = String.format(GET_DEVIATION_DETAILS, deviationId);
+
+        final JSONArray data = doRequest(requestString);
+
+        Type listType = new TypeToken<List<DeviationDetails>>() {
+        }.getType();
+
+        GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(DateTime.class, new DateJodaDeserializer());
+
+        List<DeviationDetails> deviationDetails = gsonBuilder.create().fromJson(data.toString(), listType);
+
+        return deviationDetails.get(0);
+    }
+
     private static JSONArray doRequest(String request) {
-        Log.d("nextnext", "doRequest[" + RUTER_API+request + "]");
+        Log.d("nextnext", "doRequest[" + request + "]");
 
         HttpURLConnection urlConnection = null;
 
         try {
-            URL requestUrl = new URL(RUTER_API + request);
+            URL requestUrl = new URL(request);
             urlConnection = (HttpURLConnection) requestUrl.openConnection();
             urlConnection.setConnectTimeout(2000);
             urlConnection.setReadTimeout(10000);

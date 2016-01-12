@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.barearild.next.v2.LineColorService;
+import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.Transporttype;
 
 import v2.next.barearild.com.R;
@@ -18,7 +19,7 @@ public class DepartureListItemHolder extends RecyclerView.ViewHolder implements 
     final TextView firstDeparture;
     final TextView secondDeparture;
     final TextView stopName;
-    final ImageView deviationWarning;
+    final ImageView warning;
     final Button menu;
 
     public DepartureListItemHolder(View view) {
@@ -28,7 +29,7 @@ public class DepartureListItemHolder extends RecyclerView.ViewHolder implements 
         firstDeparture = (TextView) view.findViewById(R.id.departure_first);
         secondDeparture = (TextView) view.findViewById(R.id.departure_second);
         stopName = (TextView) view.findViewById(R.id.departure_stopName);
-        deviationWarning = (ImageView) view.findViewById(R.id.departure_deviation_warning);
+        warning = (ImageView) view.findViewById(R.id.departure_deviation_warning);
         menu = (Button) view.findViewById(R.id.departure_menu);
 
         view.setOnClickListener(this);
@@ -36,6 +37,12 @@ public class DepartureListItemHolder extends RecyclerView.ViewHolder implements 
 
     private Context getContext() {
         return super.itemView.getContext();
+    }
+
+    public void setColor(StopVisit stopVisit) {
+        int colorId = stopVisit.getLineColor();
+        lineRef.setBackgroundColor(colorId);
+        destinationName.setTextColor(colorId);
     }
 
     public void setColor(Transporttype transporttype) {

@@ -1,147 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/details_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:ignore="RtlHardcoded">
+    android:layout_height="match_parent">
 
-    <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/coordinatorLayout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.barearild.next.v2.views.details.DetailsActivity">
+        android:orientation="vertical"
+        tools:ignore="RtlHardcoded">
 
-        <android.support.design.widget.AppBarLayout
-            android:id="@+id/app_bar"
+        <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/coordinatorLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/NextTheme.AppBarOverlay">
+            android:layout_height="match_parent"
+            tools:context="com.barearild.next.v2.views.details.DetailsActivity">
 
-            <android.support.design.widget.CollapsingToolbarLayout
-                android:id="@+id/toolbar_layout"
+            <android.support.design.widget.AppBarLayout
+                android:id="@+id/app_bar"
                 android:layout_width="match_parent"
-                android:layout_height="450dp"
-                app:contentScrim="?attr/colorPrimary"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+                android:layout_height="wrap_content"
+                android:theme="@style/NextTheme.AppBarOverlay">
 
-                <ImageView
-                    android:id="@+id/map"
+                <android.support.design.widget.CollapsingToolbarLayout
+                    android:id="@+id/toolbar_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:scaleType="centerCrop"
-                    android:tint="#11000000"
-                    android:transitionName="@string/transition_map"
-                    app:layout_collapseMode="parallax" />
+                    android:layout_height="450dp"
+                    app:contentScrim="?attr/colorPrimary"
+                    app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-                <FrameLayout
-                    android:id="@+id/mainFramelayoutTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="150dp"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:background="?attr/colorPrimary"
-                    android:orientation="vertical"
-                    app:layout_collapseMode="parallax">
+                    <ImageView
+                        android:id="@+id/map"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:scaleType="centerCrop"
+                        android:tint="#11000000"
+                        android:transitionName="@string/transition_map"
+                        app:layout_collapseMode="parallax" />
 
-                    <LinearLayout
-                        android:id="@+id/main.linearlayout.title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="vertical">
+                    <FrameLayout
+                        android:id="@+id/mainFramelayoutTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="150dp"
+                        android:layout_gravity="bottom|center_horizontal"
+                        android:background="?attr/colorPrimary"
+                        android:orientation="vertical"
+                        app:layout_collapseMode="parallax">
 
-                        <ImageView
-                            android:id="@+id/icon"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
+                        <LinearLayout
+                            android:id="@+id/main.linearlayout.title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:scaleType="center"
-                            android:src="?attr/transport_type_icon"
-                            tools:src="@drawable/ic_menu_transport_metro"
-                            />
+                            android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:gravity="bottom|center"
-                            tools:text="11 Kjelsås"
-                            android:textColor="@android:color/white"
-                            android:textSize="30sp" />
+                            <ImageView
+                                android:id="@+id/icon"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_gravity="center"
+                                android:scaleType="center"
+                                android:src="?attr/transport_type_icon"
+                                tools:src="@drawable/ic_menu_transport_metro" />
 
-                        <TextView
-                            android:id="@+id/subtitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="4dp"
-                            tools:text="Biermanns gate"
-                            android:textColor="@android:color/white" />
+                            <TextView
+                                android:id="@+id/title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:gravity="bottom|center"
+                                android:textColor="@android:color/white"
+                                android:textSize="30sp"
+                                tools:text="11 Kjelsås" />
 
-                    </LinearLayout>
-                </FrameLayout>
-            </android.support.design.widget.CollapsingToolbarLayout>
-        </android.support.design.widget.AppBarLayout>
+                            <TextView
+                                android:id="@+id/subtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_marginTop="4dp"
+                                android:textColor="@android:color/white"
+                                tools:text="Biermanns gate" />
 
-        <include layout="@layout/content_details"/>
+                        </LinearLayout>
+                    </FrameLayout>
+                </android.support.design.widget.CollapsingToolbarLayout>
+            </android.support.design.widget.AppBarLayout>
 
-        <!--<android.support.v4.widget.NestedScrollView-->
+            <include layout="@layout/content_details" />
+
+            <!--<android.support.v4.widget.NestedScrollView-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="match_parent"-->
             <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
             <!--tools:context="com.barearild.next.v2.views.details.DetailsActivity"-->
             <!--tools:showIn="@layout/activity_details">-->
-<!---->
+            <!---->
             <!--<TextView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_margin="@dimen/text_margin"-->
-                <!--android:text="@string/large_text" />-->
-<!---->
-        <!--</android.support.v4.widget.NestedScrollView>-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_margin="@dimen/text_margin"-->
+            <!--android:text="@string/large_text" />-->
+            <!---->
+            <!--</android.support.v4.widget.NestedScrollView>-->
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_anchor="@id/mainFramelayoutTitle"
-            app:popupTheme="@style/NextTheme.PopupOverlay"
-            android:background="?attr/colorPrimary"
-            app:title="">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:layout_anchor="@id/mainFramelayoutTitle"
+                app:popupTheme="@style/NextTheme.PopupOverlay"
+                app:title="">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <!--<Space-->
-                <!--android:layout_width="@dimen/image_final_width"-->
-                <!--android:layout_height="@dimen/image_final_width"-->
-                <!--/>-->
-
-                <TextView
-                    android:id="@+id/main_textview_title"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="8dp"
-                    android:gravity="center_vertical"
-                    android:textColor="?android:textColorPrimaryInverse"
-                    tools:text="11 Kjelsås"
-                    android:textSize="20sp" />
+                    android:orientation="horizontal">
 
-            </LinearLayout>
-        </android.support.v7.widget.Toolbar>
+                    <!--<Space-->
+                    <!--android:layout_width="@dimen/image_final_width"-->
+                    <!--android:layout_height="@dimen/image_final_width"-->
+                    <!--/>-->
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/ic_favorite_border_white_48dp"
-            app:layout_anchor="@id/app_bar"
-            app:layout_anchorGravity="bottom|end" />
+                    <TextView
+                        android:id="@+id/main_textview_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="8dp"
+                        android:gravity="center_vertical"
+                        android:textColor="?android:textColorPrimaryInverse"
+                        android:textSize="20sp"
+                        tools:text="11 Kjelsås" />
 
-    </android.support.design.widget.CoordinatorLayout>
-</LinearLayout>
+                </LinearLayout>
+            </android.support.v7.widget.Toolbar>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/fab_margin"
+                android:src="@drawable/ic_favorite_border_white_48dp"
+                app:layout_anchor="@id/app_bar"
+                app:layout_anchorGravity="bottom|end" />
+
+        </android.support.design.widget.CoordinatorLayout>
+    </LinearLayout>
+
+    <include layout="@layout/deviation_details"></include>
+</FrameLayout>

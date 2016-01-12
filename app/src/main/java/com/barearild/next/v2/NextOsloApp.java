@@ -14,6 +14,8 @@ import v2.next.barearild.com.R;
 
 public class NextOsloApp extends Application {
 
+    public static final String LOG_TAG = "nextnext";
+
     public static final String GOOGLE_API_KEY = "AIzaSyC0XTqTESWXZSYmjset6oXOsY9BmGeTrso";
     public static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 

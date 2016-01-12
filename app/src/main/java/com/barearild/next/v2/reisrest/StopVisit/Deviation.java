@@ -18,12 +18,19 @@ public class Deviation implements Parcelable {
             return new Deviation[size];
         }
     };
+
+
     @Expose
     private String Header;
     @Expose
     private int ID;
 
     public Deviation() {
+    }
+
+    public Deviation(String header) {
+        this.Header = header;
+        this.ID = -1;
     }
 
     private Deviation(Parcel in) {

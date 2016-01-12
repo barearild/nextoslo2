@@ -122,7 +122,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         viewHolder.lineRef.setText(stopVisit.getLinePublishedName());
         viewHolder.stopName.setText(stopVisit.getStop().getName());
 
-        viewHolder.setColor(stopVisit.getTransporttype());
+        viewHolder.setColor(stopVisit.firstDeparture());
+
+        viewHolder.warning.setVisibility(stopVisit.shouldShowWarningInList() ? View.VISIBLE : View.GONE);
 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +132,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 onDepartureItemClickListener.onItemClick(stopVisit);
             }
         });
+
+
 
         setupPopupMenu(viewHolder, stopVisit, position);
     }

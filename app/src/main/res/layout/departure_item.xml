@@ -126,7 +126,7 @@
         android:layout_margin="2dp"
         android:paddingLeft="0dp"
         android:paddingRight="4dp"
-        android:src="@drawable/warning_sign"
+        android:src="@drawable/ic_warning_white_18dp"
         android:visibility="gone"
         tools:visibility="visible" />
 
