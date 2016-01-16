@@ -18,7 +18,8 @@
             android:id="@+id/departures"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:numColumns="4" />
+            android:numColumns="auto_fit"
+            android:columnWidth="70dp"/>
 
         <LinearLayout
             android:id="@+id/favouritePanel"

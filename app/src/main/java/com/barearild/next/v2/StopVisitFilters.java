@@ -2,6 +2,7 @@ package com.barearild.next.v2;
 
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
+import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.VehicleMode;
 import com.barearild.next.v2.views.departures.StopVisitListItem;
@@ -14,6 +15,26 @@ import java.util.List;
 import java.util.Map;
 
 public class StopVisitFilters {
+
+    public static List<StopVisitListItem> convertToListItemsByStop(List<StopVisit> stopVisits) {
+        List<StopVisitListItem> convertedListItems = new ArrayList<>();
+        Map<Integer, StopVisitListItem> departureMap = new HashMap<>();
+        for (StopVisit departure : stopVisits) {
+            StopVisitListItem existingDeparture = departureMap.get(departure.getStop().getID());
+
+            if (existingDeparture == null) {
+                departureMap.put(departure.getStop().getID(), new StopVisitListItem(departure));
+            } else if (existingDeparture.getStop().equals(departure.getStop())) {
+                existingDeparture.addStopVisit(departure);
+            }
+        }
+
+        for (StopVisitListItem departureListItem : departureMap.values()) {
+            convertedListItems.add(departureListItem);
+        }
+
+        return convertedListItems;
+    }
 
     public static List<StopVisitListItem> convertToListItems(List<StopVisit> stopVisits) {
         List<StopVisitListItem> convertedListItems = new ArrayList<>();
@@ -33,6 +54,14 @@ public class StopVisitFilters {
         }
 
         return convertedListItems;
+    }
+
+    public static void getOtherStopsForStopVisitListItem(StopVisitListItem stopVisitListItem, List<StopVisitListItem> allStopVisitList) {
+        for (StopVisitListItem item : allStopVisitList) {
+            if(item.getId().equals(stopVisitListItem.getId()) && item.getStop().getID() != stopVisitListItem.getStop().getID()) {
+                stopVisitListItem.addOtherStopForLine(item);
+            }
+        }
     }
 
     public static Comparator<StopVisitListItem> byFirstDeparture() {
@@ -113,5 +142,16 @@ public class StopVisitFilters {
         }
 
         return NextOsloApp.SHOW_TRANSPORT_TYPE.get(transporttype);
+    }
+
+    public static StopVisitsResult filterLineRef(String query, StopVisitsResult stopVisitsResult) {
+        StopVisitsResult filteredResult = new StopVisitsResult(stopVisitsResult.getTimeOfSearch());
+        for (StopVisit stopVisit : stopVisitsResult) {
+            if(stopVisit.getId().toLowerCase().contains(query.toLowerCase())) {
+                filteredResult.add(stopVisit);
+            }
+        }
+
+        return filteredResult;
     }
 }

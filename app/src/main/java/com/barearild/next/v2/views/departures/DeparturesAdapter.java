@@ -59,7 +59,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public long getItemId(int position) {
         switch (getItemViewType(position)) {
             case TYPE_DEPARTURE:
-                return ((StopVisitListItem) getItem(position)).getId().hashCode();
+                StopVisitListItem stopVisitListItem = (StopVisitListItem) getItem(position);
+                return (stopVisitListItem.getId().hashCode() + stopVisitListItem.getStop().getID());
             case TYPE_EMPTY:
                 return TYPE_EMPTY;
             case TYPE_HEADER:

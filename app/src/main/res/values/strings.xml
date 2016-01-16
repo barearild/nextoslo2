@@ -34,7 +34,7 @@
     <string name="header_info_showing_all">All departures, click to show favourites</string>
     <string name="departures_list_favourites_empty">No favourites nearby, touch here to show all</string>
     <string name="search">Search</string>
-    <string name="search_hint">Where are you going?</string>
+    <string name="search_hint">Line or destination</string>
     <string name="favourites">Favourites</string>
     <string name="all">All</string>
     <string name="switch_label_showing">Showing</string>

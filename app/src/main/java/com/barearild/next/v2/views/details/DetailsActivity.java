@@ -14,6 +14,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.ChangeImageTransform;
@@ -45,6 +46,8 @@ import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.Deviation;
 import com.barearild.next.v2.reisrest.StopVisit.DeviationDetails;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
+import com.barearild.next.v2.reisrest.place.Stop;
+import com.barearild.next.v2.views.departures.DeparturesSwipeRefreshLayout;
 import com.barearild.next.v2.views.departures.StopVisitListItem;
 import com.barearild.next.v2.views.map.MapsActivity;
 import com.squareup.picasso.Picasso;
@@ -60,7 +63,7 @@ import java.util.Map;
 
 import v2.next.barearild.com.R;
 
-public class DetailsActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
+public class DetailsActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener, SwipeRefreshLayout.OnRefreshListener {
 
     private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR = 0.9f;
     private static final float PERCENTAGE_TO_HIDE_TITLE_DETAILS = 0.7f;
@@ -82,6 +85,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     private StopVisitListItem mStopVisitListItem;
     private ListView mWarnings;
     private RelativeLayout mDeviationDetails;
+    private DeparturesSwipeRefreshLayout mSwipeRefreshLayout;
 
     private FavouritesService mFavouritesService;
     private LinearLayout mFavouritePanel;
@@ -160,6 +164,9 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         initDeparturesGrid();
         initFavourites();
         initWarnings();
+        initSwipeRefreshLayout();
+
+        getAllStops();
 
         mImageparallax.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,6 +192,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         });
     }
 
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        new UpdateDeparturesTask().execute(mStopVisitListItem);
+    }
+
     private void initColors() {
         mPrimaryColorId = mStopVisitListItem.firstDeparture().getLineColor();
         mImageparallax.setBackgroundColor(mPrimaryColorId);
@@ -205,6 +218,11 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mFavouritePanel = (LinearLayout) findViewById(R.id.favouritePanel);
         mWarnings = (ListView) findViewById(R.id.warnings);
         mDeviationDetails = (RelativeLayout) findViewById(R.id.deviation_details);
+        mSwipeRefreshLayout = (DeparturesSwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+    }
+
+    private void getAllStops() {
+        new GetAllStopsForLine().execute(mStopVisitListItem.getLineRef());
     }
 
     private void initFabButton() {
@@ -266,10 +284,16 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     private void initDeparturesGrid() {
         List<Map<String, String>> departureMap = new ArrayList<>();
 
-        departureMap.add(departureMap(mStopVisitListItem.firstDeparture()));
-        departureMap.add(departureMap(mStopVisitListItem.secondDeparture()));
-        departureMap.add(departureMap(mStopVisitListItem.thirdDeparture()));
-        departureMap.add(departureMap(mStopVisitListItem.fourthDeparture()));
+        for (StopVisit stopvisit : mStopVisitListItem.getStopVisits()) {
+            departureMap.add(departureMap(stopvisit));
+        }
+
+        Log.d(NextOsloApp.LOG_TAG, "Number of stop visits: " + departureMap.size());
+
+//        departureMap.add(departureMap(mStopVisitListItem.firstDeparture()));
+//        departureMap.add(departureMap(mStopVisitListItem.secondDeparture()));
+//        departureMap.add(departureMap(mStopVisitListItem.thirdDeparture()));
+//        departureMap.add(departureMap(mStopVisitListItem.fourthDeparture()));
 
         String[] from = {"departure"};
 
@@ -302,6 +326,10 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mFrameParallax.setLayoutParams(petBackgroundLp);
     }
 
+    private void initSwipeRefreshLayout() {
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+    }
+
     private void downloadMap(StopVisitListItem stopVisitListItem) {
         Log.d("nextnext", "Loading map...");
         double[] latLon = CoordinateConversion.utm2LatLon(stopVisitListItem.getStop().getX(), stopVisitListItem.getStop().getY());
@@ -331,6 +359,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+        mSwipeRefreshLayout.setEnabled(verticalOffset == 0);
         int maxScroll = appBarLayout.getTotalScrollRange();
         float percentage = (float) Math.abs(verticalOffset) / (float) maxScroll;
 
@@ -388,6 +417,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         v.startAnimation(alphaAnimation);
     }
 
+    @Override
+    public void onRefresh() {
+        Log.d(NextOsloApp.LOG_TAG, "Refresh");
+        new UpdateDeparturesTask().execute(mStopVisitListItem);
+    }
+
     private class WarningListAdapter extends BaseAdapter {
 
         private final Deviation[] deviations;
@@ -421,6 +456,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.warning_deviation, parent, false);
+                viewHolder.root = (LinearLayout) convertView.findViewById(R.id.deviation_root);
                 viewHolder.text = (TextView) convertView.findViewById(R.id.text);
                 viewHolder.moreButton = (Button) convertView.findViewById(R.id.moreButton);
                 convertView.setTag(viewHolder);
@@ -431,22 +467,71 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             viewHolder.text.setText(deviation.getHeader());
 
             viewHolder.moreButton.setTextColor(mPrimaryColorId);
-            viewHolder.moreButton.setVisibility(deviation.getID() >= 0 ? View.VISIBLE : View.GONE);
-            viewHolder.moreButton.setOnClickListener(new View.OnClickListener() {
+            View.OnClickListener moreClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Log.d(NextOsloApp.LOG_TAG, "Load more " + deviation.getID());
                     new GetDeviationDetails(deviation.getHeader()).execute(deviation);
                 }
-            });
+            };
+            viewHolder.moreButton.setOnClickListener(moreClickListener);
+
+            if (deviation.getID() >= 0) {
+                viewHolder.moreButton.setVisibility(View.VISIBLE);
+                viewHolder.root.setOnClickListener(moreClickListener);
+            } else {
+                viewHolder.moreButton.setVisibility(View.GONE);
+                viewHolder.root.setOnClickListener(null);
+            }
 
             return convertView;
         }
     }
 
     static class ViewHolder {
+        LinearLayout root;
         TextView text;
         Button moreButton;
+    }
+
+    private class UpdateDeparturesTask extends AsyncTask<StopVisitListItem, Void, List<StopVisit>> {
+
+        @Override
+        protected List<StopVisit> doInBackground(StopVisitListItem... stopVisitListItems) {
+            StopVisitListItem stopVisitListItem = stopVisitListItems[0];
+            return Requests.getAllDepartures(stopVisitListItem.getStop(), stopVisitListItem.getLineRef());
+        }
+
+        @Override
+        protected void onPostExecute(List<StopVisit> stopVisits) {
+            super.onPostExecute(stopVisits);
+            mSwipeRefreshLayout.setRefreshing(false);
+            mStopVisitListItem.clearStopVisits();
+            mStopVisitListItem.getStopVisits().addAll(stopVisits);
+
+            initDeparturesGrid();
+        }
+
+        @Override
+        protected void onCancelled(List<StopVisit> stopVisits) {
+            super.onCancelled(stopVisits);
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    private class GetAllStopsForLine extends AsyncTask<String, Void, List<Stop>> {
+
+        @Override
+        protected List<Stop> doInBackground(String... lineIds) {
+            return Requests.getAllStopsForLine(lineIds[0], null);
+        }
+
+        @Override
+        protected void onPostExecute(List<Stop> stops) {
+            super.onPostExecute(stops);
+
+            Log.d(NextOsloApp.LOG_TAG, stops.toString());
+        }
     }
 
     private class GetDeviationDetails extends AsyncTask<Deviation, Void, DeviationDetails> implements View.OnClickListener {
@@ -469,6 +554,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         };
         private final SimpleDateFormat dateFormatter;
 
+
         public GetDeviationDetails(String title) {
 //            View deviationView = LayoutInflater.from(DetailsActivity.this).inflate(R.layout.deviation_details, mFrameParallax, false);
 
@@ -483,7 +569,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             fromTo = (TextView) mDeviationDetails.findViewById(R.id.fromTo);
             progressBar = (ContentLoadingProgressBar) mDeviationDetails.findViewById(R.id.progress);
             okButton = (Button) mDeviationDetails.findViewById(R.id.okButton);
-
+            okButton.setTextColor(mPrimaryColorId);
             okButton.setOnClickListener(this);
 
             dialog = new AlertDialog.Builder(DetailsActivity.this)
@@ -517,7 +603,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
             body.setText(deviationDetails.getBody());
 
-            if(body.getText() == null || body.getText().toString().isEmpty()) {
+            if (body.getText() == null || body.getText().toString().isEmpty()) {
                 body.setVisibility(View.GONE);
             } else {
                 body.setVisibility(View.VISIBLE);

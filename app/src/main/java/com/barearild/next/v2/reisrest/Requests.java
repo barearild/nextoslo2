@@ -3,6 +3,7 @@ package com.barearild.next.v2.reisrest;
 import android.location.Location;
 import android.util.Log;
 
+import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.location.libs.CoordinateConversion;
 import com.barearild.next.v2.location.libs.UtmLocation;
 import com.barearild.next.v2.reisrest.StopVisit.DeviationDetails;
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -30,7 +32,24 @@ public class Requests {
     private static final String GET_CLOSEST_STOPS_ADVANCED_BY_COORDINATES = "http://reisapi.ruter.no/Place/GetClosestStops/?coordinates=(x=%d,y=%d)"
             + "&proposals=%d&walkingDistance=%d";
     private static final String GET_ALL_DEPARTURES = "http://reisapi.ruter.no/StopVisit/GetDepartures/%d";
+    private static final String GET_ALL_DEPARTURES_FOR_LINE_AT_STOP = "http://reisapi.ruter.no/StopVisit/GetDepartures/%d?linenames=%s";
     private static final String GET_DEVIATION_DETAILS = "http://devi.ruter.no/devirest.svc/json/deviationids/%d";
+    private static final String GET_STOPS_FOR_LINE = "http://reisapi.ruter.no/Line/GetStopsByLineId/%s";
+
+    public static List<Stop> getAllStopsForLine(String lineId, Location location) {
+        JSONArray data = doRequest(String.format(GET_STOPS_FOR_LINE, lineId));
+
+        Type listType = new TypeToken<List<Stop>>() {
+        }.getType();
+
+        List<Stop> stops = new Gson().fromJson(data.toString(), listType);
+
+        if (location != null) {
+            calculateWalkingDistanceToStops(stops, location);
+        }
+
+        return stops;
+    }
 
     public static List<Stop> getClosestStopsToLocation(Location location, int numberOfStops, int walkingDistance) {
         CoordinateConversion coordinateConversion = new CoordinateConversion();
@@ -57,15 +76,15 @@ public class Requests {
             Location.distanceBetween(location.getLatitude(), location.getLongitude(), latLonForStop[0], latLonForStop[1], result);
 
             stop.setWalkingDistance((int) result[0]);
-
-            Log.d("nextnext", "walking distance to " + stop.getName() + " is " + stop.getWalkingDistance());
         }
     }
 
-    public static List<StopVisit> getAllDepartures(Stop stop) {
+    public static List<StopVisit> getAllDepartures(Stop stop, String line) {
         String requestString = String.format(GET_ALL_DEPARTURES, stop.getID());
 
         JSONArray data = doRequest(requestString);
+
+        Log.d(NextOsloApp.LOG_TAG, data.toString());
 
         Type listType = new TypeToken<List<StopVisit>>() {
         }.getType();
@@ -73,14 +92,49 @@ public class Requests {
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .registerTypeAdapter(DateTime.class, new DateJodaDeserializer())
                 .registerTypeAdapter(VehicleMode.class, new VehicleModeDeserializer())
-                .registerTypeAdapter(Transporttype.class, new TransporttypeDeserializer())
-                ;
+                .registerTypeAdapter(Transporttype.class, new TransporttypeDeserializer());
+
+        List<StopVisit> allStopVisits = gsonBuilder.create().fromJson(data.toString(), listType);
+
+        List<StopVisit> stopVisitsForStop = new ArrayList<>();
+
+        for (StopVisit stopVisit : allStopVisits) {
+            if(stopVisit.getMonitoredVehicleJourney().getLineRef().equals(line)) {
+                stopVisitsForStop.add(stopVisit);
+            }
+        }
+
+        for (StopVisit stopVisit : stopVisitsForStop) {
+            stopVisit.setStop(stop);
+        }
+
+        Log.d(NextOsloApp.LOG_TAG, stopVisitsForStop.toString());
+
+        return stopVisitsForStop;
+    }
+
+    public static List<StopVisit> getAllDepartures(Stop stop) {
+        String requestString = String.format(GET_ALL_DEPARTURES, stop.getID());
+
+        JSONArray data = doRequest(requestString);
+
+        Log.d(NextOsloApp.LOG_TAG, data.toString());
+
+        Type listType = new TypeToken<List<StopVisit>>() {
+        }.getType();
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(DateTime.class, new DateJodaDeserializer())
+                .registerTypeAdapter(VehicleMode.class, new VehicleModeDeserializer())
+                .registerTypeAdapter(Transporttype.class, new TransporttypeDeserializer());
 
         List<StopVisit> stopVisits = gsonBuilder.create().fromJson(data.toString(), listType);
 
         for (StopVisit stopVisit : stopVisits) {
             stopVisit.setStop(stop);
         }
+
+        Log.d(NextOsloApp.LOG_TAG, stopVisits.toString());
 
         return stopVisits;
     }

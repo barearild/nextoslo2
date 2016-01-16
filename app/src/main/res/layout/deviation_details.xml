@@ -7,6 +7,8 @@
     android:orientation="vertical"
     android:visibility="gone"
     android:background="@android:color/white"
+    android:clickable="true"
+    android:padding="8dp"
     tools:visibility="visible">
 
     <TextView

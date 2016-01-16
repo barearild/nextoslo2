@@ -3,7 +3,6 @@ package com.barearild.next.v2.reisrest.StopVisit;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.gson.annotations.Expose;
@@ -86,8 +85,6 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
     }
 
     public int getLineColor() {
-        Log.d("nextnext", getMonitoredVehicleJourney().getVehicleMode().toString());
-
         if(extensions != null && extensions.getLineColour() != null && !extensions.getLineColour().isEmpty()) {
             return Color.parseColor(extensions.getLineColour());
         }

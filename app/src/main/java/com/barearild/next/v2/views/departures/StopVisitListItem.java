@@ -40,6 +40,8 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
     private final Transporttype transporttype;
     private final List<StopVisit> stopVisits;
 
+    private final List<StopVisitListItem> otherStopsForLine = new ArrayList<>();
+
     private StopVisitListItem(String id, String lineRef, String linePublishedName, String destinationName, Stop stop, Transporttype transporttype) {
         this.id = id;
         this.lineRef = lineRef;
@@ -239,6 +241,13 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
                 isAlmostFull(secondDeparture());
     }
 
+    public void addOtherStopForLine(StopVisitListItem stopVisitListItem) {
+        otherStopsForLine.add(stopVisitListItem);
+    }
+
+    public List<StopVisit> getStopVisits() {
+        return stopVisits;
+    }
 
     public static DateTime getExpectedDepartureTime(StopVisit stopVisit) {
         if (stopVisit != null && stopVisit.getMonitoredVehicleJourney() != null &&
