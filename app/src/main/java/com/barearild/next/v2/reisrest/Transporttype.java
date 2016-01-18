@@ -11,16 +11,16 @@ import v2.next.barearild.com.R;
  * NOTE: The order of the elements are important as order is used in deserialization from JSON
  */
 public enum Transporttype {
-    Walking(R.color.defaultColorPrimary, R.string.transport_walking, R.drawable.ic_menu_transport_metro),
-    AirportBus(R.color.defaultColorPrimary, R.string.transport_airportbus, R.drawable.ic_menu_transport_bus),
-    Bus(R.color.busColorPrimary, R.string.transport_bus, R.drawable.ic_menu_transport_bus),
-    Dummy(R.color.defaultColorPrimary, R.string.transport_dummy, R.drawable.ic_menu_transport_metro),
-    AirportTrain(R.color.trainColorPrimary, R.string.transport_airporttrain, R.drawable.ic_menu_transport_train),
-    Boat(R.color.boatColorPrimary, R.string.transport_boat, R.drawable.ic_menu_transport_boat),
-    Train(R.color.trainColorPrimary, R.string.transport_train, R.drawable.ic_menu_transport_train),
-    Tram(R.color.tramColorPrimary, R.string.transport_tram, R.drawable.ic_menu_transport_tram),
-    Metro(R.color.metroColorPrimary, R.string.transport_metro, R.drawable.ic_menu_transport_metro),
-    RegionalBus(R.color.regionalBusColorPrimary, R.string.transport_regional_bus, R.drawable.ic_menu_transport_bus);
+    Walking(R.color.defaultColorPrimary, R.string.transport_walking, R.drawable.ic_directions_walk_white_36dp),
+    AirportBus(R.color.defaultColorPrimary, R.string.transport_airportbus, R.drawable.ic_directions_bus_white_36dp),
+    Bus(R.color.busColorPrimary, R.string.transport_bus, R.drawable.ic_directions_bus_white_36dp),
+    Dummy(R.color.defaultColorPrimary, R.string.transport_dummy, R.drawable.ic_directions_subway_white_36dp),
+    AirportTrain(R.color.trainColorPrimary, R.string.transport_airporttrain, R.drawable.ic_directions_railway_white_36dp),
+    Boat(R.color.boatColorPrimary, R.string.transport_boat, R.drawable.ic_directions_boat_white_36dp),
+    Train(R.color.trainColorPrimary, R.string.transport_train, R.drawable.ic_directions_railway_white_36dp),
+    Tram(R.color.tramColorPrimary, R.string.transport_tram, R.drawable.ic_directions_transit_white_36dp),
+    Metro(R.color.metroColorPrimary, R.string.transport_metro, R.drawable.ic_directions_subway_white_36dp),
+    RegionalBus(R.color.regionalBusColorPrimary, R.string.transport_regional_bus, R.drawable.ic_directions_bus_white_36dp);
 
     public static final EnumSet<Transporttype> onlyRealTimeTransporttypes = EnumSet.of(Bus, Boat, Train, Tram, Metro, RegionalBus);
 

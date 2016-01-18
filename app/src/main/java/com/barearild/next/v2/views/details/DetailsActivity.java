@@ -288,13 +288,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             departureMap.add(departureMap(stopvisit));
         }
 
-        Log.d(NextOsloApp.LOG_TAG, "Number of stop visits: " + departureMap.size());
-
-//        departureMap.add(departureMap(mStopVisitListItem.firstDeparture()));
-//        departureMap.add(departureMap(mStopVisitListItem.secondDeparture()));
-//        departureMap.add(departureMap(mStopVisitListItem.thirdDeparture()));
-//        departureMap.add(departureMap(mStopVisitListItem.fourthDeparture()));
-
         String[] from = {"departure"};
 
         mDeparturesGrid.setAdapter(new SimpleAdapter(this, departureMap, R.layout.departure_time, from, new int[]{R.id.time}));
@@ -499,7 +492,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         @Override
         protected List<StopVisit> doInBackground(StopVisitListItem... stopVisitListItems) {
             StopVisitListItem stopVisitListItem = stopVisitListItems[0];
-            return Requests.getAllDepartures(stopVisitListItem.getStop(), stopVisitListItem.getLineRef());
+            return Requests.getAllDepartures(stopVisitListItem.getStop(), stopVisitListItem.getId());
         }
 
         @Override
@@ -577,6 +570,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
                     .setView(mDeviationDetails)
                     .setPositiveButton(R.string.ok, onClickListener)
                     .create();
+
         }
 
         @Override

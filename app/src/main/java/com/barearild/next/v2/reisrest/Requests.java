@@ -8,6 +8,7 @@ import com.barearild.next.v2.location.libs.CoordinateConversion;
 import com.barearild.next.v2.location.libs.UtmLocation;
 import com.barearild.next.v2.reisrest.StopVisit.DeviationDetails;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
+import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -35,6 +36,8 @@ public class Requests {
     private static final String GET_ALL_DEPARTURES_FOR_LINE_AT_STOP = "http://reisapi.ruter.no/StopVisit/GetDepartures/%d?linenames=%s";
     private static final String GET_DEVIATION_DETAILS = "http://devi.ruter.no/devirest.svc/json/deviationids/%d";
     private static final String GET_STOPS_FOR_LINE = "http://reisapi.ruter.no/Line/GetStopsByLineId/%s";
+    private static final String GET_ALL_LINES = "http://reisapi.ruter.no/Line/GetLinesRuter";
+    private static final String GET_ALL_STOPS = "http://reisapi.ruter.no/Place/GetStopsRuter";
 
     public static List<Stop> getAllStopsForLine(String lineId, Location location) {
         JSONArray data = doRequest(String.format(GET_STOPS_FOR_LINE, lineId));
@@ -80,7 +83,7 @@ public class Requests {
     }
 
     public static List<StopVisit> getAllDepartures(Stop stop, String line) {
-        String requestString = String.format(GET_ALL_DEPARTURES, stop.getID());
+        String requestString = String.format(GET_ALL_DEPARTURES_FOR_LINE_AT_STOP, stop.getID(), line);
 
         JSONArray data = doRequest(requestString);
 
@@ -96,13 +99,13 @@ public class Requests {
 
         List<StopVisit> allStopVisits = gsonBuilder.create().fromJson(data.toString(), listType);
 
-        List<StopVisit> stopVisitsForStop = new ArrayList<>();
+        List<StopVisit> stopVisitsForStop = new ArrayList<>(allStopVisits);
 
-        for (StopVisit stopVisit : allStopVisits) {
-            if(stopVisit.getMonitoredVehicleJourney().getLineRef().equals(line)) {
-                stopVisitsForStop.add(stopVisit);
-            }
-        }
+//        for (StopVisit stopVisit : allStopVisits) {
+//            if(stopVisit.getMonitoredVehicleJourney().getLineRef().equals(line)) {
+//                stopVisitsForStop.add(stopVisit);
+//            }
+//        }
 
         for (StopVisit stopVisit : stopVisitsForStop) {
             stopVisit.setStop(stop);
@@ -152,6 +155,54 @@ public class Requests {
         List<DeviationDetails> deviationDetails = gsonBuilder.create().fromJson(data.toString(), listType);
 
         return deviationDetails.get(0);
+    }
+
+    public static List<Line> getAllLines() {
+
+        final JSONArray data = doRequest(GET_ALL_LINES);
+
+        Type listType = new TypeToken<List<Line>>() {
+        }.getType();
+
+        GsonBuilder gsonBuilder = new GsonBuilder().registerTypeAdapter(Transporttype.class, new TransporttypeDeserializer());
+
+        return gsonBuilder.create().fromJson(data.toString(), listType);
+    }
+
+    public static List<Stop> getAllStops() {
+        final JSONArray data = doRequest(GET_ALL_STOPS);
+
+        Type listType = new TypeToken<List<Stop>>() {}.getType();
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+
+        return gsonBuilder.create().fromJson(data.toString(), listType);
+    }
+
+    public static List<Line> getLinesSuggestion(String searchString) {
+        ArrayList<Line> lineSuggestions = new ArrayList<>();
+        if (NextOsloApp.mAllLines == null) {
+            NextOsloApp.mAllLines = Requests.getAllLines();
+            Log.d(NextOsloApp.LOG_TAG, "All lines: " + NextOsloApp.mAllLines);
+        }
+
+        if (NextOsloApp.mAllLines != null) {
+            for (Line line : NextOsloApp.mAllLines) {
+                if (isANumber(searchString) && line.getName().toLowerCase().matches("[A-Z,a-z]*?(" + searchString + ")[A-Z,a-z]*")) {
+                    lineSuggestions.add(line);
+                    Log.d(NextOsloApp.LOG_TAG, "Adding line to suggestions " + line);
+                } else if (line.getName().equalsIgnoreCase(searchString)) {
+                    lineSuggestions.add(line);
+                    Log.d(NextOsloApp.LOG_TAG, "Adding line to suggestions " + line);
+                }
+            }
+        }
+
+        return lineSuggestions;
+    }
+
+    private static boolean isANumber(String searchString) {
+        return searchString.matches("[0-9]+");
     }
 
     private static JSONArray doRequest(String request) {

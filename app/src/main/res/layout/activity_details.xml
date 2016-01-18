@@ -158,7 +158,6 @@
 
         </android.support.design.widget.CoordinatorLayout>
     </LinearLayout>
-
-    <include layout="@layout/deviation_details"></include>
     </com.barearild.next.v2.views.departures.DeparturesSwipeRefreshLayout>
+    <include layout="@layout/deviation_details"></include>
 </FrameLayout>

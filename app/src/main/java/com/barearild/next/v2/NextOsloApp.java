@@ -2,13 +2,19 @@ package com.barearild.next.v2;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 
+import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.Transporttype;
+import com.barearild.next.v2.reisrest.line.Line;
+import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.views.departures.DeparturesHeader;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import v2.next.barearild.com.R;
 
@@ -16,9 +22,14 @@ public class NextOsloApp extends Application {
 
     public static final String LOG_TAG = "nextnext";
 
+    public static final String SEARCH_ADDRESS = "com.barearild.next.v2.SEARCH_ADDRESS";
+    public static final String SEARCH_LINE = "com.barearild.next.v2.SEARCH_LINES";
+    public static final String SEARCH_STOP = "com.barearild.next.v2.SEARCH_STOP";
+
     public static final String GOOGLE_API_KEY = "AIzaSyC0XTqTESWXZSYmjset6oXOsY9BmGeTrso";
     public static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 
+    public static final DeparturesHeader DEPARTURES_HEADER_EMPTY = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_NO_FAVOURITES = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_OTHERS = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_FAVOURITES = new DeparturesHeader();
@@ -36,6 +47,10 @@ public class NextOsloApp extends Application {
 
     public static final HashMap<Transporttype, Boolean> SHOW_TRANSPORT_TYPE = new HashMap<Transporttype, Boolean>();
 
+    public static List<Line> mAllLines;
+
+    public static final List<Stop> ALL_STOPS = new ArrayList<>();
+
     private SharedPreferences prefs;
 
     @Override
@@ -47,10 +62,17 @@ public class NextOsloApp extends Application {
         DEPARTURES_HEADER_NO_FAVOURITES.text = getText(R.string.no_favourites).toString();
         DEPARTURES_HEADER_FAVOURITES.text = getText(R.string.favourites).toString();
         DEPARTURES_HEADER_OTHERS.text = getText(R.string.all_others).toString();
+        DEPARTURES_HEADER_EMPTY.text = getText(R.string.departure_list_empty).toString();
 
         setActiveTransportTypes();
 
         JodaTimeAndroid.init(this);
+
+        downloadAllStopsAndLines();
+    }
+
+    private void downloadAllStopsAndLines() {
+        new GetAllStopsTask().execute();
     }
 
     private void setActiveTransportTypes() {
@@ -68,5 +90,26 @@ public class NextOsloApp extends Application {
 //
 //        prefs.edit().putBoolean(transporttype.name(), checked).apply();
 //    }
+
+    private class GetAllStopsTask extends AsyncTask<Void, Void, List<Stop>> {
+
+        public GetAllStopsTask() {
+        }
+
+        @Override
+        protected List<Stop> doInBackground(Void... voids) {
+            return Requests.getAllStops();
+        }
+
+        @Override
+        protected void onPostExecute(List<Stop> stops) {
+            super.onPostExecute(stops);
+            synchronized (ALL_STOPS) {
+                ALL_STOPS.clear();
+                ALL_STOPS.addAll(stops);
+            }
+        }
+    }
+
 
 }

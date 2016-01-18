@@ -9,7 +9,15 @@
     <string name="action_add_to_favourites">Add to favourites</string>
     <string name="action_delete_from_favourites">Remove from favourites</string>
     <string name="getting_departures_info">Getting departures…</string>
-    <string name="departure_list_empty">Oh no, we couldn\'t find any departures\n\n<a href="tel:02323">Call a cab instead</a></string>
+    <string name="departure_list_empty"><![CDATA[Sorry but we couldn\'t find any departures<br/><br/>Maybe you want to call a taxi instead?<br/>
+                                            <a href="tel:02323">Oslo Taxi</a><br/>
+                                            <a href="tel:08000">Norgestaxi</a><br/>
+                                            <a href="tel:08294">0-TAXI</a><br/>
+                                            <a href="tel:02365">Christiania Taxi</a><br/>
+                                            <a href="tel:02202">Taxi2</a><br/>
+                                            <a href="tel:90040999">Fjordtaxi</a><br/>
+                                            ]]>
+    </string>
     <string name="departure_list_empty_tag" translatable="false">empty</string>
     <string name="settings_show_header">Show</string>
     <string name="transport_walking">Walking</string>

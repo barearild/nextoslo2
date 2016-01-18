@@ -9,10 +9,16 @@
     <application
         android:name="com.barearild.next.v2.NextOsloApp"
         android:allowBackup="true"
+        android:backupAgent="com.barearild.next.v2.backup.NextBackupAgent"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/NextTheme">
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAIXx0D-DBk1ImWuRoQCx3Gb35wTGUQpPvA3FBjSw" />
+
         <activity
             android:name="com.barearild.next.v2.views.departures.DeparturesActivity"
             android:label="@string/app_name"
@@ -57,6 +63,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.barearild.next.v2.views.details.DetailsActivity" />
         </activity>
+
+        <provider
+            android:name="com.barearild.next.v2.search.SearchSuggestionProvider"
+            android:authorities="com.barearild.next.v2.search.SearchSuggestionProvider"
+            android:exported="false" />
     </application>
 
 </manifest>

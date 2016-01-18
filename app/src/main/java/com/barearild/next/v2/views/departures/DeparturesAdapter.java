@@ -2,7 +2,9 @@ package com.barearild.next.v2.views.departures;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -53,6 +55,10 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         timeFormat = DateFormat.getTimeFormat(context);
 
         inflater = LayoutInflater.from(context);
+    }
+
+    public List<Object> getData() {
+        return data;
     }
 
     @Override
@@ -148,7 +154,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int position) {
         DeparturesHeader header = (DeparturesHeader) data.get(position);
 
-        viewHolder.headerText.setText(header.text);
+        viewHolder.headerText.setText(Html.fromHtml(header.text));
+//        viewHolder.headerText.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override
@@ -236,6 +243,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public HeaderViewHolder(View itemView) {
             super(itemView);
             headerText = (TextView) itemView.findViewById(R.id.departure_list_item_header);
+            headerText.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
