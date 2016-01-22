@@ -41,6 +41,7 @@ import com.barearild.next.v2.search.SearchSuggestion;
 import com.barearild.next.v2.search.SearchSuggestionProvider;
 import com.barearild.next.v2.search.SearchSuggestionsAdapter;
 import com.barearild.next.v2.views.details.DetailsActivity;
+import com.barearild.next.v2.views.stop.StopActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -59,7 +60,6 @@ import v2.next.barearild.com.R;
 
 import static com.barearild.next.v2.NextOsloApp.LOG_TAG;
 import static com.barearild.next.v2.StopVisitFilters.convertToListItems;
-import static com.barearild.next.v2.StopVisitFilters.convertToListItemsByStop;
 import static com.barearild.next.v2.StopVisitFilters.onlyFavorites;
 import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
 import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDeparture;
@@ -264,7 +264,8 @@ public class DeparturesActivity extends AppCompatActivity implements
                     filterResult(null);
                     return false;
                 }
-                filterResult(query);
+                search(Intent.ACTION_SEARCH, query);
+//                filterResult(query);
                 return false;
             }
         });
@@ -308,7 +309,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         switch (mode) {
             case MODE_STOP_VISITS:
-                if (mLastResult != null && !mLastResult.isEmpty()) {
+                if (mLastResult != null && !mLastResult.stopVisits.isEmpty()) {
                     mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), getBaseContext(), DeparturesActivity.this), false);
                 }
                 break;
@@ -447,10 +448,22 @@ public class DeparturesActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onItemClick(StopVisitListItem stopVisitListItem) {
-        Intent details = new Intent(this, DetailsActivity.class);
-        details.putExtra(StopVisitListItem.class.getSimpleName(), stopVisitListItem);
-        startActivity(details);
+    public void onItemClick(Object item) {
+        if (item instanceof StopVisitListItem) {
+            Intent details = new Intent(this, DetailsActivity.class);
+            details.putExtra(StopVisitListItem.class.getSimpleName(), (StopVisitListItem)item);
+            startActivity(details);
+        } else if(item instanceof Stop) {
+            Intent stop = new Intent(this, StopActivity.class);
+            stop.putExtra(Stop.class.getSimpleName(), (Stop)item);
+            startActivity(stop);
+        } else if(item instanceof SearchSuggestion) {
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://maps.google.com/maps?daddr=" + ((SearchSuggestion)item).query + "&dirflg=r"));
+            startActivity(mapIntent);
+        } else if(item instanceof Line) {
+            new SearchClosestStopForLineTask().execute((Line) item);
+        }
     }
 
     @Override
@@ -489,57 +502,186 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!searchView.isIconified()) {
+            searchView.setIconified(true);
+            searchView.setQuery("", false);
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    private class SearchClosestStopForLineTask extends AsyncTask<Line, Void, List<Object>> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mSwipeView.setRefreshing(true);
+        }
+
+        @Override
+        protected List<Object> doInBackground(Line... lines) {
+            Line line = lines[0];
+            Stop closestStop = StopFilter.getClosestStop(Requests.getAllStopsForLine(String.valueOf(line.getID()), mLastLocation));
+
+            StopVisitsResult result = new StopVisitsResult(new Date());
+
+            result.stopVisits.addAll(Requests.getAllDepartures(closestStop, line.getName()));
+            return convertToListData(result, mIsShowingFilters);
+        }
+
+        @Override
+        protected void onCancelled(List<Object> objects) {
+            super.onCancelled(objects);
+            mSwipeView.setRefreshing(false);
+        }
+
+        @Override
+        protected void onPostExecute(List<Object> result) {
+            super.onPostExecute(result);
+            mLastUpdate = System.currentTimeMillis();
+            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext(), DeparturesActivity.this), false);
+            mSwipeView.setRefreshing(false);
+        }
+    }
+
     private class SearchSuggestionsTask extends AsyncTask<String, Void, List<Object>> {
+
+        private final StopVisitsResult result;
+
+        public SearchSuggestionsTask() {
+            result = new StopVisitsResult(new Date());
+        }
 
         @Override
         protected List<Object> doInBackground(String... queries) {
-            String query = queries[0];
-            StopVisitsResult result = new StopVisitsResult(new Date());
+            final String query = queries[0];
 
-            List<Line> linesSuggestion = Requests.getLinesSuggestion(query);
+            ExecutorService es = Executors.newFixedThreadPool(4);
 
-            if (linesSuggestion.size() == 1) {
-                Log.d(LOG_TAG, "Getting line suggestions for 1 line");
-                final Stop closestStop = StopFilter.getClosestStop(Requests.getAllStopsForLine(query, mLastLocation));
-                List<StopVisit> allDepartures = Requests.getAllDepartures(closestStop, String.valueOf(linesSuggestion.get(0).getID()));
-                result.addAll(allDepartures);
-            } else {
-                Log.d(LOG_TAG, "Getting line search suggestions");
-                Cursor suggestions = new SearchSuggestionProvider().getSuggestions(query);
-
-                List<Object> searchSuggestions = new ArrayList<>();
-
-                while ((suggestions.moveToNext())) {
-                    long id = suggestions.getLong(suggestions.getColumnIndex("_id"));
-                    int iconRes = suggestions.getInt(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1));
-                    String text = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
-                    String text2 = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_2));
-                    String suggestionQuery = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_QUERY));
-                    String intent = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_ACTION));
-
-                    searchSuggestions.add(new SearchSuggestion(id, iconRes, text, text2, suggestionQuery, intent));
-
+            es.execute(new Runnable() {
+                @Override
+                public void run() {
+                    searchLinesNearby(query);
                 }
-                suggestions.close();
-                Log.d(NextOsloApp.LOG_TAG, "Suggestions: " + searchSuggestions.toString());
+            });
+            es.execute(new Runnable() {
+                @Override
+                public void run() {
+                    searchLines(query);
+                }
+            });
+            es.execute(new Runnable() {
+                @Override
+                public void run() {
+                    searchStops(query);
+                }
+            });
+            es.execute(new Runnable() {
+                @Override
+                public void run() {
+                    searchSuggestions(query);
+                }
+            });
 
-                return searchSuggestions;
+            es.shutdown();
+            try {
+                es.awaitTermination(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
             }
 
             return convertToListData(result, mIsShowingFilters);
+        }
+
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(result, mIsShowingFilters), getBaseContext(), DeparturesActivity.this), false);
+
         }
 
         @Override
         protected void onPostExecute(List<Object> objects) {
             super.onPostExecute(objects);
             mode = MODE_SUGGESTIONS;
-            mRecyclerView.swapAdapter(new SearchSuggestionsAdapter(objects, getBaseContext(), DeparturesActivity.this), false);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(objects, getBaseContext(), DeparturesActivity.this), false);
             mSwipeView.setRefreshing(false);
         }
-    }
 
-    private static List<Object> convertToListData(List<SearchSuggestion> searchSuggestions) {
-        return null;
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mSwipeView.setRefreshing(true);
+        }
+
+        private void searchStops(String query) {
+            int numberOfStops = 0;
+            for (Stop stop : NextOsloApp.ALL_STOPS) {
+                if (stop.getName().toLowerCase().startsWith(query.toLowerCase())) {
+                    result.stops.add(stop);
+                    if (++numberOfStops > 8) {
+                        break;
+                    }
+                }
+            }
+            if (numberOfStops < 8) {
+                for (Stop stop : NextOsloApp.ALL_STOPS) {
+                    if (!result.stops.contains(stop) && stop.getName().toLowerCase().contains(query.toLowerCase())) {
+                        result.stops.add(stop);
+                        if (++numberOfStops > 8) {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            publishProgress();
+        }
+
+        private void searchSuggestions(String query) {
+            Log.d(LOG_TAG, "Getting line search suggestions");
+            Cursor suggestions = new SearchSuggestionProvider().getSuggestions(query);
+
+            List<Object> searchSuggestions = new ArrayList<>();
+
+            while ((suggestions.moveToNext())) {
+                long id = suggestions.getLong(suggestions.getColumnIndex("_id"));
+                int iconRes = suggestions.getInt(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_ICON_1));
+                String text = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_1));
+                String text2 = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_TEXT_2));
+                String suggestionQuery = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_QUERY));
+                String intent = suggestions.getString(suggestions.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_ACTION));
+
+                result.suggestions.add(new SearchSuggestion(id, iconRes, text, text2, suggestionQuery, intent));
+
+            }
+            suggestions.close();
+            Log.d(NextOsloApp.LOG_TAG, "Suggestions: " + searchSuggestions.toString());
+            publishProgress();
+        }
+
+        private void searchLinesNearby(final String query) {
+            if (mLastResult != null && !mLastResult.stopVisits.isEmpty()) {
+                for (StopVisit stopvisit : mLastResult.stopVisits) {
+                    if (stopvisit.getMonitoredVehicleJourney().getLineRef().equals(query)) {
+                        result.linesNearby.add(stopvisit);
+                    }
+                }
+            }
+
+            publishProgress();
+        }
+
+        private void searchLines(final String query) {
+            result.lines.addAll(Requests.getLinesSuggestion(query));
+
+
+            publishProgress();
+        }
     }
 
     private class SearchLineTask extends AsyncTask<String, Void, List<Object>> {
@@ -557,17 +699,6 @@ public class DeparturesActivity extends AppCompatActivity implements
 
             Log.d(LOG_TAG, "SearchLineTask: " + strings[0]);
 
-//            if (mLastResult != null && !mLastResult.isEmpty()) {
-//                for (StopVisit stopvisit : mLastResult) {
-//                    if (stopvisit.getMonitoredVehicleJourney().getLineRef().equals(query)) {
-//                        result.add(stopvisit);
-//                    }
-//                }
-//
-//                if (!result.isEmpty()) {
-//                    return convertToListData(result, mIsShowingFilters);
-//                }
-//            }
 
             final ExecutorService es = Executors.newCachedThreadPool();
             final Stop closestStop = StopFilter.getClosestStop(Requests.getAllStopsForLine(query, mLastLocation));
@@ -577,7 +708,7 @@ public class DeparturesActivity extends AppCompatActivity implements
                 public void run() {
                     List<StopVisit> allDeparturesForStop = Requests.getAllDepartures(closestStop, query);
                     synchronized (result) {
-                        result.addAll(allDeparturesForStop);
+                        result.stopVisits.addAll(allDeparturesForStop);
 
                     }
                 }
@@ -620,7 +751,7 @@ public class DeparturesActivity extends AppCompatActivity implements
                         List<StopVisit> departures;
                         departures = Requests.getAllDepartures(stop);
                         synchronized (mLastResult) {
-                            mLastResult.addAll(departures);
+                            mLastResult.stopVisits.addAll(departures);
                         }
                     }
 
@@ -653,23 +784,6 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
     }
 
-    private static List<Object> convertSearchResultToListData(StopVisitsResult result, boolean showFilters) {
-        List<Object> data = new ArrayList<>();
-
-        if (showFilters) {
-            data.add(new FilterView.FilterType());
-        }
-        data.add(result.getTimeOfSearch());
-
-        data.addAll(convertToListItemsByStop(result));
-
-        if (result.isEmpty()) {
-            data.add(NextOsloApp.DEPARTURES_HEADER_EMPTY);
-        }
-
-        return data;
-    }
-
     private static List<Object> convertToListData(StopVisitsResult result, boolean showFilters) {
         List<Object> data = new ArrayList<>();
 
@@ -678,50 +792,56 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
         data.add(result.getTimeOfSearch());
 
-        List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(result)))));
-        List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(result)))));
-
-        List<StopVisitListItem> allStopVisitList = convertToListItems(result);
-        for (StopVisitListItem favourite : favourites) {
-            StopVisitFilters.getOtherStopsForStopVisitListItem(favourite, allStopVisitList);
-        }
-        for (StopVisitListItem other : others) {
-            StopVisitFilters.getOtherStopsForStopVisitListItem(other, allStopVisitList);
+        if (!result.linesNearby.isEmpty()) {
+            data.add(NextOsloApp.DEPARTURES_HEADER_LINES_NEARBY);
+            data.addAll(convertToListItems(result.linesNearby));
         }
 
-        if (result.isEmpty()) {
-            data.add(NextOsloApp.DEPARTURES_HEADER_EMPTY);
+        if (!result.lines.isEmpty()) {
+            data.add(NextOsloApp.DEPARTURES_HEADER_LINES);
+            data.addAll(result.lines);
         }
 
-        if (favourites.isEmpty()) {
-            data.add(NextOsloApp.DEPARTURES_HEADER_NO_FAVOURITES);
-        } else {
-            data.add(NextOsloApp.DEPARTURES_HEADER_FAVOURITES);
-            data.addAll(favourites);
-            data.add(new SpaceItem());
+        if (!result.stops.isEmpty()) {
+            data.add(NextOsloApp.DEPARTURES_HEADER_STOPS);
+            data.addAll(result.stops);
         }
 
-        data.add(NextOsloApp.DEPARTURES_HEADER_OTHERS);
-        data.addAll(others);
+        if (!result.suggestions.isEmpty()) {
+            data.add(NextOsloApp.DEPARTURES_HEADER_ADDRESSES);
+            data.addAll(result.suggestions);
+        }
+
+        if (!result.stopVisits.isEmpty()) {
+            List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(result.stopVisits)))));
+            List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(result.stopVisits)))));
+
+            List<StopVisitListItem> allStopVisitList = convertToListItems(result.stopVisits);
+            for (StopVisitListItem favourite : favourites) {
+                StopVisitFilters.getOtherStopsForStopVisitListItem(favourite, allStopVisitList);
+            }
+            for (StopVisitListItem other : others) {
+                StopVisitFilters.getOtherStopsForStopVisitListItem(other, allStopVisitList);
+            }
+
+            if (result.stopVisits.isEmpty()) {
+                data.add(NextOsloApp.DEPARTURES_HEADER_EMPTY);
+            }
+
+            if (favourites.isEmpty()) {
+                data.add(NextOsloApp.DEPARTURES_HEADER_NO_FAVOURITES);
+            } else {
+                data.add(NextOsloApp.DEPARTURES_HEADER_FAVOURITES);
+                data.addAll(favourites);
+                data.add(new SpaceItem());
+            }
+
+            data.add(NextOsloApp.DEPARTURES_HEADER_OTHERS);
+            data.addAll(others);
+
+        }
+
 
         return data;
-
-        /*
-        *
-        if (filteredItems.isEmpty() && favouriteItems.isEmpty()) {
-            data.add(new EmptyItem());
-            return data;
-        }
-
-        if (!favouriteItems.isEmpty()) {
-            data.add(favouritesHeader);
-            data.addAll(favouriteItems);
-            data.add(new SpaceItem());
-        } else {
-            data.add(noFavouritesHeader);
-        }
-        data.add(allOthersHeader);
-        data.addAll(filteredItems);
-        * */
     }
 }

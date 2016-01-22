@@ -89,4 +89,10 @@
     <string name="updated">Updated: %s</string>
     <string name="valid">Valid: %1$s - %2$s</string>
     <string name="transition_title">transition_title</string>
+    <string name="lines_nearby">Departures nearby</string>
+    <string name="searc_suggestions">Suggestions</string>
+    <string name="stops">Stops</string>
+    <string name="lines">Lines</string>
+    <string name="addresses">Addresses</string>
+    <string name="title_activity_stop">Stop</string>
 </resources>

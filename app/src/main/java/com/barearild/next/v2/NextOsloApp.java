@@ -29,6 +29,10 @@ public class NextOsloApp extends Application {
     public static final String GOOGLE_API_KEY = "AIzaSyC0XTqTESWXZSYmjset6oXOsY9BmGeTrso";
     public static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 
+    public static final DeparturesHeader DEPARTURES_HEADER_LINES_NEARBY = new DeparturesHeader();
+    public static final DeparturesHeader DEPARTURES_HEADER_LINES = new DeparturesHeader();
+    public static final DeparturesHeader DEPARTURES_HEADER_STOPS = new DeparturesHeader();
+    public static final DeparturesHeader DEPARTURES_HEADER_ADDRESSES = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_EMPTY = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_NO_FAVOURITES = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_OTHERS = new DeparturesHeader();
@@ -59,10 +63,14 @@ public class NextOsloApp extends Application {
 
         prefs = getSharedPreferences(USER_PREFERENCES, MODE_PRIVATE);
 
-        DEPARTURES_HEADER_NO_FAVOURITES.text = getText(R.string.no_favourites).toString();
-        DEPARTURES_HEADER_FAVOURITES.text = getText(R.string.favourites).toString();
-        DEPARTURES_HEADER_OTHERS.text = getText(R.string.all_others).toString();
-        DEPARTURES_HEADER_EMPTY.text = getText(R.string.departure_list_empty).toString();
+        DEPARTURES_HEADER_STOPS.text = getString(R.string.stops);
+        DEPARTURES_HEADER_LINES_NEARBY.text = getString(R.string.lines_nearby);
+        DEPARTURES_HEADER_LINES.text = getString(R.string.lines);
+        DEPARTURES_HEADER_ADDRESSES.text = getString(R.string.addresses);
+        DEPARTURES_HEADER_NO_FAVOURITES.text = getString(R.string.no_favourites);
+        DEPARTURES_HEADER_FAVOURITES.text = getString(R.string.favourites);
+        DEPARTURES_HEADER_OTHERS.text = getString(R.string.all_others);
+        DEPARTURES_HEADER_EMPTY.text = getString(R.string.departure_list_empty);
 
         setActiveTransportTypes();
 

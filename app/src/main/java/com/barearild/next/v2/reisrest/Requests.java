@@ -172,7 +172,8 @@ public class Requests {
     public static List<Stop> getAllStops() {
         final JSONArray data = doRequest(GET_ALL_STOPS);
 
-        Type listType = new TypeToken<List<Stop>>() {}.getType();
+        Type listType = new TypeToken<List<Stop>>() {
+        }.getType();
 
         GsonBuilder gsonBuilder = new GsonBuilder();
 
@@ -214,7 +215,7 @@ public class Requests {
             URL requestUrl = new URL(request);
             urlConnection = (HttpURLConnection) requestUrl.openConnection();
             urlConnection.setConnectTimeout(2000);
-            urlConnection.setReadTimeout(10000);
+            urlConnection.setReadTimeout(20000);
 
             int statusCode = urlConnection.getResponseCode();
             if (statusCode != HttpURLConnection.HTTP_OK) {
@@ -223,7 +224,11 @@ public class Requests {
 
             InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
-            return new JSONArray(getResponseText(in));
+            JSONArray data = new JSONArray(getResponseText(in));
+
+            in.close();
+
+            return data;
         } catch (java.io.IOException e) {
             Log.e("nextnext", e.getMessage(), e.getCause());
         } catch (JSONException e) {

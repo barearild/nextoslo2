@@ -10,11 +10,15 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.Transporttype;
+import com.barearild.next.v2.reisrest.line.Line;
+import com.barearild.next.v2.reisrest.place.Stop;
+import com.barearild.next.v2.search.SearchSuggestion;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +34,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_TIMESTAMP = 3;
     private static final int TYPE_EMPTY = 4;
     private static final int TYPE_FILTER = 5;
+    private static final int TYPE_SUGGESTION = 6;
+    private static final int TYPE_STOP = 7;
+    private static final int TYPE_LINE = 8;
 
     private final List<Object> data;
     private final java.text.DateFormat dateFormat;
@@ -77,6 +84,12 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return TYPE_TIMESTAMP;
             case TYPE_FILTER:
                 return TYPE_FILTER;
+            case TYPE_SUGGESTION:
+                return ((SearchSuggestion)getItem(position)).id;
+            case TYPE_STOP:
+                return ((Stop)getItem(position)).getID();
+            case TYPE_LINE:
+                return ((Line)getItem(position)).getID();
         }
 
         return super.getItemId(position);
@@ -96,8 +109,15 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return new TimestampViewHolder(inflater.inflate(R.layout.departure_list_timestamp, parent, false));
             case TYPE_FILTER:
                 return new FilterViewHolder(inflater.inflate(R.layout.departure_filter, parent, false));
+            case TYPE_SUGGESTION:
+                return new SearchSuggestionViewHolder(inflater.inflate(R.layout.search_suggestion, parent, false));
+            case TYPE_STOP:
+                return new StopViewHolder(inflater.inflate(R.layout.search_suggestion, parent, false));
+            case TYPE_LINE:
+                return new LineViewHolder(inflater.inflate(R.layout.search_suggestion, parent, false));
             case TYPE_EMPTY:
 //                return new EmptyViewHolder(inflater.inflate(R.layout.departure_list_empty, parent, false));
+
         }
 
         throw new IllegalArgumentException("ViewType " + viewType + " is not supportedd");
@@ -116,7 +136,43 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_HEADER:
                 onBindHeaderViewHolder((HeaderViewHolder)viewHolder, position);
                 break;
+            case TYPE_SUGGESTION:
+                onBindSuggestionViewHolder((SearchSuggestionViewHolder)viewHolder, position);
+                break;
+            case TYPE_STOP:
+                onBindStopViewHoder((StopViewHolder)viewHolder, position);
+                break;
+            case TYPE_LINE:
+                onBindLineViewHolder((LineViewHolder)viewHolder, position);
+                break;
         }
+    }
+
+    private void onBindLineViewHolder(LineViewHolder viewHolder, int position) {
+        final Line line = (Line) getItem(position);
+
+        viewHolder.text.setText(line.getName());
+        viewHolder.icon.setImageResource(line.getTransportation().getImageResId());
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onDepartureItemClickListener.onItemClick(line);
+            }
+        });
+    }
+
+    private void onBindStopViewHoder(StopViewHolder viewHolder, int position) {
+        final Stop stop = (Stop) data.get(position);
+
+        viewHolder.text.setText(stop.getName() + "\n" + stop.getDistrict());
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onDepartureItemClickListener.onItemClick(stop);
+            }
+        });
     }
 
     private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, int position) {
@@ -155,7 +211,20 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         DeparturesHeader header = (DeparturesHeader) data.get(position);
 
         viewHolder.headerText.setText(Html.fromHtml(header.text));
-//        viewHolder.headerText.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public void onBindSuggestionViewHolder(SearchSuggestionViewHolder holder, int position) {
+        final SearchSuggestion suggestion = (SearchSuggestion) data.get(position);
+
+        holder.icon.setImageResource(suggestion.iconRes);
+        holder.text.setText(suggestion.text + (suggestion.text2 != null ? ("\n" +suggestion.text2) : ""));
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onDepartureItemClickListener.onItemClick(suggestion);
+            }
+        });
     }
 
     @Override
@@ -176,6 +245,12 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_FILTER;
         } else if(item instanceof SpaceItem) {
             return TYPE_SPACE;
+        } else if(item instanceof SearchSuggestion) {
+            return TYPE_SUGGESTION;
+        } else if(item instanceof Stop) {
+            return TYPE_STOP;
+        } else if(item instanceof Line) {
+            return TYPE_LINE;
         }
         else {
             return TYPE_HEADER;
@@ -248,7 +323,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public interface OnDepartureItemClickListener {
-        void onItemClick(StopVisitListItem stopVisitListItem);
+        void onItemClick(Object item);
         void onFilterUpdate(Transporttype transporttype, boolean isChecked);
         void addToFavourite(StopVisitListItem item);
         void removeFromFavourite(StopVisitListItem item);
@@ -270,6 +345,44 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private class SpaceViewHolder extends RecyclerView.ViewHolder {
         public SpaceViewHolder(View itemView) {
             super(itemView);
+        }
+    }
+
+    private class SearchSuggestionViewHolder extends RecyclerView.ViewHolder {
+
+        public ImageView icon;
+        public TextView text;
+
+        public SearchSuggestionViewHolder(View itemView) {
+            super(itemView);
+
+            icon = (ImageView) itemView.findViewById(R.id.icon);
+            text = (TextView) itemView.findViewById(R.id.text);
+        }
+    }
+
+    private class StopViewHolder extends RecyclerView.ViewHolder {
+        public ImageView icon;
+        public TextView text;
+
+        public StopViewHolder(View itemView) {
+            super(itemView);
+
+            icon = (ImageView) itemView.findViewById(R.id.icon);
+            icon.setImageResource(R.drawable.ic_action_place);
+            text = (TextView) itemView.findViewById(R.id.text);
+        }
+    }
+
+    private class LineViewHolder extends RecyclerView.ViewHolder {
+        public ImageView icon;
+        public TextView text;
+
+        public LineViewHolder(View itemView) {
+            super(itemView);
+
+            icon = (ImageView) itemView.findViewById(R.id.icon);
+            text = (TextView) itemView.findViewById(R.id.text);
         }
     }
 }

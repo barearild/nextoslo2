@@ -73,7 +73,7 @@ public class FilterView extends GridView {
         setAdapter(new FilterAdapter(context));
     }
 
-    static class FilterType {
+    public static class FilterType {
 
     }
 

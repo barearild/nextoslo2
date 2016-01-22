@@ -146,12 +146,23 @@ public class StopVisitFilters {
 
     public static StopVisitsResult filterLineRef(String query, StopVisitsResult stopVisitsResult) {
         StopVisitsResult filteredResult = new StopVisitsResult(stopVisitsResult.getTimeOfSearch());
-        for (StopVisit stopVisit : stopVisitsResult) {
+        for (StopVisit stopVisit : stopVisitsResult.stopVisits) {
             if(stopVisit.getId().toLowerCase().contains(query.toLowerCase())) {
-                filteredResult.add(stopVisit);
+                filteredResult.stopVisits.add(stopVisit);
             }
         }
 
         return filteredResult;
+    }
+
+    public static List<StopVisit> filterByLineId(String lineId, List<StopVisit> stopVisits) {
+        List<StopVisit> filtered = new ArrayList<>();
+        for (StopVisit stopvisit : stopVisits) {
+            if(stopvisit.getId().equals(lineId)) {
+                filtered.add(stopvisit);
+            }
+        }
+
+        return filtered;
     }
 }

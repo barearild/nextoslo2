@@ -7,4 +7,8 @@ public class DeparturesHeader {
     public DeparturesHeader() {
         this.text = "";
     }
+
+    public DeparturesHeader(String text) {
+        this.text = text;
+    }
 }

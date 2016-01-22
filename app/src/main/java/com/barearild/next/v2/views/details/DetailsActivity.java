@@ -40,6 +40,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.barearild.next.v2.NextOsloApp;
+import com.barearild.next.v2.StopVisitFilters;
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.location.libs.CoordinateConversion;
 import com.barearild.next.v2.reisrest.Requests;
@@ -492,7 +493,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         @Override
         protected List<StopVisit> doInBackground(StopVisitListItem... stopVisitListItems) {
             StopVisitListItem stopVisitListItem = stopVisitListItems[0];
-            return Requests.getAllDepartures(stopVisitListItem.getStop(), stopVisitListItem.getId());
+            return StopVisitFilters.filterByLineId(stopVisitListItem.getId(), Requests.getAllDepartures(stopVisitListItem.getStop(), stopVisitListItem.getLinePublishedName()));
         }
 
         @Override

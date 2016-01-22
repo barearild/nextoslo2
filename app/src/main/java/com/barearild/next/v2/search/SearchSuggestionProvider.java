@@ -10,8 +10,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.barearild.next.v2.NextOsloApp;
-import com.barearild.next.v2.reisrest.Requests;
-import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
 
 import org.json.JSONArray;
@@ -23,8 +21,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
 
 import v2.next.barearild.com.R;
 
@@ -62,36 +58,6 @@ public class SearchSuggestionProvider extends ContentProvider {
     @NonNull
     public Cursor getSuggestions(String searchString) {
         MatrixCursor matrixCursor = new MatrixCursor(COLUMNS);
-
-        List<Line> lineSugggestions = Requests.getLinesSuggestion(searchString);
-        for (Line line : lineSugggestions) {
-            matrixCursor.addRow(createLineSuggestionRow(line.getID(), line.getName(), line.getTransportation().getImageResId()));
-        }
-
-        int numberOfStops = 0;
-        List<Stop> stopSuggestions = new ArrayList<>();
-        for (Stop stop : NextOsloApp.ALL_STOPS) {
-            if (stop.getName().toLowerCase().startsWith(searchString.toLowerCase())) {
-                stopSuggestions.add(stop);
-                if(++numberOfStops > 8) {
-                    break;
-                }
-            }
-        }
-        if(numberOfStops < 8) {
-            for (Stop stop : NextOsloApp.ALL_STOPS) {
-                if(!stopSuggestions.contains(stop) && stop.getName().toLowerCase().contains(searchString.toLowerCase())) {
-                    stopSuggestions.add(stop);
-                    if(++numberOfStops > 8) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        for (Stop stop : stopSuggestions) {
-            matrixCursor.addRow(createStopSuggestion(stop));
-        }
 
         JSONArray addressSuggestions = getAddressSuggestions(searchString);
         if (addressSuggestions != null) {
