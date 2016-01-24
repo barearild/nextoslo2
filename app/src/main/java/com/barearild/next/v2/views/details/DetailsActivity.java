@@ -141,7 +141,8 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
         mFavouritesService = new FavouritesService(this);
 
-        mToolbar.setTitle("");
+        mToolbar.setTitle(mStopVisitListItem.getLineName());
+        mToolbar.setSubtitle(mStopVisitListItem.getStop().getName());
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -153,7 +154,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         title.setText(mStopVisitListItem.getLineName());
         subtitle.setText(mStopVisitListItem.getStop().getName());
 
-        mTitle.setText(mStopVisitListItem.getLineName());
+//        mTitle.setText(mStopVisitListItem.getLineName());
 
         startAlphaAnimation(mToolbar, 0, View.INVISIBLE);
         startAlphaAnimation(mTitle, 0, View.INVISIBLE);

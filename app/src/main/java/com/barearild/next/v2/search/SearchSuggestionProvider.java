@@ -135,7 +135,7 @@ public class SearchSuggestionProvider extends ContentProvider {
     private Object[] createAddressSuggestionRow(long id, String text1) {
         return new Object[]{
                 id,
-                R.drawable.ic_search_white_36dp,
+                R.drawable.ic_map_white_36dp,
                 text1,
                 "",
                 text1,

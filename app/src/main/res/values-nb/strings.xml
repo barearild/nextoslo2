@@ -43,7 +43,7 @@
     <string name="departure_item_button_show_more">Vis mer</string>
     <string name="warning_icon_content_description">Det finnes avviksinformasjon for denne linjen</string>
     <string name="show_line_stops">Stoppesteder</string>
-    <string name="cc_icon">Ikon av <a alt="Freepik.com" href="http://www.freepik.com" title="Freepik.com">Freepik</a> hentet fra <a href="http://www.flaticon.com/free-icon/bus-side-view_30979" title="Flaticon">www.flaticon.com</a></string>
+    <string name="cc_icon">Ikon av <a href="http://www.freepik.com" title="Freepik">Freepik</a> hentet fra <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> under lisens av <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></string>
     <string name="departureOverflowDescription">Meny for avgang</string>
     <string name="departure_details_is_favourite_text">Er favoritt</string>
     <string name="first_departure_in_congestion">Første avgang står i kø</string>

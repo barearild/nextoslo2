@@ -54,7 +54,7 @@
     <string name="more">More</string>
     <string name="departure_item_button_show_more">Show more</string>
     <string name="warning_icon_content_description">There are deviation information for this line</string>
-    <string name="cc_icon">Icon made by <a alt="Freepik.com" href="http://www.freepik.com" title="Freepik.com">Freepik</a> from <a href="http://www.flaticon.com/free-icon/bus-side-view_30979" title="Flaticon">www.flaticon.com</a></string>
+    <string name="cc_icon">Icon made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed under <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></string>
     <string name="show_line_stops">Stops</string>
     <string name="departureOverflowDescription">Departure overflow menu</string>
     <string name="departure_details_is_favourite_text">Is favourite</string>
@@ -95,4 +95,5 @@
     <string name="lines">Lines</string>
     <string name="addresses">Addresses</string>
     <string name="title_activity_stop">Stop</string>
+    <string name="License">License</string>
 </resources>

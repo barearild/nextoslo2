@@ -88,7 +88,7 @@ public class DeparturesActivity extends AppCompatActivity implements
     private LinearLayoutManager mLayoutParams;
     private Long mLastUpdate = null;
     private FloatingActionButton fab;
-    private StopVisitsResult mLastResult;
+    private StopVisitsResult mLastNearbyResults;
     private GetAllDeparturesTask mAllDeparturesTask;
     private FavouritesService mFavouriteService;
 
@@ -196,8 +196,8 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         List<Object> data = new ArrayList<>();
 
-        if (mLastResult != null) {
-            data.addAll(convertToListData(mLastResult, mIsShowingFilters));
+        if (mLastNearbyResults != null) {
+            data.addAll(convertToListData(mLastNearbyResults, mIsShowingFilters));
         } else {
             data.add(new FilterView.FilterType());
         }
@@ -208,19 +208,25 @@ public class DeparturesActivity extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_LAST_RESULT, mLastResult);
+        outState.putParcelable(STATE_LAST_RESULT, mLastNearbyResults);
         outState.putBoolean("isRefreshing", mAllDeparturesTask != null && mAllDeparturesTask.getStatus() == AsyncTask.Status.RUNNING);
+        outState.putString("searchQuery", searchView.getQuery().toString());
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mLastResult = savedInstanceState.getParcelable(STATE_LAST_RESULT);
+        mLastNearbyResults = savedInstanceState.getParcelable(STATE_LAST_RESULT);
 
-        if (mLastResult != null) {
-            mLastUpdate = mLastResult.getTimeOfSearch().getTime();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), getBaseContext(), this), true);
+        if (mLastNearbyResults != null) {
+            mLastUpdate = mLastNearbyResults.getTimeOfSearch().getTime();
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), getBaseContext(), this), true);
             mSwipeView.setRefreshing(false);
+        }
+
+        String query = savedInstanceState.getString("searchQuery");
+        if(searchView != null && !searchView.isIconified() && query != null && !query.isEmpty()) {
+            searchView.setQuery(query, true);
         }
     }
 
@@ -276,9 +282,9 @@ public class DeparturesActivity extends AppCompatActivity implements
     private void filterResult(String query) {
 
         if (query == null) {
-            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), this, this), false);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), this, this), false);
         } else {
-            StopVisitsResult filtered = StopVisitFilters.filterLineRef(query, mLastResult);
+            StopVisitsResult filtered = StopVisitFilters.filterLineRef(query, mLastNearbyResults);
             mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(filtered, mIsShowingFilters), this, this), false);
         }
 
@@ -299,6 +305,17 @@ public class DeparturesActivity extends AppCompatActivity implements
             return true;
         } else if (id == R.id.action_search) {
 
+        } else if (id == R.id.action_license) {
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.cc_icon)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .create()
+                    .show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -309,8 +326,8 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         switch (mode) {
             case MODE_STOP_VISITS:
-                if (mLastResult != null && !mLastResult.stopVisits.isEmpty()) {
-                    mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), getBaseContext(), DeparturesActivity.this), false);
+                if (mLastNearbyResults != null && !mLastNearbyResults.stopVisits.isEmpty()) {
+                    mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), getBaseContext(), DeparturesActivity.this), false);
                 }
                 break;
             case MODE_SUGGESTIONS:
@@ -471,19 +488,19 @@ public class DeparturesActivity extends AppCompatActivity implements
         NextOsloApp.SHOW_TRANSPORT_TYPE.put(transporttype, isChecked);
         getSharedPreferences(NextOsloApp.USER_PREFERENCES, MODE_PRIVATE).edit().putBoolean(transporttype.name(), isChecked).apply();
 
-        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), this, this), false);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), this, this), false);
     }
 
     @Override
     public void addToFavourite(StopVisitListItem item) {
         mFavouriteService.addFavourite(item);
-        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), this, this), false);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), this, this), false);
     }
 
     @Override
     public void removeFromFavourite(StopVisitListItem item) {
         mFavouriteService.removeFavourite(item);
-        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, mIsShowingFilters), this, this), false);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), this, this), false);
     }
 
     @Override
@@ -665,8 +682,8 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
 
         private void searchLinesNearby(final String query) {
-            if (mLastResult != null && !mLastResult.stopVisits.isEmpty()) {
-                for (StopVisit stopvisit : mLastResult.stopVisits) {
+            if (mLastNearbyResults != null && !mLastNearbyResults.stopVisits.isEmpty()) {
+                for (StopVisit stopvisit : mLastNearbyResults.stopVisits) {
                     if (stopvisit.getMonitoredVehicleJourney().getLineRef().equals(query)) {
                         result.linesNearby.add(stopvisit);
                     }
@@ -741,7 +758,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
             List<Stop> closestStopsToLocation = Requests.getClosestStopsToLocation(params[0], 15, 1400);
 
-            mLastResult = new StopVisitsResult(new Date());
+            mLastNearbyResults = new StopVisitsResult(new Date());
 
             final ExecutorService es = Executors.newCachedThreadPool();
             for (final Stop stop : closestStopsToLocation) {
@@ -750,8 +767,8 @@ public class DeparturesActivity extends AppCompatActivity implements
                     public void run() {
                         List<StopVisit> departures;
                         departures = Requests.getAllDepartures(stop);
-                        synchronized (mLastResult) {
-                            mLastResult.stopVisits.addAll(departures);
+                        synchronized (mLastNearbyResults) {
+                            mLastNearbyResults.stopVisits.addAll(departures);
                         }
                     }
 
@@ -764,7 +781,7 @@ public class DeparturesActivity extends AppCompatActivity implements
                 Log.e("GetDepartures", e.getMessage(), e);
             }
 
-            return convertToListData(mLastResult, mIsShowingFilters);
+            return convertToListData(mLastNearbyResults, mIsShowingFilters);
         }
 
         @Override
