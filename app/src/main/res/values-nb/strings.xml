@@ -9,10 +9,10 @@
     <string name="action_add_to_favourites">Legg til favoritter</string>
     <string name="action_delete_from_favourites">Slett fra favoritter</string>
     <string name="getting_departures_info">Henter avganger…</string>
-    <string name="departure_list_empty">Åh nei, vi fant ingen avganger\n\n<a href="tel:02323">Ring en taxi i stedet.</a></string>
+    <string name="departure_list_empty"><![CDATA[Beklager men vi fant ingen avganger.<br/><br/>Kanskje du vil ringe etter en taxi i stedet for?<br/>                                             <a href="tel:02323">Oslo Taxi</a><br/>                                             <a href="tel:08000">Norgestaxi</a><br/>                                             <a href="tel:08294">0-TAXI</a><br/>                                             <a href="tel:02365">Christiania Taxi</a><br/>                                             <a href="tel:02202">Taxi2</a><br/>                                             <a href="tel:90040999">Fjordtaxi</a><br/>                                             ]]></string>
     <string name="settings_show_favourites">Kun favoritter</string>
     <string name="settings_show_header">Vis</string>
-    <string name="settings_show_metro">Metro</string>
+    <string name="settings_show_metro">T-bane</string>
     <string name="settings_show_bus">Buss</string>
     <string name="settings_show_tram">Trikk</string>
     <string name="settings_show_all">Alle</string>
@@ -30,19 +30,19 @@
     <string name="header_info_showing_all">Viser alle avganger, trykk her for å vise favoritter</string>
     <string name="departures_list_favourites_empty">Ingen favoritter i nærheten, trykk her for å vise alle</string>
     <string name="search">Søk</string>
-    <string name="search_hint">Hvor skal du?</string>
+    <string name="search_hint">Linje, holdeplass eller adresse</string>
     <string name="favourites">Favoritter</string>
     <string name="all">Alle</string>
     <string name="switch_label_showing">Viser</string>
     <string name="all_others">Andre avganger</string>
-    <string name="no_favourites">No favourites</string>
+    <string name="no_favourites">Ingen favoritter</string>
     <string name="warning">Advarsel</string>
     <string name="getting_location_toast">Finner din lokasjon</string>
     <string name="location_failed_toast">Kunne ikke finne din lokasjon</string>
     <string name="more">Mer</string>
     <string name="departure_item_button_show_more">Vis mer</string>
     <string name="warning_icon_content_description">Det finnes avviksinformasjon for denne linjen</string>
-    <string name="show_line_stops">Stoppesteder</string>
+    <string name="show_line_stops">Holdeplasser</string>
     <string name="cc_icon">Ikon av <a href="http://www.freepik.com" title="Freepik">Freepik</a> hentet fra <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> under lisens av <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></string>
     <string name="departureOverflowDescription">Meny for avgang</string>
     <string name="departure_details_is_favourite_text">Er favoritt</string>
@@ -58,8 +58,6 @@
     <string name="action_add_reminder">Sett påminnelse</string>
     <string name="toast_updated">Oppdatert</string>
     <string name="action_settings">Innstillinger</string>
-    <string name="large_text"></string>
-    <string name="title_activity_departures"></string>
     <string name="transport_airportbus">Flybuss</string>
     <string name="transport_airporttrain">Flytog</string>
     <string name="transport_all">Alle</string>
@@ -71,5 +69,22 @@
     <string name="transport_train">Tog</string>
     <string name="transport_tram">Trikk</string>
     <string name="transport_walking">Gå</string>
-    <string name="action_search">Search</string>
+    <string name="action_search">Søk</string>
+    <string name="License">Lisens</string>
+    <string name="addresses">Adresser</string>
+    <string name="cancel">Avbryt</string>
+    <string name="error_connection_failed">En feil oppstod ved henting av din lokasjon</string>
+    <string name="info_do_not_show_again">Forstått</string>
+    <string name="info_pull_down_to_update">Du kan også swipe nedover for å oppdatere</string>
+    <string name="lines">Linjer</string>
+    <string name="lines_nearby">Linjer i nærheten</string>
+    <string name="ok">Ok</string>
+    <string name="searc_suggestions">Forslag</string>
+    <string name="stops">Holdeplasser</string>
+    <string name="try_again">Prøv igjen</string>
+    <string name="until_further_notice">Inntil videre</string>
+    <string name="updated">Oppdatert: %s</string>
+    <string name="valid">Gyldig: %1$s - %2$s</string>
+    <string name="request_location_info">Denne applikasjonen trenger tilgang til din lokasjon for å fungere</string>
+    <string name="set_permission">Gi tilgang</string>
 </resources>

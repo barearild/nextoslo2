@@ -25,7 +25,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.StopVisitFilters;
@@ -105,8 +104,6 @@ public class DeparturesActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_departures);
-
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mApplication = (NextOsloApp) getApplication();
 
@@ -202,7 +199,7 @@ public class DeparturesActivity extends AppCompatActivity implements
             data.add(new FilterView.FilterType());
         }
 
-        mRecyclerView.swapAdapter(new DeparturesAdapter(data, getBaseContext(), DeparturesActivity.this), false);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(data, this, DeparturesActivity.this), false);
     }
 
     @Override
@@ -210,7 +207,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         super.onSaveInstanceState(outState);
         outState.putParcelable(STATE_LAST_RESULT, mLastNearbyResults);
         outState.putBoolean("isRefreshing", mAllDeparturesTask != null && mAllDeparturesTask.getStatus() == AsyncTask.Status.RUNNING);
-        outState.putString("searchQuery", searchView.getQuery().toString());
+        outState.putString("searchQuery", searchView != null ? searchView.getQuery().toString() : null);
     }
 
     @Override
@@ -220,12 +217,12 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         if (mLastNearbyResults != null) {
             mLastUpdate = mLastNearbyResults.getTimeOfSearch().getTime();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), getBaseContext(), this), true);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), this, this), true);
             mSwipeView.setRefreshing(false);
         }
 
         String query = savedInstanceState.getString("searchQuery");
-        if(searchView != null && !searchView.isIconified() && query != null && !query.isEmpty()) {
+        if (searchView != null && !searchView.isIconified() && query != null && !query.isEmpty()) {
             searchView.setQuery(query, true);
         }
     }
@@ -327,7 +324,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         switch (mode) {
             case MODE_STOP_VISITS:
                 if (mLastNearbyResults != null && !mLastNearbyResults.stopVisits.isEmpty()) {
-                    mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), getBaseContext(), DeparturesActivity.this), false);
+                    mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastNearbyResults, mIsShowingFilters), this, DeparturesActivity.this), false);
                 }
                 break;
             case MODE_SUGGESTIONS:
@@ -361,16 +358,39 @@ public class DeparturesActivity extends AppCompatActivity implements
         updateData(false);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case NextOsloApp.REQUEST_PERMISSION_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    updateData(false);
+                } else {
+                    new AlertDialog.Builder(this)
+                            .setMessage(R.string.request_location_info)
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.cancel();
+                                }
+                            })
+                            .setPositiveButton(R.string.set_permission, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    requestLocationPermission();
+                                    dialogInterface.dismiss();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+            }
+        }
+    }
+
     private void updateData(boolean force) {
         mode = MODE_STOP_VISITS;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            requestLocationPermission();
             return;
         }
         if (force) {
@@ -389,6 +409,12 @@ public class DeparturesActivity extends AppCompatActivity implements
         } else {
             onLocationChanged(mLastLocation);
         }
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                NextOsloApp.REQUEST_PERMISSION_LOCATION);
     }
 
     private long secondsSince(long timestamp) {
@@ -468,17 +494,17 @@ public class DeparturesActivity extends AppCompatActivity implements
     public void onItemClick(Object item) {
         if (item instanceof StopVisitListItem) {
             Intent details = new Intent(this, DetailsActivity.class);
-            details.putExtra(StopVisitListItem.class.getSimpleName(), (StopVisitListItem)item);
+            details.putExtra(StopVisitListItem.class.getSimpleName(), (StopVisitListItem) item);
             startActivity(details);
-        } else if(item instanceof Stop) {
+        } else if (item instanceof Stop) {
             Intent stop = new Intent(this, StopActivity.class);
-            stop.putExtra(Stop.class.getSimpleName(), (Stop)item);
+            stop.putExtra(Stop.class.getSimpleName(), (Stop) item);
             startActivity(stop);
-        } else if(item instanceof SearchSuggestion) {
+        } else if (item instanceof SearchSuggestion) {
             Intent mapIntent = new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("http://maps.google.com/maps?daddr=" + ((SearchSuggestion)item).query + "&dirflg=r"));
+                    Uri.parse("http://maps.google.com/maps?daddr=" + ((SearchSuggestion) item).query + "&dirflg=r"));
             startActivity(mapIntent);
-        } else if(item instanceof Line) {
+        } else if (item instanceof Line) {
             new SearchClosestStopForLineTask().execute((Line) item);
         }
     }
@@ -617,7 +643,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
 
-            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(result, mIsShowingFilters), getBaseContext(), DeparturesActivity.this), false);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(result, mIsShowingFilters), DeparturesActivity.this, DeparturesActivity.this), false);
 
         }
 
@@ -625,7 +651,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         protected void onPostExecute(List<Object> objects) {
             super.onPostExecute(objects);
             mode = MODE_SUGGESTIONS;
-            mRecyclerView.swapAdapter(new DeparturesAdapter(objects, getBaseContext(), DeparturesActivity.this), false);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(objects, DeparturesActivity.this, DeparturesActivity.this), false);
             mSwipeView.setRefreshing(false);
         }
 
@@ -746,7 +772,7 @@ public class DeparturesActivity extends AppCompatActivity implements
             super.onPostExecute(result);
             mode = MODE_LINE_SEARCH;
             mLastUpdate = System.currentTimeMillis();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext(), DeparturesActivity.this), false);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(result, DeparturesActivity.this, DeparturesActivity.this), false);
             mSwipeView.setRefreshing(false);
         }
     }
@@ -796,7 +822,7 @@ public class DeparturesActivity extends AppCompatActivity implements
             mode = MODE_STOP_VISITS;
             Log.d("nextnext", "OnPostExecute " + result.toString());
             mLastUpdate = System.currentTimeMillis();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext(), DeparturesActivity.this), false);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(result, DeparturesActivity.this, DeparturesActivity.this), false);
             mSwipeView.setRefreshing(false);
         }
     }
@@ -807,7 +833,14 @@ public class DeparturesActivity extends AppCompatActivity implements
         if (showFilters) {
             data.add(new FilterView.FilterType());
         }
-        data.add(result.getTimeOfSearch());
+
+        if (result == null) {
+            return data;
+        }
+
+        if (result.getTimeOfSearch() != null) {
+            data.add(result.getTimeOfSearch());
+        }
 
         if (!result.linesNearby.isEmpty()) {
             data.add(NextOsloApp.DEPARTURES_HEADER_LINES_NEARBY);

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     package="v2.next.barearild.com">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" tools:node="remove" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" tools:node="remove" />
 
     <application
         android:name="com.barearild.next.v2.NextOsloApp"
@@ -39,7 +42,6 @@
         </activity>
         <activity
             android:name="com.barearild.next.v2.views.details.DetailsActivity"
-            android:label="@string/title_activity_details"
             android:parentActivityName="com.barearild.next.v2.views.departures.DeparturesActivity"
             android:theme="@style/NextTheme.NoActionBar">
             <meta-data
@@ -60,7 +62,7 @@
 
         <activity
             android:name="com.barearild.next.v2.views.map.MapsActivity"
-            android:label="@string/title_activity_maps">
+            >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.barearild.next.v2.views.details.DetailsActivity" />
@@ -73,7 +75,6 @@
 
         <activity
             android:name="com.barearild.next.v2.views.stop.StopActivity"
-            android:label="@string/title_activity_stop"
             android:parentActivityName="com.barearild.next.v2.views.departures.DeparturesActivity"
             android:theme="@style/NextTheme.NoActionBar">
             <meta-data

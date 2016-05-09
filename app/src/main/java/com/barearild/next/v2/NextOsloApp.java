@@ -50,6 +50,7 @@ public class NextOsloApp extends Application {
     public static final String SHOW_PULL_DOWN_INFO = "prefs_first_time_update_button";
 
     public static final HashMap<Transporttype, Boolean> SHOW_TRANSPORT_TYPE = new HashMap<Transporttype, Boolean>();
+    public static final int REQUEST_PERMISSION_LOCATION = 0;
 
     public static List<Line> mAllLines;
 

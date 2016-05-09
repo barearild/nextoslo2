@@ -1,6 +1,7 @@
 <resources>
     <dimen name="app_bar_height">187dp</dimen>
-    <dimen name="app_bar_details_height">350dp</dimen>
+    <dimen name="app_bar_details_height">450dp</dimen>
+    <dimen name="details_map_height">300dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="dialog_text_padding_lr">24dp</dimen>

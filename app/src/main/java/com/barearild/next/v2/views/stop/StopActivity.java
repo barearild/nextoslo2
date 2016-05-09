@@ -1,18 +1,19 @@
 package com.barearild.next.v2.views.stop;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.StopVisitFilters;
+import com.barearild.next.v2.favourites.FavouritesService;
+import com.barearild.next.v2.location.libs.CoordinateConversion;
 import com.barearild.next.v2.reisrest.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.Transporttype;
@@ -23,6 +24,8 @@ import com.barearild.next.v2.views.departures.DeparturesSwipeRefreshLayout;
 import com.barearild.next.v2.views.departures.FilterView;
 import com.barearild.next.v2.views.departures.SpaceItem;
 import com.barearild.next.v2.views.departures.StopVisitListItem;
+import com.barearild.next.v2.views.details.DetailsActivity;
+import com.barearild.next.v2.views.map.MapsActivity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,12 +42,15 @@ import static com.barearild.next.v2.StopVisitFilters.withoutFavourites;
 
 public class StopActivity extends AppCompatActivity implements DeparturesAdapter.OnDepartureItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
+    private static final String STATE_LAST_RESULT = "lastResult";
+
     private StopVisitsResult mLastResult;
     private long mLastUpdate;
     private DeparturesSwipeRefreshLayout mSwipeView;
     private DeparturesRecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutParams;
     private Stop mStop;
+    private FavouritesService mFavouriteService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +68,7 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                showInMap(mStop);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -76,6 +81,17 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
 
         mRecyclerView = (DeparturesRecyclerView) findViewById(R.id.departure_list);
 
+        mFavouriteService = new FavouritesService(getApplicationContext());
+
+    }
+
+    private void showInMap(Stop stop) {
+        Intent mapIntent = new Intent(StopActivity.this, MapsActivity.class);
+        double[] latLon = CoordinateConversion.utm2LatLon(stop.getX(), stop.getY());
+        mapIntent.putExtra("latLng", latLon);
+        mapIntent.putExtra("stopName", stop.getName());
+
+        startActivity(mapIntent);
     }
 
     @Override
@@ -85,8 +101,31 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(STATE_LAST_RESULT, mLastResult);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mLastResult = savedInstanceState.getParcelable(STATE_LAST_RESULT);
+
+        if (mLastResult != null) {
+            mLastUpdate = mLastResult.getTimeOfSearch().getTime();
+            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, false), this, this), true);
+            mSwipeView.setRefreshing(false);
+        }
+    }
+
+    @Override
     public void onItemClick(Object item) {
 
+        if(item instanceof StopVisitListItem) {
+            Intent details = new Intent(this, DetailsActivity.class);
+            details.putExtra(StopVisitListItem.class.getSimpleName(), (StopVisitListItem)item);
+            startActivity(details);
+        }
     }
 
     @Override
@@ -96,17 +135,19 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
 
     @Override
     public void addToFavourite(StopVisitListItem item) {
-
+        mFavouriteService.addFavourite(item);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, false), this, this), false);
     }
 
     @Override
     public void removeFromFavourite(StopVisitListItem item) {
-
+        mFavouriteService.removeFavourite(item);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, false), this, this), false);
     }
 
     @Override
     public void showInMap(StopVisitListItem item) {
-
+        showInMap(item.getStop());
     }
 
     @Override
@@ -132,16 +173,15 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
             mSwipeView.setRefreshing(true);
+            super.onPreExecute();
         }
 
         @Override
         protected void onPostExecute(List<Object> result) {
             super.onPostExecute(result);
-            Log.d("nextnext", "OnPostExecute " + result.toString());
             mLastUpdate = System.currentTimeMillis();
-            mRecyclerView.swapAdapter(new DeparturesAdapter(result, getBaseContext(), StopActivity.this), false);
+            mRecyclerView.swapAdapter(new DeparturesAdapter(result, StopActivity.this, StopActivity.this), false);
             mSwipeView.setRefreshing(false);
         }
     }
@@ -205,23 +245,5 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
 
 
         return data;
-
-        /*
-        *
-        if (filteredItems.isEmpty() && favouriteItems.isEmpty()) {
-            data.add(new EmptyItem());
-            return data;
-        }
-
-        if (!favouriteItems.isEmpty()) {
-            data.add(favouritesHeader);
-            data.addAll(favouriteItems);
-            data.add(new SpaceItem());
-        } else {
-            data.add(noFavouritesHeader);
-        }
-        data.add(allOthersHeader);
-        data.addAll(filteredItems);
-        * */
     }
 }

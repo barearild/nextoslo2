@@ -29,6 +29,7 @@
     </style>
 
     <style name="BusTheme" parent="NextTheme.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
         <item name="colorPrimary">@color/busColorPrimary</item>
         <item name="colorPrimaryDark">@color/busColorPrimaryDark</item>
         <item name="transport_type_icon">@drawable/ic_directions_bus_white_36dp</item>
@@ -36,6 +37,7 @@
     </style>
 
     <style name="TramTheme" parent="NextTheme.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
         <item name="colorPrimary">@color/tramColorPrimary</item>
         <item name="colorPrimaryDark">@color/tramColorPrimaryDark</item>
         <item name="transport_type_icon">@drawable/ic_directions_transit_white_36dp</item>
@@ -43,6 +45,7 @@
     </style>
 
     <style name="MetroTheme" parent="NextTheme.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
         <item name="colorPrimary">@color/metroColorPrimary</item>
         <item name="colorPrimaryDark">@color/metroColorPrimaryDark</item>
         <item name="transport_type_icon">@drawable/ic_directions_subway_white_36dp</item>
@@ -50,6 +53,7 @@
     </style>
 
     <style name="TrainTheme" parent="NextTheme.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
         <item name="colorPrimary">@color/trainColorPrimary</item>
         <item name="colorPrimaryDark">@color/trainColorPrimaryDark</item>
         <item name="transport_type_icon">@drawable/ic_directions_railway_white_36dp</item>
@@ -57,6 +61,7 @@
     </style>
 
     <style name="RegionalBusTheme" parent="NextTheme.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
         <item name="colorPrimary">@color/regionalBusColorPrimary</item>
         <item name="colorPrimaryDark">@color/regionalBusColorPrimaryDark</item>
         <item name="transport_type_icon">@drawable/ic_directions_bus_white_36dp</item>
@@ -64,6 +69,7 @@
     </style>
 
     <style name="BoatTheme" parent="NextTheme.NoActionBar">
+        <item name="android:statusBarColor">?attr/colorPrimaryDark</item>
         <item name="colorPrimary">@color/boatColorPrimary</item>
         <item name="colorPrimaryDark">@color/boatColorPrimaryDark</item>
         <item name="transport_type_icon">@drawable/ic_directions_boat_white_36dp</item>

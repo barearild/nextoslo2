@@ -3,7 +3,9 @@ package com.barearild.next.v2.reisrest.StopVisit;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
+import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -85,8 +87,13 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
     }
 
     public int getLineColor() {
-        if(extensions != null && extensions.getLineColour() != null && !extensions.getLineColour().isEmpty()) {
-            return Color.parseColor(extensions.getLineColour());
+        if (extensions != null && extensions.getLineColour() != null && !extensions.getLineColour().trim().isEmpty()) {
+            try {
+                return Color.parseColor(extensions.getLineColour().trim());
+            } catch (Exception e) {
+                Log.e(NextOsloApp.LOG_TAG, "Error while parsing color from Ruter", e);
+                //Just log the error and continue with the code below
+            }
         }
 
         switch (getMonitoredVehicleJourney().getVehicleMode()) {

@@ -23,7 +23,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -95,7 +94,6 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // inside your activity (if you did not enable transitions in your theme)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -108,7 +106,11 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
             getWindow().setSharedElementsUseOverlay(true);
         }
 
+
         mStopVisitListItem = getIntent().getParcelableExtra(StopVisitListItem.class.getSimpleName());
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            getWindow().setStatusBarColor(Color.parseColor(mStopVisitListItem.getStopVisits().get(0).getExtensions().getLineColour()));
+//        }
         switch (mStopVisitListItem.getTransporttype()) {
             case Tram:
                 setTheme(R.style.TramTheme);
@@ -194,6 +196,15 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         });
     }
 
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
     @Override
     protected void onPostResume() {
         super.onPostResume();
@@ -221,6 +232,12 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         mWarnings = (ListView) findViewById(R.id.warnings);
         mDeviationDetails = (RelativeLayout) findViewById(R.id.deviation_details);
         mSwipeRefreshLayout = (DeparturesSwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+
+        ViewGroup.LayoutParams layoutParams = mToolbar.getLayoutParams();
+        int statusBarHeight = getStatusBarHeight();
+        layoutParams.height = layoutParams.height + statusBarHeight;
+        mToolbar.setLayoutParams(layoutParams);
+        mToolbar.setPadding(0, statusBarHeight, 0, 0);
     }
 
     private void getAllStops() {
@@ -308,17 +325,21 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
     }
 
     private void initParallaxValues() {
-        CollapsingToolbarLayout.LayoutParams petDetailsLp =
-                (CollapsingToolbarLayout.LayoutParams) mImageparallax.getLayoutParams();
+        try {
+            CollapsingToolbarLayout.LayoutParams petDetailsLp =
+                    (CollapsingToolbarLayout.LayoutParams) mImageparallax.getLayoutParams();
 
-        CollapsingToolbarLayout.LayoutParams petBackgroundLp =
-                (CollapsingToolbarLayout.LayoutParams) mFrameParallax.getLayoutParams();
+            CollapsingToolbarLayout.LayoutParams petBackgroundLp =
+                    (CollapsingToolbarLayout.LayoutParams) mFrameParallax.getLayoutParams();
 
-        petDetailsLp.setParallaxMultiplier(0.9f);
-        petBackgroundLp.setParallaxMultiplier(0.3f);
+            petDetailsLp.setParallaxMultiplier(0.9f);
+            petBackgroundLp.setParallaxMultiplier(0.3f);
 
-        mImageparallax.setLayoutParams(petDetailsLp);
-        mFrameParallax.setLayoutParams(petBackgroundLp);
+            mImageparallax.setLayoutParams(petDetailsLp);
+            mFrameParallax.setLayoutParams(petBackgroundLp);
+        } catch (ClassCastException e) {
+            Log.d(NextOsloApp.LOG_TAG, e.getMessage(), e);
+        }
     }
 
     private void initSwipeRefreshLayout() {
@@ -346,7 +367,15 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         Point screnSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screnSize);
 
-        screnSize.y = (int) getResources().getDimension(R.dimen.app_bar_details_height);
+        if (screnSize.x > screnSize.y) {
+            Log.d(NextOsloApp.LOG_TAG, "X is larger than Y " + screnSize.x + "x" + screnSize.y);
+            screnSize.x = (int) getResources().getDimension(R.dimen.details_map_height);
+            screnSize.y = (int) getResources().getDimension(R.dimen.details_map_width);
+        } else {
+            Log.d(NextOsloApp.LOG_TAG, "Y is larger than X " + screnSize.x + "x" + screnSize.y);
+            screnSize.y = (int) getResources().getDimension(R.dimen.details_map_height);
+        }
+
 
         return screnSize;
 
@@ -388,6 +417,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
         if (percentage >= PERCENTAGE_TO_HIDE_TITLE_DETAILS) {
             if (mIsTheTitleContainerVisible) {
                 startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                startAlphaAnimation(mImageparallax, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
                 mIsTheTitleContainerVisible = false;
             }
             mFab.hide();
@@ -396,6 +426,7 @@ public class DetailsActivity extends AppCompatActivity implements AppBarLayout.O
 
             if (!mIsTheTitleContainerVisible) {
                 startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                startAlphaAnimation(mImageparallax, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
                 mIsTheTitleContainerVisible = true;
             }
             mFab.show();

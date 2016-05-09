@@ -9,7 +9,7 @@
 
     <style name="NextTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="NextTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <style name="NextTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
         <item name="android:popupBackground">@android:color/white</item>
     </style>
 

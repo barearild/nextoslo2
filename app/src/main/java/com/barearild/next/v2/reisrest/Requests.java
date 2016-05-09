@@ -25,6 +25,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Requests {
@@ -229,9 +230,7 @@ public class Requests {
             in.close();
 
             return data;
-        } catch (java.io.IOException e) {
-            Log.e("nextnext", e.getMessage(), e.getCause());
-        } catch (JSONException e) {
+        } catch (java.io.IOException | JSONException | NoSuchElementException e) {
             Log.e("nextnext", e.getMessage(), e.getCause());
         } finally {
             if (urlConnection != null) {
