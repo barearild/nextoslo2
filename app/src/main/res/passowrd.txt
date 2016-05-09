@@ -1,0 +1,5 @@
+            storeFile file('C:/Users/Arild/AndroidStudioProjects/NextOslo/nextnext_signed.keystore')
+            storePassword 'mqXFI@#UR#KD'
+//            storePassword System.console().readLine("\n\$ Enter keystore password: ")
+            keyAlias 'nextnext'
+            keyPassword '8mW95Nx*G0!L'
