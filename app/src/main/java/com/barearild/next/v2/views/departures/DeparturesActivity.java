@@ -476,18 +476,6 @@ public class DeparturesActivity extends AppCompatActivity implements
 
             }
         }
-
-//        switch (mode) {
-//            case MODE_STOP_VISITS:
-//                updateData(true);
-//                break;
-//            case MODE_SUGGESTIONS:
-//                search(Intent.ACTION_SEARCH, mLastQuery);
-//                break;
-//            case MODE_LINE_SEARCH:
-//                search(NextOsloApp.SEARCH_LINE, mLastQuery);
-//                break;
-//        }
     }
 
     @Override
