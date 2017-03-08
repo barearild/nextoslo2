@@ -1,8 +1,10 @@
 package com.barearild.next.v2.reisrest.place;
 
+import android.location.Location;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.barearild.next.v2.location.libs.CoordinateConversion;
 import com.google.gson.annotations.Expose;
 
 import java.util.ArrayList;
@@ -32,8 +34,6 @@ public class Stop implements Parcelable {
     private String ShortName;
     @Expose
     private List<Stop> Stops = new ArrayList<Stop>();
-//    @Expose
-//    private Transporttype Type;
     @Expose
     private int X;
     @Expose
@@ -48,14 +48,8 @@ public class Stop implements Parcelable {
     private boolean BoardingAllowed;
     @Expose
     private Calendar DepartureTime;
-//    @Expose
-//    private List<Deviation> Deviations = new ArrayList<Deviation>();
-//    @Expose
-//    private List<Line> Lines = new ArrayList<Line>();
     @Expose
     private boolean RealTimeStop;
-//    @Expose
-//    private List<StopPoint> StopPoints = new ArrayList<StopPoint>();
     @Expose
     private int WalkingDistance;
 
@@ -70,7 +64,6 @@ public class Stop implements Parcelable {
         this.ShortName = in.readString();
         this.Stops = new ArrayList<Stop>();
         in.readList(this.Stops, Stop.class.getClassLoader());
-//        this.Type = Transporttype.valueOf(in.readInt());
         this.X = in.readInt();
         this.Y = in.readInt();
         this.Zone = in.readString();
@@ -87,40 +80,34 @@ public class Stop implements Parcelable {
             this.DepartureTime = Calendar.getInstance();
             this.DepartureTime.setTimeInMillis(in.readLong());
         }
-//        this.Deviations = new ArrayList<Deviation>();
-//        in.readList(this.Deviations, Deviation.class.getClassLoader());
-//        this.Lines = new ArrayList<Line>();
-//        in.readList(this.Lines, Line.class.getClassLoader());
         this.RealTimeStop = in.readByte() != 0;
-//        this.StopPoints = new ArrayList<StopPoint>();
-//        in.readList(this.StopPoints, StopPoint.class.getClassLoader());
         this.WalkingDistance = in.readInt();
+    }
+
+    public Stop(Builder builder) {
+        this.District = builder.District;
+        this.ID = builder.ID;
+        this.Name = builder.Name;
+        this.Rank = builder.Rank;
+        this.ShortName = builder.ShortName;
+        this.Stops = builder.Stops;
+        this.X = builder.X;
+        this.Y = builder.Y;
+        this.Zone = builder.Zone;
+        this.AlightingAllowed = builder.AlightingAllowed;
+        this.ArrivalTime = builder.ArrivalTime;
+        this.BoardingAllowed = builder.BoardingAllowed;
+        this.DepartureTime = builder.DepartureTime;
+        this.RealTimeStop = builder.RealTimeStop;
+        this.WalkingDistance = builder.WalkingDistance;
     }
 
     public String getDistrict() {
         return District;
     }
 
-    public void setDistrict(String District) {
-        this.District = District;
-    }
-
-    public Stop withDistrict(String District) {
-        this.District = District;
-        return this;
-    }
-
     public int getID() {
         return ID;
-    }
-
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-
-    public Stop withID(int ID) {
-        this.ID = ID;
-        return this;
     }
 
     public String getName() {
@@ -131,212 +118,52 @@ public class Stop implements Parcelable {
         this.Name = Name;
     }
 
-    public Stop withName(String Name) {
-        this.Name = Name;
-        return this;
-    }
-
     public int getRank() {
         return Rank;
-    }
-
-    public void setRank(int Rank) {
-        this.Rank = Rank;
-    }
-
-    public Stop withRank(int Rank) {
-        this.Rank = Rank;
-        return this;
     }
 
     public String getShortName() {
         return ShortName;
     }
 
-    public void setShortName(String ShortName) {
-        this.ShortName = ShortName;
-    }
-
-    public Stop withShortName(String ShortName) {
-        this.ShortName = ShortName;
-        return this;
-    }
-
     public List<Stop> getStops() {
         return Stops;
     }
 
-    public void setStops(List<Stop> Stops) {
-        this.Stops = Stops;
-    }
-
-//    public Transporttype getType() {
-//        return Type;
-//    }
-
-//    public void setType(Transporttype Type) {
-//        this.Type = Type;
-//    }
-
-//    public Stop withType(int typeIndex) {
-//        this.Type = Transporttype.valueOf(typeIndex);
-//        return this;
-//    }
-
     public int getX() {
         return X;
-    }
-
-    public void setX(int X) {
-        this.X = X;
-    }
-
-    public Stop withX(int X) {
-        this.X = X;
-        return this;
     }
 
     public int getY() {
         return Y;
     }
 
-    public void setY(int Y) {
-        this.Y = Y;
-    }
-
-    public Stop withY(int Y) {
-        this.Y = Y;
-        return this;
-    }
-
     public String getZone() {
         return Zone;
-    }
-
-    public void setZone(String Zone) {
-        this.Zone = Zone;
-    }
-
-    public Stop withZone(String Zone) {
-        this.Zone = Zone;
-        return this;
     }
 
     public boolean isAlightingAllowed() {
         return AlightingAllowed;
     }
 
-    public void setAlightingAllowed(boolean AlightingAllowed) {
-        this.AlightingAllowed = AlightingAllowed;
-    }
-
-    public Stop withAlightingAllowed(boolean AlightingAllowed) {
-        this.AlightingAllowed = AlightingAllowed;
-        return this;
-    }
-
     public Calendar getArrivalTime() {
         return ArrivalTime;
     }
 
-    public void setArrivalTime(Calendar ArrivalTime) {
-        this.ArrivalTime = ArrivalTime;
-    }
-
-//    public Stop withArrivalTime(String ArrivalTime) {
-//        this.ArrivalTime = DateDeserializer.deserializer(ArrivalTime);
-//        return this;
-//    }
-
     public boolean isBoardingAllowed() {
         return BoardingAllowed;
-    }
-
-    public void setBoardingAllowed(boolean BoardingAllowed) {
-        this.BoardingAllowed = BoardingAllowed;
-    }
-
-    public Stop withBoardingAllowed(boolean BoardingAllowed) {
-        this.BoardingAllowed = BoardingAllowed;
-        return this;
     }
 
     public Calendar getDepartureTime() {
         return DepartureTime;
     }
 
-    public void setDepartureTime(Calendar DepartureTime) {
-        this.DepartureTime = DepartureTime;
-    }
-
-//    public Stop withDepartureTime(String DepartureTime) {
-//        this.DepartureTime = DateDeserializer.deserializer(DepartureTime);
-//        return this;
-//    }
-
-//    public List<Deviation> getDeviations() {
-//        return Deviations;
-//    }
-
-//    public void setDeviations(List<Deviation> Deviations) {
-//        this.Deviations = Deviations;
-//    }
-
-//    public Stop withDeviations(List<Deviation> Deviations) {
-//        this.Deviations = Deviations;
-//        return this;
-//    }
-
-//    public List<Line> getLines() {
-//        return Lines;
-//    }
-
-//    public void setLines(List<Line> Lines) {
-//        this.Lines = Lines;
-//    }
-
-//    public Stop withLines(List<Line> Lines) {
-//        this.Lines = Lines;
-//        return this;
-//    }
-
     public boolean isRealTimeStop() {
         return RealTimeStop;
     }
 
-    public void setRealTimeStop(boolean RealTimeStop) {
-        this.RealTimeStop = RealTimeStop;
-    }
-
-    public Stop withRealTimeStop(boolean RealTimeStop) {
-        this.RealTimeStop = RealTimeStop;
-        return this;
-    }
-
-//    public List<StopPoint> getStopPoints() {
-//        return StopPoints;
-//    }
-
-//    public void setStopPoints(List<StopPoint> StopPoints) {
-//        this.StopPoints = StopPoints;
-//    }
-
-//    public Stop withStopPoint(StopPoint StopPoint) {
-//        this.StopPoints.add(StopPoint);
-//        return this;
-//    }
-
     public int getWalkingDistance() {
         return WalkingDistance;
-    }
-
-    public void setWalkingDistance(int WalkingDistance) {
-        this.WalkingDistance = WalkingDistance;
-    }
-
-    public Stop withWalkingDistance(int WalkingDistance) {
-        this.WalkingDistance = WalkingDistance;
-        return this;
     }
 
     @Override
@@ -352,7 +179,6 @@ public class Stop implements Parcelable {
         dest.writeInt(this.Rank);
         dest.writeString(this.ShortName);
         dest.writeList(this.Stops);
-//        dest.writeInt(this.Type.ordinal());
         dest.writeInt(this.X);
         dest.writeInt(this.Y);
         dest.writeString(this.Zone);
@@ -360,10 +186,7 @@ public class Stop implements Parcelable {
         dest.writeLong(this.ArrivalTime != null ? this.ArrivalTime.getTimeInMillis() : -1);
         dest.writeByte(BoardingAllowed ? (byte) 1 : (byte) 0);
         dest.writeLong(this.DepartureTime != null ? this.DepartureTime.getTimeInMillis() : -1);
-//        dest.writeList(this.Deviations);
-//        dest.writeList(this.Lines);
         dest.writeByte(RealTimeStop ? (byte) 1 : (byte) 0);
-//        dest.writeList(this.StopPoints);
         dest.writeInt(this.WalkingDistance);
     }
 
@@ -378,5 +201,135 @@ public class Stop implements Parcelable {
             return getID() == ((Stop) o).getID();
         }
         return false;
+    }
+
+    public static class Builder {
+        private String District;
+        private int ID;
+        private String Name;
+        private int Rank;
+        private String ShortName;
+        private List<Stop> Stops = new ArrayList<Stop>();
+        private int X;
+        private int Y;
+        private String Zone;
+        private boolean AlightingAllowed;
+        private Calendar ArrivalTime;
+        private boolean BoardingAllowed;
+        private Calendar DepartureTime;
+        private boolean RealTimeStop;
+        private int WalkingDistance;
+
+        public static Builder stop() {
+            return new Builder();
+        }
+
+        public static Builder fromStop(Stop stop) {
+            Builder builder = new Builder();
+            builder.District = stop.District;
+            builder.ID = stop.ID;
+            builder.Name = stop.Name;
+            builder.Rank = stop.Rank;
+            builder.ShortName = stop.ShortName;
+            builder.Stops = stop.Stops;
+            builder.X = stop.X;
+            builder.Y = stop.Y;
+            builder.Zone = stop.Zone;
+            builder.AlightingAllowed = stop.AlightingAllowed;
+            builder.ArrivalTime = stop.ArrivalTime;
+            builder.BoardingAllowed = stop.BoardingAllowed;
+            builder.DepartureTime = stop.DepartureTime;
+            builder.RealTimeStop = stop.RealTimeStop;
+            builder.WalkingDistance = stop.WalkingDistance;
+
+            return builder;
+        }
+
+        public Stop build() {
+            return new Stop(this);
+        }
+
+        public Builder withDistrict(String district) {
+            District = district;
+            return this;
+        }
+
+        public Builder withID(int ID) {
+            this.ID = ID;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            Name = name;
+            return this;
+        }
+
+        public Builder withRank(int rank) {
+            Rank = rank;
+            return this;
+        }
+
+        public Builder withShortName(String shortName) {
+            ShortName = shortName;
+            return this;
+        }
+
+        public Builder withStops(List<Stop> stops) {
+            Stops = stops;
+            return this;
+        }
+
+        public Builder withX(int x) {
+            X = x;
+            return this;
+        }
+
+        public Builder withY(int y) {
+            Y = y;
+            return this;
+        }
+
+        public Builder withZone(String zone) {
+            Zone = zone;
+            return this;
+        }
+
+        public Builder withAlightingAllowed(boolean alightingAllowed) {
+            AlightingAllowed = alightingAllowed;
+            return this;
+        }
+
+        public Builder withArrivalTime(Calendar arrivalTime) {
+            ArrivalTime = arrivalTime;
+            return this;
+        }
+
+        public Builder withBoardingAllowed(boolean boardingAllowed) {
+            BoardingAllowed = boardingAllowed;
+            return this;
+        }
+
+        public Builder withDepartureTime(Calendar departureTime) {
+            DepartureTime = departureTime;
+            return this;
+        }
+
+        public Builder withRealTimeStop(boolean realTimeStop) {
+            RealTimeStop = realTimeStop;
+            return this;
+        }
+
+        public Builder withWalkingDistance(int walkingDistance) {
+            WalkingDistance = walkingDistance;
+            return this;
+        }
+
+        public Builder withWalkingDistanceTo(Location location) {
+            double[] latLonForStop = CoordinateConversion.utm2LatLon(X, Y);
+            float[] result = new float[3];
+            Location.distanceBetween(location.getLatitude(), location.getLongitude(), latLonForStop[0], latLonForStop[1], result);
+
+            return withWalkingDistance((int) result[0]);
+        }
     }
 }

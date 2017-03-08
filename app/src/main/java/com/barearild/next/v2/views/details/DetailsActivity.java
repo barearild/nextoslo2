@@ -42,7 +42,7 @@ import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.StopVisitFilters;
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.location.libs.CoordinateConversion;
-import com.barearild.next.v2.reisrest.Requests;
+import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.Deviation;
 import com.barearild.next.v2.reisrest.StopVisit.DeviationDetails;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;

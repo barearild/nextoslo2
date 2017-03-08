@@ -1,5 +1,4 @@
 <resources>
-    <string name="google_app_id" translatable="false">com.barearild.next.v2</string>
     <string name="app_name">Next Oslo</string>
     <string name="action_update">Refresh</string>
     <string name="drawer_open">Open</string>

@@ -1,6 +1,5 @@
 package com.barearild.next.v2.views.departures;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
@@ -29,7 +28,7 @@ import android.view.View;
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.StopVisitFilters;
 import com.barearild.next.v2.favourites.FavouritesService;
-import com.barearild.next.v2.reisrest.Requests;
+import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.Transporttype;
@@ -57,6 +56,7 @@ import java.util.concurrent.TimeUnit;
 
 import v2.next.barearild.com.R;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static com.barearild.next.v2.NextOsloApp.LOG_TAG;
 import static com.barearild.next.v2.StopVisitFilters.convertToListItems;
 import static com.barearild.next.v2.StopVisitFilters.onlyFavorites;
@@ -389,10 +389,11 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     private void updateData(boolean force) {
         mode = MODE_STOP_VISITS;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (!haveAccessTo(ACCESS_FINE_LOCATION)) {
             requestLocationPermission();
             return;
         }
+
         if (force) {
             mLastUpdate = null;
             mLastLocation = null;
@@ -416,9 +417,13 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
     }
 
+    private boolean haveAccessTo(String permission) {
+        return ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED;
+    }
+
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                new String[]{ACCESS_FINE_LOCATION},
                 NextOsloApp.REQUEST_PERMISSION_LOCATION);
     }
 
@@ -756,6 +761,7 @@ public class DeparturesActivity extends AppCompatActivity implements
             } catch (InterruptedException e) {
                 Log.e("GetDepartures", e.getMessage(), e);
             }
+            Log.d(LOG_TAG, "result2 " + result.toString());
             return convertToListData(result, mIsShowingFilters);
         }
 

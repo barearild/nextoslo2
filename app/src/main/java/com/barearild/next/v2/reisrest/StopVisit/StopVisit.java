@@ -45,28 +45,23 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         this.extensions = in.readParcelable(Extensions.class.getClassLoader());
     }
 
-    public Stop getStop() {
-        return stop;
+    public StopVisit(Builder builder) {
+        this.stop = builder.stop;
+        this.monitoredVehicleJourney = builder.monitoredVehicleJourney;
+        this.extensions = builder.extensions;
+        this.inCongestion = builder.inCongestion;
     }
 
-    public void setStop(Stop stop) {
-        this.stop = stop;
+    public Stop getStop() {
+        return stop;
     }
 
     public MonitoredVehicleJourney getMonitoredVehicleJourney() {
         return monitoredVehicleJourney;
     }
 
-    public void setMonitoredVehicleJourney(MonitoredVehicleJourney monitoredVehicleJourney) {
-        this.monitoredVehicleJourney = monitoredVehicleJourney;
-    }
-
     public Extensions getExtensions() {
         return extensions;
-    }
-
-    public void setExtensions(Extensions extensions) {
-        this.extensions = extensions;
     }
 
     public String getId() {
@@ -132,17 +127,55 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         return getMonitoredVehicleJourney().isInCongestion();
     }
 
-//    @Override
-//    public String toString() {
-//        return "{"+getId()+"}";
-//    }
-
-
     @Override
     public String toString() {
         return "StopVisit{" +
                 "monitoredVehicleJourney=" + monitoredVehicleJourney +
                 ", inCongestion=" + inCongestion +
                 '}';
+    }
+
+    public static class Builder {
+
+        private Stop stop;
+        private MonitoredVehicleJourney monitoredVehicleJourney;
+        private Extensions extensions;
+        private boolean inCongestion;
+
+        public static Builder stopVisit() {
+            return new Builder();
+        }
+
+        public static Builder fromStopVisit(StopVisit stopVisit) {
+            return stopVisit().
+                    withStop(stopVisit.stop)
+                    .withExtensions(stopVisit.extensions)
+                    .withInCongestion(stopVisit.inCongestion)
+                    .withMonitoredVehicleJourney(stopVisit.monitoredVehicleJourney);
+        }
+
+        public StopVisit build() {
+            return new StopVisit(this);
+        }
+
+        public Builder withStop(Stop stop) {
+            this.stop = stop;
+            return this;
+        }
+
+        public Builder withMonitoredVehicleJourney(MonitoredVehicleJourney monitoredVehicleJourney) {
+            this.monitoredVehicleJourney = monitoredVehicleJourney;
+            return this;
+        }
+
+        public Builder withExtensions(Extensions extensions) {
+            this.extensions = extensions;
+            return this;
+        }
+
+        public Builder withInCongestion(boolean inCongestion) {
+            this.inCongestion = inCongestion;
+            return this;
+        }
     }
 }
