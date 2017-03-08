@@ -389,7 +389,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     private void updateData(boolean force) {
         mode = MODE_STOP_VISITS;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             requestLocationPermission();
             return;
         }
@@ -401,11 +401,16 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
 
         if (mLastLocation == null || secondsSince(mLastLocation.getTime()) > 60) {
-            mLocationRequest = LocationRequest.create();
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            mLocationRequest.setNumUpdates(1);
+            mLastLocation = new Location("GPS");
+            mLastLocation.setLongitude(10.7579d);
+            mLastLocation.setLatitude(59.9115d);
+            onLocationChanged(mLastLocation);
 
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//            mLocationRequest = LocationRequest.create();
+//            mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+//            mLocationRequest.setNumUpdates(1);
+//
+//            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         } else {
             onLocationChanged(mLastLocation);
         }
@@ -413,7 +418,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 NextOsloApp.REQUEST_PERMISSION_LOCATION);
     }
 
@@ -751,7 +756,6 @@ public class DeparturesActivity extends AppCompatActivity implements
             } catch (InterruptedException e) {
                 Log.e("GetDepartures", e.getMessage(), e);
             }
-            Log.d(LOG_TAG, "result2 " + result.toString());
             return convertToListData(result, mIsShowingFilters);
         }
 
