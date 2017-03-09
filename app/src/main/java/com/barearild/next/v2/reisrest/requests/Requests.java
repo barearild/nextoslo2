@@ -2,6 +2,7 @@ package com.barearild.next.v2.reisrest.requests;
 
 import android.annotation.TargetApi;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -28,6 +29,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,35 +82,27 @@ public class Requests {
     }
 
     public static List<StopVisit> getAllDepartures(Stop stop, String line) {
-        final String requestString = String.format(Locale.getDefault(), GET_ALL_DEPARTURES_FOR_LINE_AT_STOP, stop.getID(), line);
-
-        final List<StopVisit> allStopVisits = stopVisitWithStop(doRequest(requestString, LIST_STOP_VISIT_TYPE), stop);
-
-        Log.d(NextOsloApp.LOG_TAG, allStopVisits.toString());
-
-        return allStopVisits;
+        if(erPreApiL24()) {
+            return RequestsPreL24.getAllDepartures(stop, line);
+        } else {
+            return RequestsL24.getAllDepartures(stop, line);
+        }
     }
 
     public static List<StopVisit> getAllDepartures(Stop stop) {
-        final String requestString = String.format(Locale.getDefault(), GET_ALL_DEPARTURES, stop.getID());
-
-        final List<StopVisit> stopVisits = stopVisitWithStop(doRequest(requestString, LIST_STOP_VISIT_TYPE), stop);
-
-        Log.d(NextOsloApp.LOG_TAG, stopVisits.toString());
-
-        return stopVisits;
+        if(erPreApiL24()) {
+            return RequestsPreL24.getAllDepartures(stop);
+        } else {
+            return RequestsL24.getAllDepartures(stop);
+        }
     }
 
     public static DeviationDetails getDeviationDetails(int deviationId) {
-        final String requestString = String.format(Locale.getDefault(), GET_DEVIATION_DETAILS, deviationId);
-
-        final List<DeviationDetails> deviationDetails = doRequest(requestString, LIST_DEVIATION_DETAILS_TYPE);
-
-        return deviationDetails.get(0);
-    }
-
-    private static List<Line> getAllLines() {
-        return doRequest(GET_ALL_LINES, LIST_LINE_TYPE);
+        if(erPreApiL24()) {
+            return RequestsPreL24.getDeviationDetails(deviationId);
+        } else {
+            return RequestsL24.getDeviationDetails(deviationId);
+        }
     }
 
     public static List<Stop> getAllStops() {
@@ -116,55 +110,17 @@ public class Requests {
     }
 
     public static List<Line> getLinesSuggestion(String searchString) {
-        ArrayList<Line> lineSuggestions = new ArrayList<>();
-        if (NextOsloApp.mAllLines == null) {
-            NextOsloApp.mAllLines = Requests.getAllLines();
-            Log.d(NextOsloApp.LOG_TAG, "All lines: " + NextOsloApp.mAllLines);
+        if(erPreApiL24()) {
+            return RequestsPreL24.getLinesSuggestion(searchString);
+        } else {
+            return RequestsL24.getLinesSuggestion(searchString);
         }
-
-        if (NextOsloApp.mAllLines != null) {
-            for (Line line : NextOsloApp.mAllLines) {
-                if (isANumber(searchString) && line.getName().toLowerCase().matches("[A-Z,a-z]*?(" + searchString + ")[A-Z,a-z]*")) {
-                    lineSuggestions.add(line);
-                    Log.d(NextOsloApp.LOG_TAG, "Adding line to suggestions " + line);
-                } else if (line.getName().equalsIgnoreCase(searchString)) {
-                    lineSuggestions.add(line);
-                    Log.d(NextOsloApp.LOG_TAG, "Adding line to suggestions " + line);
-                }
-            }
-        }
-
-        return lineSuggestions;
     }
 
-    private static List<StopVisit> stopVisitWithStop(List<StopVisit> stopVisits, Stop stop) {
-        List<StopVisit> stopVisitsWithStop = new ArrayList<>(stopVisits.size());
-
-        for (StopVisit stopVisit : stopVisits) {
-            stopVisitsWithStop.add(StopVisit.Builder.fromStopVisit(stopVisit).withStop(stop).build());
-        }
-
-        return stopVisitsWithStop;
+    static List<Line> getAllLines() {
+        return doRequest(GET_ALL_LINES, LIST_LINE_TYPE);
     }
 
-
-
-    private static List<Stop> calculateWalkingDistanceToStops(List<Stop> stops, Location location) {
-        final List<Stop> stopsWithWalkingDistance = new ArrayList<>();
-        for (Stop stop : stops) {
-            stopsWithWalkingDistance.add(
-                    fromStop(stop)
-                            .withWalkingDistanceTo(location)
-                            .build()
-            );
-        }
-
-        return stopsWithWalkingDistance;
-    }
-
-    private static boolean isANumber(String searchString) {
-        return searchString.matches("[0-9]+");
-    }
 
     static <K> K doRequest(String requestString, Type listType) {
         return GSON.create().fromJson(doRequest(requestString).toString(), listType);

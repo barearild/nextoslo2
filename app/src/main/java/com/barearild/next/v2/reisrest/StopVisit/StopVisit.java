@@ -15,15 +15,6 @@ import v2.next.barearild.com.R;
 
 public class StopVisit implements Comparable<StopVisit>, Parcelable {
 
-    public static final Creator<StopVisit> CREATOR = new Creator<StopVisit>() {
-        public StopVisit createFromParcel(Parcel source) {
-            return new StopVisit(source);
-        }
-
-        public StopVisit[] newArray(int size) {
-            return new StopVisit[size];
-        }
-    };
     public static final int OCCUPANCY_WARNING_LIMIT = 80;
     private Stop stop;
     @SerializedName("MonitoredVehicleJourney")
@@ -107,6 +98,14 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         }
     }
 
+    public boolean isAlmostFull() {
+        return getOccupancyPercentage() >= OCCUPANCY_WARNING_LIMIT;
+    }
+
+    public boolean isInCongestion() {
+        return getMonitoredVehicleJourney().isInCongestion();
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -119,13 +118,15 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         dest.writeParcelable(this.extensions, flags);
     }
 
-    public boolean isAlmostFull() {
-        return getOccupancyPercentage() >= OCCUPANCY_WARNING_LIMIT;
-    }
+    public static final Creator<StopVisit> CREATOR = new Creator<StopVisit>() {
+        public StopVisit createFromParcel(Parcel source) {
+            return new StopVisit(source);
+        }
 
-    public boolean isInCongestion() {
-        return getMonitoredVehicleJourney().isInCongestion();
-    }
+        public StopVisit[] newArray(int size) {
+            return new StopVisit[size];
+        }
+    };
 
     @Override
     public String toString() {

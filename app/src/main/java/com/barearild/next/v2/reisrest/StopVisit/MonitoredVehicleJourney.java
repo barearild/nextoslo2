@@ -9,15 +9,6 @@ import com.google.gson.annotations.SerializedName;
 
 public class MonitoredVehicleJourney implements Parcelable {
 
-    public static final Creator<MonitoredVehicleJourney> CREATOR = new Creator<MonitoredVehicleJourney>() {
-        public MonitoredVehicleJourney createFromParcel(Parcel source) {
-            return new MonitoredVehicleJourney(source);
-        }
-
-        public MonitoredVehicleJourney[] newArray(int size) {
-            return new MonitoredVehicleJourney[size];
-        }
-    };
     @SerializedName("LineRef")
     @Expose
     private String lineRef;
@@ -74,88 +65,44 @@ public class MonitoredVehicleJourney implements Parcelable {
         return lineRef;
     }
 
-    public void setLineRef(String lineRef) {
-        this.lineRef = lineRef;
-    }
-
     public String getDirectionRef() {
         return directionRef;
-    }
-
-    public void setDirectionRef(String directionRef) {
-        this.directionRef = directionRef;
     }
 
     public String getPublishedLineName() {
         return publishedLineName;
     }
 
-    public void setPublishedLineName(String publishedLineName) {
-        this.publishedLineName = publishedLineName;
-    }
-
     public String getDirectionName() {
         return directionName;
-    }
-
-    public void setDirectionName(String directionName) {
-        this.directionName = directionName;
     }
 
     public int getDestinationRef() {
         return destinationRef;
     }
 
-    public void setDestinationRef(int destinationRef) {
-        this.destinationRef = destinationRef;
-    }
-
     public String getDestinationName() {
         return destinationName;
-    }
-
-    public void setDestinationName(String destinationName) {
-        this.destinationName = destinationName;
     }
 
     public String getDestinationAimedArrivalTime() {
         return destinationAimedArrivalTime;
     }
 
-    public void setDestinationAimedArrivalTime(String destinationAimedArrivalTime) {
-        this.destinationAimedArrivalTime = destinationAimedArrivalTime;
-    }
-
     public boolean isMonitored() {
         return monitored;
-    }
-
-    public void setMonitored(boolean monitored) {
-        this.monitored = monitored;
     }
 
     public boolean isInCongestion() {
         return inCongestion;
     }
 
-    public void setInCongestion(boolean inCongestion) {
-        this.inCongestion = inCongestion;
-    }
-
     public VehicleMode getVehicleMode() {
         return vehicleMode;
     }
 
-    public void setVehicleMode(VehicleMode vehicleMode) {
-        this.vehicleMode = vehicleMode;
-    }
-
     public MonitoredCall getMonitoredCall() {
         return monitoredCall;
-    }
-
-    public void setMonitoredCall(MonitoredCall monitoredCall) {
-        this.monitoredCall = monitoredCall;
     }
 
     @Override
@@ -177,6 +124,16 @@ public class MonitoredVehicleJourney implements Parcelable {
         dest.writeInt(this.vehicleMode == null ? -1 : this.vehicleMode.ordinal());
         dest.writeParcelable(this.monitoredCall, flags);
     }
+
+    public static final Creator<MonitoredVehicleJourney> CREATOR = new Creator<MonitoredVehicleJourney>() {
+        public MonitoredVehicleJourney createFromParcel(Parcel source) {
+            return new MonitoredVehicleJourney(source);
+        }
+
+        public MonitoredVehicleJourney[] newArray(int size) {
+            return new MonitoredVehicleJourney[size];
+        }
+    };
 
     @Override
     public String toString() {

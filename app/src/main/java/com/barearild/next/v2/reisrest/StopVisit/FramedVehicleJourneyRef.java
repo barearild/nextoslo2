@@ -17,15 +17,7 @@ public class FramedVehicleJourneyRef {
         return dataFrameRef;
     }
 
-    public void setDataFrameRef(String dataFrameRef) {
-        this.dataFrameRef = dataFrameRef;
-    }
-
     public String getDatedVehicleJourneyRef() {
         return datedVehicleJourneyRef;
-    }
-
-    public void setDatedVehicleJourneyRef(String datedVehicleJourneyRef) {
-        this.datedVehicleJourneyRef = datedVehicleJourneyRef;
     }
 }

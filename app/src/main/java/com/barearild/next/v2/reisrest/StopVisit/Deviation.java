@@ -42,26 +42,8 @@ public class Deviation implements Parcelable {
         return Header;
     }
 
-    public void setHeader(String Header) {
-        this.Header = Header;
-    }
-
-    public Deviation withHeader(String Header) {
-        this.Header = Header;
-        return this;
-    }
-
     public int getID() {
         return ID;
-    }
-
-    public void setID(int ID) {
-        this.ID = ID;
-    }
-
-    public Deviation withID(int ID) {
-        this.ID = ID;
-        return this;
     }
 
     @Override

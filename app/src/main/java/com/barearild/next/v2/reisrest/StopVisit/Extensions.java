@@ -11,15 +11,6 @@ import java.util.List;
 
 public class Extensions implements Parcelable {
 
-    public static final Creator<Extensions> CREATOR = new Creator<Extensions>() {
-        public Extensions createFromParcel(Parcel source) {
-            return new Extensions(source);
-        }
-
-        public Extensions[] newArray(int size) {
-            return new Extensions[size];
-        }
-    };
     @SerializedName("OccupancyData")
     @Expose
     private OccupancyData occupancyData;
@@ -39,28 +30,16 @@ public class Extensions implements Parcelable {
         this.lineColour = in.readString();
     }
 
-    public OccupancyData getOccupancyData() {
+    OccupancyData getOccupancyData() {
         return occupancyData;
-    }
-
-    public void setOccupancyData(OccupancyData occupancyData) {
-        this.occupancyData = occupancyData;
     }
 
     public List<Deviation> getDeviations() {
         return deviations;
     }
 
-    public void setDeviations(List<Deviation> deviations) {
-        this.deviations = deviations;
-    }
-
-    public String getLineColour() {
+    String getLineColour() {
         return "#" + lineColour;
-    }
-
-    public void setLineColour(String lineColour) {
-        this.lineColour = lineColour;
     }
 
     @Override
@@ -74,4 +53,14 @@ public class Extensions implements Parcelable {
         dest.writeTypedList(deviations);
         dest.writeString(this.lineColour);
     }
+
+    public static final Creator<Extensions> CREATOR = new Creator<Extensions>() {
+        public Extensions createFromParcel(Parcel source) {
+            return new Extensions(source);
+        }
+
+        public Extensions[] newArray(int size) {
+            return new Extensions[size];
+        }
+    };
 }

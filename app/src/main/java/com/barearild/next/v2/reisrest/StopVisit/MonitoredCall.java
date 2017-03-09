@@ -10,15 +10,6 @@ import org.joda.time.DateTime;
 
 public class MonitoredCall implements Parcelable {
 
-    public static final Creator<MonitoredCall> CREATOR = new Creator<MonitoredCall>() {
-        public MonitoredCall createFromParcel(Parcel source) {
-            return new MonitoredCall(source);
-        }
-
-        public MonitoredCall[] newArray(int size) {
-            return new MonitoredCall[size];
-        }
-    };
     @SerializedName("ExpectedDepartureTime")
     @Expose
     private DateTime expectedDepartureTime;
@@ -32,10 +23,6 @@ public class MonitoredCall implements Parcelable {
 
     public DateTime getExpectedDepartureTime() {
         return expectedDepartureTime;
-    }
-
-    public void setExpectedDepartureTime(DateTime expectedDepartureTime) {
-        this.expectedDepartureTime = expectedDepartureTime;
     }
 
     @Override
@@ -54,4 +41,14 @@ public class MonitoredCall implements Parcelable {
                 "expectedDepartureTime=" + expectedDepartureTime +
                 '}';
     }
+
+    public static final Creator<MonitoredCall> CREATOR = new Creator<MonitoredCall>() {
+        public MonitoredCall createFromParcel(Parcel source) {
+            return new MonitoredCall(source);
+        }
+
+        public MonitoredCall[] newArray(int size) {
+            return new MonitoredCall[size];
+        }
+    };
 }
