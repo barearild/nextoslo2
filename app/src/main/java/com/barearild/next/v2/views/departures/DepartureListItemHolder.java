@@ -14,11 +14,11 @@ import com.barearild.next.v2.reisrest.Transporttype;
 import v2.next.barearild.com.R;
 
 public class DepartureListItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-    final TextView lineRef;
-    final TextView destinationName;
-    final TextView firstDeparture;
-    final TextView secondDeparture;
-    final TextView stopName;
+    public final TextView lineRef;
+    public final TextView destinationName;
+    public final TextView firstDeparture;
+    public final TextView secondDeparture;
+    public final TextView stopName;
     final ImageView warning;
     final Button menu;
 

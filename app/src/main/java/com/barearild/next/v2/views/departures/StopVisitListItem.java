@@ -262,6 +262,10 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
     public static String departureTimeString(StopVisit stopVisit, Context context) {
         DateTime expectedDepartureTime = getExpectedDepartureTime(stopVisit);
 
+        return departureTimeString(expectedDepartureTime, context);
+    }
+
+    public static String departureTimeString(DateTime expectedDepartureTime, Context context) {
         if (expectedDepartureTime == null) {
             return null;
         }

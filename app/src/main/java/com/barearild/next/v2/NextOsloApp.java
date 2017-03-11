@@ -3,6 +3,7 @@ package com.barearild.next.v2;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 
 import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.Transporttype;
@@ -118,6 +119,10 @@ public class NextOsloApp extends Application {
                 ALL_STOPS.addAll(stops);
             }
         }
+    }
+
+    public static boolean erPreApiL24() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.N;
     }
 
 

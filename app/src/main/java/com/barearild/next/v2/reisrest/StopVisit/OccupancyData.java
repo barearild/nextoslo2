@@ -8,27 +8,23 @@ import com.google.gson.annotations.SerializedName;
 
 public class OccupancyData implements Parcelable {
 
-    @SerializedName("OccupancyAvailable")
-    @Expose
-    private boolean occupancyAvailable;
-    @SerializedName("OccupancyPercentage")
-    @Expose
-    private int occupancyPercentage;
+    private boolean OccupancyAvailable;
+    private int OccupancyPercentage;
 
     public OccupancyData() {
     }
 
     private OccupancyData(Parcel in) {
-        this.occupancyAvailable = in.readByte() != 0;
-        this.occupancyPercentage = in.readInt();
+        this.OccupancyAvailable = in.readByte() != 0;
+        this.OccupancyPercentage = in.readInt();
     }
 
     public boolean isOccupancyAvailable() {
-        return occupancyAvailable;
+        return OccupancyAvailable;
     }
 
     public int getOccupancyPercentage() {
-        return occupancyPercentage;
+        return OccupancyPercentage;
     }
 
     @Override
@@ -38,8 +34,8 @@ public class OccupancyData implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte(occupancyAvailable ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.occupancyPercentage);
+        dest.writeByte(OccupancyAvailable ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.OccupancyPercentage);
     }
 
     public static final Creator<OccupancyData> CREATOR = new Creator<OccupancyData>() {

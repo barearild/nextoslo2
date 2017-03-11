@@ -6,6 +6,9 @@ import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.VehicleMode;
 import com.barearild.next.v2.views.departures.StopVisitListItem;
+import com.barearild.next.v2.views.departures.items.DepartureListItem;
+
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,8 +80,36 @@ public class StopVisitFilters {
         };
     }
 
+
+    public static Comparator<DepartureListItem> byFirstDepartureDepartureList() {
+        return new Comparator<DepartureListItem>() {
+            @Override
+            public int compare(DepartureListItem lhs, DepartureListItem rhs) {
+                DateTime firstDeparture = lhs.getFirstDeparture();
+                DateTime otherFirstDeparture = rhs.getFirstDeparture();
+
+
+                return firstDeparture.compareTo(otherFirstDeparture);
+            }
+        };
+    }
+
+    public static Comparator<StopVisit> byFirstStopVisitDeparture() {
+        return new Comparator<StopVisit>() {
+            @Override
+            public int compare(StopVisit lhs, StopVisit rhs) {
+                return lhs.compareTo(rhs);
+            }
+        };
+    }
+
     public static List<StopVisitListItem> orderedByFirstDeparture(List<StopVisitListItem> itemsToSort) {
         Collections.sort(itemsToSort, byFirstDeparture());
+        return itemsToSort;
+    }
+
+    public static List<StopVisit> orderedByFirstDepartureStopVisit(List<StopVisit> itemsToSort) {
+        Collections.sort(itemsToSort);
         return itemsToSort;
     }
 

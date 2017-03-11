@@ -12,56 +12,22 @@ import java.util.List;
 
 public class DeviationDetails {
 
-    @SerializedName("ancestor")
-    @Expose
     private Integer ancestor;
-    @SerializedName("body")
-    @Expose
     private String body;
-    @SerializedName("critical")
-    @Expose
     private Boolean critical;
-    @SerializedName("header")
-    @Expose
     private String header;
-    @SerializedName("id")
-    @Expose
     private Integer id;
-    @SerializedName("important")
-    @Expose
     private Boolean important;
-    @SerializedName("intern")
-    @Expose
     private Boolean intern;
-    @SerializedName("internalInfo")
-    @Expose
     private Object internalInfo;
-    @SerializedName("lastUpdated")
-    @Expose
     private DateTime lastUpdated;
-    @SerializedName("lastUpdatedBy")
-    @Expose
     private String lastUpdatedBy;
-    @SerializedName("lead")
-    @Expose
     private String lead;
-    @SerializedName("planned")
-    @Expose
     private Boolean planned;
-    @SerializedName("published")
-    @Expose
     private DateTime published;
-    @SerializedName("pushed")
-    @Expose
     private Boolean pushed;
-    @SerializedName("stops")
-    @Expose
     private List<Stop> stops = new ArrayList<Stop>();
-    @SerializedName("validFrom")
-    @Expose
     private DateTime validFrom;
-    @SerializedName("validTo")
-    @Expose
     private DateTime validTo;
 
     public Integer getAncestor() {

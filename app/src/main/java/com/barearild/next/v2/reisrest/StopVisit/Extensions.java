@@ -11,35 +11,29 @@ import java.util.List;
 
 public class Extensions implements Parcelable {
 
-    @SerializedName("OccupancyData")
-    @Expose
-    private OccupancyData occupancyData;
-    @SerializedName("Deviations")
-    @Expose
-    private List<Deviation> deviations = new ArrayList<Deviation>();
-    @SerializedName("LineColour")
-    @Expose
-    private String lineColour;
+    private OccupancyData OccupancyData;
+    private List<Deviation> Deviations = new ArrayList<Deviation>();
+    private String LineColour;
 
     public Extensions() {
     }
 
     private Extensions(Parcel in) {
-        this.occupancyData = in.readParcelable(OccupancyData.class.getClassLoader());
-        in.readTypedList(deviations, Deviation.CREATOR);
-        this.lineColour = in.readString();
+        this.OccupancyData = in.readParcelable(OccupancyData.class.getClassLoader());
+        in.readTypedList(Deviations, Deviation.CREATOR);
+        this.LineColour = in.readString();
     }
 
     OccupancyData getOccupancyData() {
-        return occupancyData;
+        return OccupancyData;
     }
 
     public List<Deviation> getDeviations() {
-        return deviations;
+        return Deviations;
     }
 
     String getLineColour() {
-        return "#" + lineColour;
+        return "#" + LineColour;
     }
 
     @Override
@@ -49,9 +43,9 @@ public class Extensions implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(this.occupancyData, flags);
-        dest.writeTypedList(deviations);
-        dest.writeString(this.lineColour);
+        dest.writeParcelable(this.OccupancyData, flags);
+        dest.writeTypedList(Deviations);
+        dest.writeString(this.LineColour);
     }
 
     public static final Creator<Extensions> CREATOR = new Creator<Extensions>() {

@@ -10,19 +10,17 @@ import org.joda.time.DateTime;
 
 public class MonitoredCall implements Parcelable {
 
-    @SerializedName("ExpectedDepartureTime")
-    @Expose
-    private DateTime expectedDepartureTime;
+    private DateTime ExpectedDepartureTime;
 
     public MonitoredCall() {
     }
 
     private MonitoredCall(Parcel in) {
-        this.expectedDepartureTime = new DateTime(in.readLong());
+        this.ExpectedDepartureTime = new DateTime(in.readLong());
     }
 
     public DateTime getExpectedDepartureTime() {
-        return expectedDepartureTime;
+        return ExpectedDepartureTime;
     }
 
     @Override
@@ -32,13 +30,13 @@ public class MonitoredCall implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.expectedDepartureTime.getMillis());
+        dest.writeLong(this.ExpectedDepartureTime.getMillis());
     }
 
     @Override
     public String toString() {
         return "{" +
-                "expectedDepartureTime=" + expectedDepartureTime +
+                "ExpectedDepartureTime=" + ExpectedDepartureTime +
                 '}';
     }
 

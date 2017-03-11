@@ -19,6 +19,7 @@ import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.search.SearchSuggestion;
+import com.barearild.next.v2.views.departures.items.DepartureListItem;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +38,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_SUGGESTION = 6;
     private static final int TYPE_STOP = 7;
     private static final int TYPE_LINE = 8;
+    private static final int TYPE_DEPARTURE_ITEM = 9;
 
     private final List<Object> data;
     private final java.text.DateFormat dateFormat;
@@ -52,7 +54,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public DeparturesAdapter(List<Object> data, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
         super();
-        this.data = data;
+        this.data = new ArrayList<>(data);
         this.context = context;
         this.onDepartureItemClickListener = onDepartureItemClickListener;
 
@@ -71,6 +73,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public long getItemId(int position) {
         switch (getItemViewType(position)) {
+            case TYPE_DEPARTURE_ITEM:
+                DepartureListItem item = (DepartureListItem) getItem(position);
+                return item.hashCode();
             case TYPE_DEPARTURE:
                 StopVisitListItem stopVisitListItem = (StopVisitListItem) getItem(position);
                 return (stopVisitListItem.getId().hashCode() + stopVisitListItem.getStop().getID());
@@ -85,11 +90,11 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             case TYPE_FILTER:
                 return TYPE_FILTER;
             case TYPE_SUGGESTION:
-                return ((SearchSuggestion)getItem(position)).id;
+                return ((SearchSuggestion) getItem(position)).id;
             case TYPE_STOP:
-                return ((Stop)getItem(position)).getID();
+                return ((Stop) getItem(position)).getID();
             case TYPE_LINE:
-                return ((Line)getItem(position)).getID();
+                return ((Line) getItem(position)).getID();
         }
 
         return super.getItemId(position);
@@ -100,6 +105,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         switch (viewType) {
             case TYPE_HEADER:
                 return new HeaderViewHolder(inflater.inflate(R.layout.departure_list_header, parent, false));
+            case TYPE_DEPARTURE_ITEM:
             case TYPE_DEPARTURE:
                 View departureView = inflater.inflate(R.layout.departure_item, parent, false);
                 return new DepartureListItemHolder(departureView);
@@ -127,6 +133,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
 
         switch (getItemViewType(position)) {
+            case TYPE_DEPARTURE_ITEM:
+                onBindDepartureListViewHolder((DepartureListItemHolder) viewHolder, (DepartureListItem) data.get(position), position);
+                break;
             case TYPE_DEPARTURE:
                 onBindDepartureListViewHolder((DepartureListItemHolder) viewHolder, position);
                 break;
@@ -134,16 +143,16 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 onBindTimestampViewHolder((TimestampViewHolder) viewHolder, position);
                 break;
             case TYPE_HEADER:
-                onBindHeaderViewHolder((HeaderViewHolder)viewHolder, position);
+                onBindHeaderViewHolder((HeaderViewHolder) viewHolder, position);
                 break;
             case TYPE_SUGGESTION:
-                onBindSuggestionViewHolder((SearchSuggestionViewHolder)viewHolder, position);
+                onBindSuggestionViewHolder((SearchSuggestionViewHolder) viewHolder, position);
                 break;
             case TYPE_STOP:
-                onBindStopViewHoder((StopViewHolder)viewHolder, position);
+                onBindStopViewHoder((StopViewHolder) viewHolder, position);
                 break;
             case TYPE_LINE:
-                onBindLineViewHolder((LineViewHolder)viewHolder, position);
+                onBindLineViewHolder((LineViewHolder) viewHolder, position);
                 break;
         }
     }
@@ -197,8 +206,15 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         });
 
 
-
         setupPopupMenu(viewHolder, stopVisit, position);
+    }
+
+    private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, DepartureListItem item, int position) {
+        item.onBindViewHolder(context, viewHolder, item, position);
+
+        viewHolder.itemView.setOnClickListener(v -> onDepartureItemClickListener.onItemClick(item));
+
+//        setupPopupMenu(viewHolder, stopVisit, position);
     }
 
     private void onBindTimestampViewHolder(TimestampViewHolder viewHolder, int position) {
@@ -217,7 +233,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         final SearchSuggestion suggestion = (SearchSuggestion) data.get(position);
 
         holder.icon.setImageResource(suggestion.iconRes);
-        holder.text.setText(suggestion.text + (suggestion.text2 != null ? ("\n" +suggestion.text2) : ""));
+        holder.text.setText(suggestion.text + (suggestion.text2 != null ? ("\n" + suggestion.text2) : ""));
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -241,18 +257,19 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_TIMESTAMP;
         } else if (item instanceof DeparturesHeader) {
             return TYPE_HEADER;
-        } else if(item instanceof FilterView.FilterType){
+        } else if (item instanceof FilterView.FilterType) {
             return TYPE_FILTER;
-        } else if(item instanceof SpaceItem) {
+        } else if (item instanceof SpaceItem) {
             return TYPE_SPACE;
-        } else if(item instanceof SearchSuggestion) {
+        } else if (item instanceof SearchSuggestion) {
             return TYPE_SUGGESTION;
-        } else if(item instanceof Stop) {
+        } else if (item instanceof Stop) {
             return TYPE_STOP;
-        } else if(item instanceof Line) {
+        } else if (item instanceof Line) {
             return TYPE_LINE;
-        }
-        else {
+        } else if (item instanceof DepartureListItem) {
+            return TYPE_DEPARTURE_ITEM;
+        } else {
             return TYPE_HEADER;
         }
     }
@@ -300,7 +317,6 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
 
-
     private class TimestampViewHolder extends RecyclerView.ViewHolder {
 
         TextView timestamp;
@@ -324,9 +340,13 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public interface OnDepartureItemClickListener {
         void onItemClick(Object item);
+
         void onFilterUpdate(Transporttype transporttype, boolean isChecked);
+
         void addToFavourite(StopVisitListItem item);
+
         void removeFromFavourite(StopVisitListItem item);
+
         void showInMap(StopVisitListItem item);
     }
 

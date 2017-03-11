@@ -38,6 +38,7 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import static com.barearild.next.v2.NextOsloApp.erPreApiL24;
 import static com.barearild.next.v2.reisrest.place.Stop.Builder.fromStop;
 
 public class Requests {
@@ -164,10 +165,6 @@ public class Requests {
         // very nice trick from
         // http://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
         return new Scanner(inStream).useDelimiter("\\A").next();
-    }
-
-    private static boolean erPreApiL24() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.N;
     }
 
 }
