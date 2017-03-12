@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "676929233443",
+    "firebase_url": "https://next-oslo.firebaseio.com",
+    "project_id": "next-oslo",
+    "storage_bucket": "next-oslo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:676929233443:android:9f34f29002991221",
+        "android_client_info": {
+          "package_name": "com.barearild.next.v2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "676929233443-ceojr5bnard2b90jd9o69d4idlbea2fp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.barearild.next.v2",
+            "certificate_hash": "2bac1c09e7d65e424c71c1095e5a8bf198643efc"
+          }
+        },
+        {
+          "client_id": "676929233443-mm8lv1doefm228av7fdcf6iuu1e8ubbh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQaToNIW-HAfrtKFEqqPT0gLj4WajzJG8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "676929233443-mm8lv1doefm228av7fdcf6iuu1e8ubbh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
