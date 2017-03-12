@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.StopVisitFilters;
@@ -38,6 +39,7 @@ import com.barearild.next.v2.reisrest.place.StopFilter;
 import com.barearild.next.v2.search.SearchSuggestion;
 import com.barearild.next.v2.search.SearchSuggestionProvider;
 import com.barearild.next.v2.search.SearchSuggestionsAdapter;
+import com.barearild.next.v2.tasks.GetAllDeparturesNearLocationTask;
 import com.barearild.next.v2.views.NextOsloStore;
 import com.barearild.next.v2.views.details.DetailsActivity;
 import com.barearild.next.v2.views.stop.StopActivity;
@@ -49,6 +51,7 @@ import com.google.android.gms.location.LocationServices;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -83,13 +86,13 @@ public class DeparturesActivity extends AppCompatActivity implements
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
 
-    private DeparturesSwipeRefreshLayout mSwipeView;
+    public DeparturesSwipeRefreshLayout mSwipeView;
     private DeparturesRecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutParams;
     private Long mLastUpdate = null;
     private FloatingActionButton fab;
     private StopVisitsResult mLastNearbyResults;
-    private GetAllDeparturesTask mAllDeparturesTask;
+    private GetAllDeparturesNearLocationTask mAllDeparturesTask;
     private FavouritesService mFavouriteService;
 
     private boolean mIsShowingFilters = false;
@@ -122,12 +125,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         setSupportActionBar(toolbar);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showFilters();
-            }
-        });
+        fab.setOnClickListener(view -> showFilters());
 
         mSwipeView = (DeparturesSwipeRefreshLayout) findViewById(R.id.departure_list_swipe);
         mSwipeView.setOnRefreshListener(this);
@@ -143,12 +141,7 @@ public class DeparturesActivity extends AppCompatActivity implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                mSwipeView.setEnabled(verticalOffset == 0);
-            }
-        });
+        appBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> mSwipeView.setEnabled(verticalOffset == 0));
 
         mFavouriteService = new FavouritesService(getApplicationContext());
         mStore.addListener(this);
@@ -165,6 +158,10 @@ public class DeparturesActivity extends AppCompatActivity implements
     }
 
     private void search(String action, String query) {
+        if(query.equalsIgnoreCase("alpha beta omega proxy")) {
+            Toast.makeText(this, "Hei IDA!!! :)", Toast.LENGTH_LONG).show();
+        }
+
         if (NextOsloApp.SEARCH_LINE.equals(action)) {
             new SearchLineTask().execute(query);
             mode = MODE_LINE_SEARCH;
@@ -182,12 +179,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         if (mApplication.getPrefs().getBoolean(NextOsloApp.SHOW_PULL_DOWN_INFO, true)) {
             Snackbar
                     .make(findViewById(R.id.coordinatorLayout), getString(R.string.info_pull_down_to_update), Snackbar.LENGTH_LONG)
-                    .setAction(R.string.info_do_not_show_again, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            mApplication.getPrefs().edit().putBoolean(NextOsloApp.SHOW_PULL_DOWN_INFO, false).apply();
-                        }
-                    })
+                    .setAction(R.string.info_do_not_show_again, v -> mApplication.getPrefs().edit().putBoolean(NextOsloApp.SHOW_PULL_DOWN_INFO, false).apply())
                     .show();
         }
     }
@@ -210,7 +202,6 @@ public class DeparturesActivity extends AppCompatActivity implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(STATE_LAST_RESULT, mLastNearbyResults);
-        outState.putBoolean("isRefreshing", mAllDeparturesTask != null && mAllDeparturesTask.getStatus() == AsyncTask.Status.RUNNING);
         outState.putString("searchQuery", searchView != null ? searchView.getQuery().toString() : null);
     }
 
@@ -450,7 +441,7 @@ public class DeparturesActivity extends AppCompatActivity implements
             if (mAllDeparturesTask != null) {
                 mAllDeparturesTask.cancel(true);
             }
-            mAllDeparturesTask = new GetAllDeparturesTask(this);
+            mAllDeparturesTask = new GetAllDeparturesNearLocationTask(this);
             mAllDeparturesTask.execute(location);
         }
     }
@@ -562,6 +553,18 @@ public class DeparturesActivity extends AppCompatActivity implements
         mRecyclerView.swapAdapter(new DeparturesAdapter(mStore.getData(), DeparturesActivity.this, DeparturesActivity.this), false);
     }
 
+    public void onGetAllDeparturesNearLocationPreExecute() {
+        mSwipeView.setRefreshing(true);
+        mStore.setDepartures(Collections.emptyList());
+    }
+
+    public void onGetAllDeparturesNearLocationResult(List<StopVisit> departures) {
+        mode = MODE_STOP_VISITS;
+        mLastUpdate = System.currentTimeMillis();
+        mStore.setDepartures(departures);
+        mSwipeView.setRefreshing(false);
+    }
+
     private class SearchClosestStopForLineTask extends AsyncTask<Line, Void, List<Object>> {
 
         @Override
@@ -610,30 +613,10 @@ public class DeparturesActivity extends AppCompatActivity implements
 
             ExecutorService es = Executors.newFixedThreadPool(4);
 
-            es.execute(new Runnable() {
-                @Override
-                public void run() {
-                    searchLinesNearby(query);
-                }
-            });
-            es.execute(new Runnable() {
-                @Override
-                public void run() {
-                    searchLines(query);
-                }
-            });
-            es.execute(new Runnable() {
-                @Override
-                public void run() {
-                    searchStops(query);
-                }
-            });
-            es.execute(new Runnable() {
-                @Override
-                public void run() {
-                    searchSuggestions(query);
-                }
-            });
+            es.execute(() -> searchLinesNearby(query));
+            es.execute(() -> searchLines(query));
+            es.execute(() -> searchStops(query));
+            es.execute(() -> searchSuggestions(query));
 
             es.shutdown();
             try {
@@ -734,13 +717,6 @@ public class DeparturesActivity extends AppCompatActivity implements
         }
     }
 
-    void setGetAllDeparturesResult(List<StopVisit> departures) {
-        mode = MODE_STOP_VISITS;
-        mLastUpdate = System.currentTimeMillis();
-        mStore.setDepartures(departures);
-        mSwipeView.setRefreshing(false);
-    }
-
     private class SearchLineTask extends AsyncTask<String, Void, List<Object>> {
 
         @Override
@@ -760,14 +736,11 @@ public class DeparturesActivity extends AppCompatActivity implements
             final ExecutorService es = Executors.newCachedThreadPool();
             final Stop closestStop = StopFilter.getClosestStop(Requests.getAllStopsForLine(query, mLastLocation));
 //            for (final Stop stop : allStopsForLine) {
-            es.execute(new Runnable() {
-                @Override
-                public void run() {
-                    List<StopVisit> allDeparturesForStop = Requests.getAllDepartures(closestStop, query);
-                    synchronized (result) {
-                        result.stopVisits.addAll(allDeparturesForStop);
+            es.execute(() -> {
+                List<StopVisit> allDeparturesForStop = Requests.getAllDepartures(closestStop, query);
+                synchronized (result) {
+                    result.stopVisits.addAll(allDeparturesForStop);
 
-                    }
                 }
             });
 //            }
@@ -788,54 +761,6 @@ public class DeparturesActivity extends AppCompatActivity implements
             mLastUpdate = System.currentTimeMillis();
             mRecyclerView.swapAdapter(new DeparturesAdapter(result, DeparturesActivity.this, DeparturesActivity.this), false);
             mSwipeView.setRefreshing(false);
-        }
-    }
-
-    private class GetAllDeparturesTask extends AsyncTask<Location, Object, List<StopVisit>> {
-
-        private final Context context;
-
-        public GetAllDeparturesTask(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        protected List<StopVisit> doInBackground(Location... locations) {
-
-            List<Stop> closestStopsToLocation = Requests.getClosestStopsToLocation(locations[0], 15, 1400);
-
-            mLastNearbyResults = new StopVisitsResult(new Date());
-            final List<StopVisit> departures = new ArrayList<>();
-
-            final ExecutorService es = Executors.newCachedThreadPool();
-            for (final Stop stop : closestStopsToLocation) {
-                es.execute(() -> {
-                    departures.addAll(Requests.getAllDepartures(stop));
-                    synchronized (mLastNearbyResults) {
-                        mLastNearbyResults.stopVisits.addAll(departures);
-                    }
-                });
-            }
-            es.shutdown();
-            try {
-                es.awaitTermination(30, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                Log.e("GetDepartures", e.getMessage(), e);
-            }
-
-            return departures;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            ((DeparturesActivity) context).mSwipeView.setRefreshing(true);
-        }
-
-        @Override
-        protected void onPostExecute(List<StopVisit> result) {
-            super.onPostExecute(result);
-            ((DeparturesActivity) context).setGetAllDeparturesResult(result);
         }
     }
 

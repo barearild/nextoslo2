@@ -19,6 +19,7 @@ import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.search.SearchSuggestion;
+import com.barearild.next.v2.views.NextOsloStore;
 import com.barearild.next.v2.views.departures.items.DepartureListItem;
 
 import java.util.ArrayList;
@@ -46,14 +47,31 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private final Context context;
 
     private final OnDepartureItemClickListener onDepartureItemClickListener;
+    private final NextOsloStore store;
     private LayoutInflater inflater;
 
     public DeparturesAdapter(Context context) {
         this(new ArrayList<>(), context, null);
     }
 
+    public DeparturesAdapter(NextOsloStore store, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
+        super();
+        this.store = store;
+        this.data = new ArrayList(store.getData());
+        this.context = context;
+        this.onDepartureItemClickListener = onDepartureItemClickListener;
+
+        setHasStableIds(true);
+
+        dateFormat = DateFormat.getDateFormat(context);
+        timeFormat = DateFormat.getTimeFormat(context);
+
+        inflater = LayoutInflater.from(context);
+    }
+
     public DeparturesAdapter(List<Object> data, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
         super();
+        this.store = new NextOsloStore();
         this.data = new ArrayList<>(data);
         this.context = context;
         this.onDepartureItemClickListener = onDepartureItemClickListener;
@@ -176,12 +194,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         viewHolder.text.setText(stop.getName() + "\n" + stop.getDistrict());
 
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onDepartureItemClickListener.onItemClick(stop);
-            }
-        });
+        viewHolder.itemView.setOnClickListener(view -> onDepartureItemClickListener.onItemClick(stop));
     }
 
     private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, int position) {
@@ -198,12 +211,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         viewHolder.warning.setVisibility(stopVisit.shouldShowWarningInList() ? View.VISIBLE : View.GONE);
 
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onDepartureItemClickListener.onItemClick(stopVisit);
-            }
-        });
+        viewHolder.itemView.setOnClickListener(v -> onDepartureItemClickListener.onItemClick(stopVisit));
 
 
         setupPopupMenu(viewHolder, stopVisit, position);
@@ -235,12 +243,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         holder.icon.setImageResource(suggestion.iconRes);
         holder.text.setText(suggestion.text + (suggestion.text2 != null ? ("\n" + suggestion.text2) : ""));
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onDepartureItemClickListener.onItemClick(suggestion);
-            }
-        });
+        holder.itemView.setOnClickListener(view -> onDepartureItemClickListener.onItemClick(suggestion));
     }
 
     @Override

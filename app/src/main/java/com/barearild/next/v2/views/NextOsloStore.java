@@ -5,33 +5,20 @@ import android.os.Build;
 import android.util.Log;
 
 import com.barearild.next.v2.NextOsloApp;
-import com.barearild.next.v2.StopVisitFilters;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
-import com.barearild.next.v2.views.departures.FilterView;
-import com.barearild.next.v2.views.departures.SpaceItem;
-import com.barearild.next.v2.views.departures.StopVisitListItem;
 import com.barearild.next.v2.views.departures.items.DepartureListItem;
-import com.barearild.next.v2.views.departures.items.ViewItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.barearild.next.v2.StopVisitFilters.byFirstDeparture;
 import static com.barearild.next.v2.StopVisitFilters.byFirstDepartureDepartureList;
-import static com.barearild.next.v2.StopVisitFilters.convertToListItems;
-import static com.barearild.next.v2.StopVisitFilters.onlyFavorites;
 import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
-import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDeparture;
-import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDepartureStopVisit;
-import static com.barearild.next.v2.StopVisitFilters.removeTransportTypes;
-import static com.barearild.next.v2.StopVisitFilters.withoutFavourites;
 
 public class NextOsloStore {
 
@@ -40,6 +27,7 @@ public class NextOsloStore {
     }
 
     private boolean showFilters = false;
+    private boolean showAll = false;
 
     private Date lastUpdate = null;
 
@@ -61,6 +49,11 @@ public class NextOsloStore {
         notifyListeners();
     }
 
+    public void showAll() {
+        this.showAll = true;
+        notifyListeners();
+    }
+
     public void setShowFilters(boolean showFilters) {
         this.showFilters = showFilters;
         notifyListeners();
@@ -68,8 +61,23 @@ public class NextOsloStore {
 
     public void setDepartures(List<StopVisit> departures) {
         this.departures = new ArrayList<>(departures);
-        Collections.sort(this.departures);
-        this.lastUpdate = new Date();
+        this.lastUpdate = departures.isEmpty() ? null : new Date();
+        notifyListeners();
+    }
+
+
+    public void addDepartures(List<StopVisit> departures) {
+        if(this.departures == null) {
+            this.departures = new ArrayList<>();
+        }
+
+        this.departures.addAll(departures);
+//        if (NextOsloApp.erPreApiL24()) {
+//            departures = addDeparturePreL24(departures, item);
+//
+//        } else {
+//            departures = addDepartureL24(departures, item);
+//        }
         notifyListeners();
     }
 
@@ -105,6 +113,30 @@ public class NextOsloStore {
         listeners.add(listener);
     }
 
+    public List<DepartureListItem> getOther() {
+        Map<Long, List<StopVisit>> stopVisitMap = new LinkedHashMap<>();
+
+        for (StopVisit departure : departures) {
+            if (!stopVisitMap.containsKey(departure.getHash())) {
+                stopVisitMap.put(departure.getHash(), new ArrayList<>());
+            }
+            stopVisitMap.get(departure.getHash()).add(departure);
+        }
+
+        for (Long key : stopVisitMap.keySet()) {
+            stopVisitMap.put(key, orderByWalkingDistance(stopVisitMap.get(key)));
+        }
+
+
+        List<DepartureListItem> departureListItems = new ArrayList<>();
+        for (List<StopVisit> stopVisits : stopVisitMap.values()) {
+            departureListItems.add(new DepartureListItem(stopVisits));
+        }
+
+        Collections.sort(departureListItems, byFirstDepartureDepartureList());
+        return departureListItems;
+    }
+
     public List<Object> getData() {
         List<Object> data = new ArrayList<>();
 
@@ -112,24 +144,24 @@ public class NextOsloStore {
 //            data.add(new FilterView.FilterType());
 //        }
 //
-        if (lastUpdate != null) {
-            data.add(lastUpdate);
-        }
+//        if (lastUpdate != null) {
+//            data.add(lastUpdate);
+//        }
 
         if (!departures.isEmpty()) {
 
             Log.d("departures", departures.toString());
 
-            Map<String, List<StopVisit>> stopVisitMap = new LinkedHashMap<>();
+            Map<Long, List<StopVisit>> stopVisitMap = new LinkedHashMap<>();
 
             for (StopVisit departure : departures) {
-                if (!stopVisitMap.containsKey(departure.getId())) {
-                    stopVisitMap.put(departure.getId(), new ArrayList<>());
+                if (!stopVisitMap.containsKey(departure.getHash())) {
+                    stopVisitMap.put(departure.getHash(), new ArrayList<>());
                 }
-                stopVisitMap.get(departure.getId()).add(departure);
+                stopVisitMap.get(departure.getHash()).add(departure);
             }
 
-            for (String key : stopVisitMap.keySet()) {
+            for (Long key : stopVisitMap.keySet()) {
                 stopVisitMap.put(key, orderByWalkingDistance(stopVisitMap.get(key)));
             }
 

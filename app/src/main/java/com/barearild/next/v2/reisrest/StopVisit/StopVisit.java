@@ -10,7 +10,13 @@ import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import org.joda.time.DateTime;
+
 import v2.next.barearild.com.R;
+
+import static com.barearild.next.v2.reisrest.StopVisit.MonitoredCall.Builder.monitoredCall;
+import static com.barearild.next.v2.reisrest.StopVisit.MonitoredVehicleJourney.Builder.monitoredVehicleJourney;
+import static com.barearild.next.v2.reisrest.StopVisit.MonitoredVehicleJourney.Builder.monitoredVehicleJourneyFrom;
 
 
 public class StopVisit implements Comparable<StopVisit>, Parcelable {
@@ -57,6 +63,10 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
 
     public String getId() {
         return monitoredVehicleJourney.getPublishedLineName() + monitoredVehicleJourney.getDestinationName();
+    }
+
+    public long getHash() {
+        return  getId().hashCode() + stop.getID();
     }
 
     @Override
@@ -169,6 +179,11 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
             return this;
         }
 
+        public Builder withMonitoredVehicleJourney(MonitoredVehicleJourney.Builder monitoredVehicleJourney) {
+            this.monitoredVehicleJourney = monitoredVehicleJourney.build();
+            return this;
+        }
+
         public Builder withExtensions(Extensions extensions) {
             this.extensions = extensions;
             return this;
@@ -177,6 +192,28 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         public Builder withInCongestion(boolean inCongestion) {
             this.inCongestion = inCongestion;
             return this;
+        }
+
+        public Builder withLine(String lineRef, String lineName) {
+            return withMonitoredVehicleJourney(
+                    getMonitoredVehicleJourneyBuilder()
+                            .withLineRef(lineRef)
+                            .withDestinationName(lineName)
+            );
+        }
+
+        public Builder withDeparture(DateTime departureTime) {
+            return withMonitoredVehicleJourney(
+                    getMonitoredVehicleJourneyBuilder()
+                            .withMonitoredCall(
+                                    monitoredCall()
+                                            .withExpectedDepartureTime(departureTime)
+                    )
+            );
+        }
+
+        private MonitoredVehicleJourney.Builder getMonitoredVehicleJourneyBuilder() {
+            return monitoredVehicleJourney == null ? monitoredVehicleJourney() : monitoredVehicleJourneyFrom(monitoredVehicleJourney);
         }
     }
 }

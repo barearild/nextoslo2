@@ -33,6 +33,15 @@ public class MonitoredVehicleJourney implements Parcelable {
         this.MonitoredCall = in.readParcelable(MonitoredCall.class.getClassLoader());
     }
 
+    public MonitoredVehicleJourney(Builder builder) {
+        this.LineRef = builder.LineRef;
+        this.PublishedLineName = builder.PublishedLineName;
+        this.DestinationName = builder.DestinationName;
+        this.InCongestion = builder.InCongestion;
+        this.VehicleMode = builder.VehicleMode;
+        this.MonitoredCall = builder.MonitoredCall;
+    }
+
     public String getLineRef() {
         return LineRef;
     }
@@ -90,5 +99,68 @@ public class MonitoredVehicleJourney implements Parcelable {
                 ", InCongestion=" + InCongestion +
                 ", MonitoredCall=" + MonitoredCall +
                 '}';
+    }
+
+    public static class Builder {
+
+        private String LineRef;
+        private String PublishedLineName;
+        private String DestinationName;
+        private boolean InCongestion;
+        private VehicleMode VehicleMode;
+        private MonitoredCall MonitoredCall;
+
+        public static Builder monitoredVehicleJourney() {
+            return new Builder();
+        }
+
+        public static Builder monitoredVehicleJourneyFrom(MonitoredVehicleJourney monitoredVehicleJourney) {
+            return new Builder()
+                    .withLineRef(monitoredVehicleJourney.LineRef)
+                    .withPublishedLineName(monitoredVehicleJourney.PublishedLineName)
+                    .withDestinationName(monitoredVehicleJourney.DestinationName)
+                    .withInCongestion(monitoredVehicleJourney.InCongestion)
+                    .withVehicleMode(monitoredVehicleJourney.VehicleMode)
+                    .withMonitoredCall(monitoredVehicleJourney.MonitoredCall)
+                    ;
+        }
+
+        public MonitoredVehicleJourney build() {
+            return new MonitoredVehicleJourney(this);
+        }
+
+        public Builder withLineRef(String lineRef) {
+            LineRef = lineRef;
+            return this;
+        }
+
+        public Builder withPublishedLineName(String publishedLineName) {
+            PublishedLineName = publishedLineName;
+            return this;
+        }
+
+        public Builder withDestinationName(String destinationName) {
+            DestinationName = destinationName;
+            return this;
+        }
+
+        public Builder withInCongestion(boolean inCongestion) {
+            InCongestion = inCongestion;
+            return this;
+        }
+
+        public Builder withVehicleMode(com.barearild.next.v2.reisrest.VehicleMode vehicleMode) {
+            VehicleMode = vehicleMode;
+            return this;
+        }
+
+        public Builder withMonitoredCall(MonitoredCall monitoredCall) {
+            MonitoredCall = monitoredCall;
+            return this;
+        }
+
+        public Builder withMonitoredCall(MonitoredCall.Builder monitoredCall) {
+            return withMonitoredCall(monitoredCall.build());
+        }
     }
 }

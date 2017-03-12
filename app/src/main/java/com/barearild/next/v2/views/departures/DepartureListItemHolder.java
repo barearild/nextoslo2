@@ -1,6 +1,9 @@
 package com.barearild.next.v2.views.departures;
 
+import android.animation.StateListAnimator;
 import android.content.Context;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +36,17 @@ public class DepartureListItemHolder extends RecyclerView.ViewHolder implements 
         menu = (Button) view.findViewById(R.id.departure_menu);
 
         view.setOnClickListener(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            setAnimation(view);
+        }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void setAnimation(View view) {
+        StateListAnimator stateListAnimator = new StateListAnimator();
+        view.setStateListAnimator(stateListAnimator);
     }
 
     private Context getContext() {

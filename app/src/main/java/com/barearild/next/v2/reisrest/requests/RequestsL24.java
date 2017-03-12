@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.barearild.next.v2.reisrest.StopVisit.StopVisit.Builder.fromStopVisit;
 import static com.barearild.next.v2.reisrest.place.Stop.Builder.fromStop;
 import static com.barearild.next.v2.reisrest.requests.Requests.GET_ALL_DEPARTURES;
 import static com.barearild.next.v2.reisrest.requests.Requests.GET_ALL_DEPARTURES_FOR_LINE_AT_STOP;

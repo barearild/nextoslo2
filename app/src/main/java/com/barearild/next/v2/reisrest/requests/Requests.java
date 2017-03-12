@@ -59,7 +59,7 @@ public class Requests {
 
     static final Type LIST_STOP_TYPE = new TypeToken<List<Stop>>() {
     }.getType();
-    static final Type LIST_STOP_VISIT_TYPE = new TypeToken<List<StopVisit>>() {
+    public static final Type LIST_STOP_VISIT_TYPE = new TypeToken<List<StopVisit>>() {
     }.getType();
     static final Type LIST_DEVIATION_DETAILS_TYPE = new TypeToken<List<DeviationDetails>>() {
     }.getType();

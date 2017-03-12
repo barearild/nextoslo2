@@ -1,28 +1,25 @@
 package com.barearild.next.v2.views.departures.items;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.TextView;
+import android.os.Build;
 
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.views.departures.DepartureListItemHolder;
-import com.barearild.next.v2.views.departures.DeparturesRecyclerView;
 import com.barearild.next.v2.views.departures.StopVisitListItem;
 
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DepartureListItem implements ViewItem<DepartureListItemHolder, DepartureListItem> {
 
     private String lineRef;
     private String destinationName;
-    private DateTime firstDeparture;
-    private DateTime secondDeparture;
     private String stopName;
+    private List<DateTime> departures;
     private Transporttype transporttype;
 
     private long hashcode;
@@ -33,8 +30,7 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
         this.destinationName = getDestinationName(stopVisit);
         this.stopName = getStopName(stopVisit);
         this.transporttype = getTransportType(stopVisit);
-        this.firstDeparture = getFirstExectedDepartureTime(stopVisits);
-        this.secondDeparture = getSecondExectedDepartureTime(stopVisits);
+        this.departures = getDepartures(stopVisits);
 
         hashcode = stopVisit.getId().hashCode() + stopVisit.getStop().getID();
     }
@@ -48,11 +44,11 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
     }
 
     public DateTime getFirstDeparture() {
-        return firstDeparture;
+        return departures.get(0);
     }
 
     public DateTime getSecondDeparture() {
-        return secondDeparture;
+        return departures.size() >= 2 ? departures.get(1) : null;
     }
 
     public String getStopName() {
@@ -73,11 +69,8 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
         if (hashcode != that.hashcode) return false;
         if (!lineRef.equals(that.lineRef)) return false;
         if (!destinationName.equals(that.destinationName)) return false;
-        if (firstDeparture != null ? !firstDeparture.equals(that.firstDeparture) : that.firstDeparture != null)
-            return false;
-        if (secondDeparture != null ? !secondDeparture.equals(that.secondDeparture) : that.secondDeparture != null)
-            return false;
         if (!stopName.equals(that.stopName)) return false;
+        if (!departures.equals(that.departures)) return false;
         return transporttype == that.transporttype;
 
     }
@@ -86,9 +79,8 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
     public int hashCode() {
         int result = lineRef.hashCode();
         result = 31 * result + destinationName.hashCode();
-        result = 31 * result + (firstDeparture != null ? firstDeparture.hashCode() : 0);
-        result = 31 * result + (secondDeparture != null ? secondDeparture.hashCode() : 0);
         result = 31 * result + stopName.hashCode();
+        result = 31 * result + departures.hashCode();
         result = 31 * result + transporttype.hashCode();
         result = 31 * result + (int) (hashcode ^ (hashcode >>> 32));
         return result;
@@ -125,12 +117,19 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
         return null;
     }
 
-    private static DateTime getFirstExectedDepartureTime(List<StopVisit> stopVisits) {
-        return getExpectedDepartureTime(stopVisits.get(0));
-    }
+    private static List<DateTime> getDepartures(List<StopVisit> stopVisits) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return stopVisits.stream()
+                    .map(DepartureListItem::getExpectedDepartureTime)
+                    .collect(Collectors.toList());
+        } else {
+            List<DateTime> departures = new ArrayList<>();
+            for (StopVisit stopVisit : stopVisits) {
+                departures.add(getExpectedDepartureTime(stopVisit));
+            }
+            return departures;
+        }
 
-    private static DateTime getSecondExectedDepartureTime(List<StopVisit> stopVisits) {
-        return stopVisits.size() >= 2 ? getExpectedDepartureTime(stopVisits.get(1)) : null;
     }
 
     private static DateTime getExpectedDepartureTime(StopVisit stopVisit) {
@@ -166,8 +165,8 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
         return "DepartureListItem{" +
                 "lineRef='" + lineRef + '\'' +
                 ", destinationName='" + destinationName + '\'' +
-                ", firstDeparture=" + firstDeparture +
-                ", secondDeparture=" + secondDeparture +
+                ", firstDeparture=" + getFirstDeparture() +
+                ", secondDeparture=" + getSecondDeparture() +
                 ", stopName='" + stopName + '\'' +
                 ", transporttype=" + transporttype +
                 '}';

@@ -114,12 +114,8 @@ public class StopVisitFilters {
     }
 
     public static Comparator<StopVisit> byWalkingDistance() {
-        return new Comparator<StopVisit>() {
-            @Override
-            public int compare(StopVisit lhs, StopVisit rhs) {
-                return lhs.getStop().getWalkingDistance() - rhs.getStop().getWalkingDistance();
-            }
-        };
+        return (lhs, rhs) ->
+                lhs.getStop().getWalkingDistance() - rhs.getStop().getWalkingDistance();
     }
 
     public static List<StopVisit> orderByWalkingDistance(List<StopVisit> stopVisits) {

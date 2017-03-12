@@ -19,6 +19,10 @@ public class MonitoredCall implements Parcelable {
         this.ExpectedDepartureTime = new DateTime(in.readLong());
     }
 
+    public MonitoredCall(Builder builder) {
+        this.ExpectedDepartureTime = builder.ExpectedDepartureTime;
+    }
+
     public DateTime getExpectedDepartureTime() {
         return ExpectedDepartureTime;
     }
@@ -49,4 +53,21 @@ public class MonitoredCall implements Parcelable {
             return new MonitoredCall[size];
         }
     };
+
+    public static class Builder {
+        private DateTime ExpectedDepartureTime;
+
+        public static Builder monitoredCall() {
+            return new Builder();
+        }
+
+        public MonitoredCall build() {
+            return new MonitoredCall(this);
+        }
+
+        public Builder withExpectedDepartureTime(DateTime expectedDepartureTime) {
+            ExpectedDepartureTime = expectedDepartureTime;
+            return this;
+        }
+    }
 }
