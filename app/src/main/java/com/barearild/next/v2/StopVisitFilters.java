@@ -162,8 +162,7 @@ public class StopVisitFilters {
         }
 
 
-        VehicleMode vehicleMode = departure.getMonitoredVehicleJourney().getVehicleMode();
-        Transporttype transporttype = vehicleMode.transporttype();
+        Transporttype transporttype = departure.getTransportType();
         if (Transporttype.isRegionalBus(departure)) {
             transporttype = Transporttype.RegionalBus;
         }

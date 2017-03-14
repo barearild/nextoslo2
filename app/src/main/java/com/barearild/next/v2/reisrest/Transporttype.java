@@ -39,8 +39,8 @@ public enum Transporttype {
     }
 
     public static boolean isRegionalBus(StopVisit stopVisit) {
-        Transporttype transporttype = stopVisit.getMonitoredVehicleJourney().getVehicleMode().transporttype();
-        String lineRef = stopVisit.getMonitoredVehicleJourney().getLineRef();
+        Transporttype transporttype = stopVisit.getTransportType();
+        String lineRef = stopVisit.getLineRef();
         return isRegionalBus(lineRef, transporttype);
     }
 

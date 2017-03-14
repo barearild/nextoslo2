@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
@@ -21,6 +22,7 @@ import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.search.SearchSuggestion;
 import com.barearild.next.v2.views.NextOsloStore;
 import com.barearild.next.v2.views.departures.items.DepartureListItem;
+import com.barearild.next.v2.views.departures.items.ShowMoreItem;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +42,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_STOP = 7;
     private static final int TYPE_LINE = 8;
     private static final int TYPE_DEPARTURE_ITEM = 9;
+    private static final int TYPE_DEPARTURE_MORE = 10;
 
     private final List<Object> data;
     private final java.text.DateFormat dateFormat;
@@ -93,7 +96,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         switch (getItemViewType(position)) {
             case TYPE_DEPARTURE_ITEM:
                 DepartureListItem item = (DepartureListItem) getItem(position);
-                return item.hashCode();
+                return item.getLineAndStopName().hashCode();
             case TYPE_DEPARTURE:
                 StopVisitListItem stopVisitListItem = (StopVisitListItem) getItem(position);
                 return (stopVisitListItem.getId().hashCode() + stopVisitListItem.getStop().getID());
@@ -113,6 +116,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return ((Stop) getItem(position)).getID();
             case TYPE_LINE:
                 return ((Line) getItem(position)).getID();
+            case TYPE_DEPARTURE_MORE:
+                return TYPE_DEPARTURE_MORE;
         }
 
         return super.getItemId(position);
@@ -139,6 +144,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return new StopViewHolder(inflater.inflate(R.layout.search_suggestion, parent, false));
             case TYPE_LINE:
                 return new LineViewHolder(inflater.inflate(R.layout.search_suggestion, parent, false));
+            case TYPE_DEPARTURE_MORE:
+                return new ShowMoreItemHolder(inflater.inflate(R.layout.departure_item_show_more, parent, false));
             case TYPE_EMPTY:
 //                return new EmptyViewHolder(inflater.inflate(R.layout.departure_list_empty, parent, false));
 
@@ -171,6 +178,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 break;
             case TYPE_LINE:
                 onBindLineViewHolder((LineViewHolder) viewHolder, position);
+                break;
+            case TYPE_DEPARTURE_MORE:
+                onBindShowMoreHolder((ShowMoreItemHolder) viewHolder, (ShowMoreItem) data.get(position), position);
                 break;
         }
     }
@@ -217,8 +227,13 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         setupPopupMenu(viewHolder, stopVisit, position);
     }
 
+    private void onBindShowMoreHolder(ShowMoreItemHolder viewHolder, ShowMoreItem item, int position) {
+        item.onBindViewHolder(context, viewHolder, position);
+        viewHolder.showMore.setOnClickListener(v -> store.showAll());
+    }
+
     private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, DepartureListItem item, int position) {
-        item.onBindViewHolder(context, viewHolder, item, position);
+        item.onBindViewHolder(context, viewHolder, position);
 
         viewHolder.itemView.setOnClickListener(v -> onDepartureItemClickListener.onItemClick(item));
 
@@ -233,8 +248,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int position) {
         DeparturesHeader header = (DeparturesHeader) data.get(position);
-
-        viewHolder.headerText.setText(Html.fromHtml(header.text));
+        header.onBindViewHolder(context, viewHolder, position);
     }
 
     public void onBindSuggestionViewHolder(SearchSuggestionViewHolder holder, int position) {
@@ -272,6 +286,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_LINE;
         } else if (item instanceof DepartureListItem) {
             return TYPE_DEPARTURE_ITEM;
+        } else if (item instanceof ShowMoreItem) {
+            return TYPE_DEPARTURE_MORE;
         } else {
             return TYPE_HEADER;
         }

@@ -6,11 +6,15 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.barearild.next.v2.NextOsloApp;
+import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
+
+import java.util.List;
 
 import v2.next.barearild.com.R;
 
@@ -53,12 +57,27 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
         return stop;
     }
 
-    public MonitoredVehicleJourney getMonitoredVehicleJourney() {
-        return monitoredVehicleJourney;
+//    public MonitoredVehicleJourney getMonitoredVehicleJourney() {
+//        return monitoredVehicleJourney;
+//    }
+
+//    public Extensions getExtensions() {
+//        return extensions;
+//    }
+
+    public DateTime getExpectedDepartureTime() {
+        if(monitoredVehicleJourney != null && monitoredVehicleJourney.getMonitoredCall() != null) {
+            return monitoredVehicleJourney.getMonitoredCall().getExpectedDepartureTime();
+        }
+        return null;
     }
 
-    public Extensions getExtensions() {
-        return extensions;
+    public String getLineRef() {
+        if (monitoredVehicleJourney != null) {
+            return monitoredVehicleJourney.getPublishedLineName();
+        }
+
+        return null;
     }
 
     public String getId() {
@@ -66,13 +85,13 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
     }
 
     public long getHash() {
-        return  getId().hashCode() + stop.getID();
+        return getId().hashCode() + stop.getID();
     }
 
     @Override
     public int compareTo(StopVisit other) {
-        return this.getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime()
-                .compareTo(other.getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime());
+        return this.monitoredVehicleJourney.getMonitoredCall().getExpectedDepartureTime()
+                .compareTo(other.monitoredVehicleJourney.getMonitoredCall().getExpectedDepartureTime());
     }
 
     public int getOccupancyPercentage() {
@@ -92,7 +111,7 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
             }
         }
 
-        switch (getMonitoredVehicleJourney().getVehicleMode()) {
+        switch (monitoredVehicleJourney.getVehicleMode()) {
             case Boat:
                 return R.color.boatColorPrimary;
             case Bus:
@@ -113,7 +132,7 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
     }
 
     public boolean isInCongestion() {
-        return getMonitoredVehicleJourney().isInCongestion();
+        return monitoredVehicleJourney.isInCongestion();
     }
 
     @Override
@@ -144,6 +163,38 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
                 "monitoredVehicleJourney=" + monitoredVehicleJourney +
                 ", inCongestion=" + inCongestion +
                 '}';
+    }
+
+    public Transporttype getTransportType() {
+        if (monitoredVehicleJourney != null && monitoredVehicleJourney.getVehicleMode() != null) {
+            return monitoredVehicleJourney.getVehicleMode().transporttype();
+        } else {
+            return null;
+        }
+    }
+
+    public String getDestinationName() {
+        if(monitoredVehicleJourney != null) {
+            return monitoredVehicleJourney.getDestinationName();
+        } else {
+            return null;
+        }
+    }
+
+    public String getPublishedLineName() {
+        if(monitoredVehicleJourney != null) {
+            return monitoredVehicleJourney.getPublishedLineName();
+        } else {
+            return null;
+        }
+    }
+
+    public List<Deviation> getDeviations() {
+        if(extensions != null) {
+            return extensions.getDeviations();
+        } else {
+            return null;
+        }
     }
 
     public static class Builder {
@@ -208,7 +259,7 @@ public class StopVisit implements Comparable<StopVisit>, Parcelable {
                             .withMonitoredCall(
                                     monitoredCall()
                                             .withExpectedDepartureTime(departureTime)
-                    )
+                            )
             );
         }
 

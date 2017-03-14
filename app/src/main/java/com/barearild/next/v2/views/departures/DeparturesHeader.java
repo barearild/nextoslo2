@@ -1,6 +1,11 @@
 package com.barearild.next.v2.views.departures;
 
-public class DeparturesHeader {
+import android.content.Context;
+import android.text.Html;
+
+import com.barearild.next.v2.views.departures.items.ViewItem;
+
+public class DeparturesHeader implements ViewItem<DeparturesAdapter.HeaderViewHolder> {
 
     public String text;
 
@@ -10,5 +15,10 @@ public class DeparturesHeader {
 
     public DeparturesHeader(String text) {
         this.text = text;
+    }
+
+    @Override
+    public void onBindViewHolder(Context context, DeparturesAdapter.HeaderViewHolder viewHolder, int position) {
+        viewHolder.headerText.setText(Html.fromHtml(text));
     }
 }

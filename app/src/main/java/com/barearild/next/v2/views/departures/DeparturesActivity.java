@@ -41,6 +41,7 @@ import com.barearild.next.v2.search.SearchSuggestionProvider;
 import com.barearild.next.v2.search.SearchSuggestionsAdapter;
 import com.barearild.next.v2.tasks.GetAllDeparturesNearLocationTask;
 import com.barearild.next.v2.views.NextOsloStore;
+import com.barearild.next.v2.views.departures.items.DepartureListItem;
 import com.barearild.next.v2.views.details.DetailsActivity;
 import com.barearild.next.v2.views.stop.StopActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -398,8 +399,8 @@ public class DeparturesActivity extends AppCompatActivity implements
 
         if (mLastLocation == null || secondsSince(mLastLocation.getTime()) > 60) {
             mLastLocation = new Location("GPS");
-            mLastLocation.setLongitude(10.7579d);
-            mLastLocation.setLatitude(59.9115d);
+            mLastLocation.setLongitude(10.750337d);
+            mLastLocation.setLatitude(59.927333d);
             onLocationChanged(mLastLocation);
 
 //            mLocationRequest = LocationRequest.create();
@@ -497,7 +498,12 @@ public class DeparturesActivity extends AppCompatActivity implements
             Intent mapIntent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://maps.google.com/maps?daddr=" + ((SearchSuggestion) item).query + "&dirflg=r"));
             startActivity(mapIntent);
-        } else if (item instanceof Line) {
+        } else if(item instanceof DepartureListItem) {
+            Intent details = new Intent(this, DetailsActivity.class);
+//            details.putExtra(DepartureListItem.class.getSimpleName(), (DepartureListItem) item);
+            startActivity(details);
+        }
+        else if (item instanceof Line) {
             new SearchClosestStopForLineTask().execute((Line) item);
         }
     }
@@ -550,7 +556,7 @@ public class DeparturesActivity extends AppCompatActivity implements
 
     @Override
     public void onStateChanged() {
-        mRecyclerView.swapAdapter(new DeparturesAdapter(mStore.getData(), DeparturesActivity.this, DeparturesActivity.this), false);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(mStore, DeparturesActivity.this, DeparturesActivity.this), false);
     }
 
     public void onGetAllDeparturesNearLocationPreExecute() {
@@ -700,7 +706,7 @@ public class DeparturesActivity extends AppCompatActivity implements
         private void searchLinesNearby(final String query) {
             if (mLastNearbyResults != null && !mLastNearbyResults.stopVisits.isEmpty()) {
                 for (StopVisit stopvisit : mLastNearbyResults.stopVisits) {
-                    if (stopvisit.getMonitoredVehicleJourney().getLineRef().equals(query)) {
+                    if (stopvisit.getLineRef().equals(query)) {
                         result.linesNearby.add(stopvisit);
                     }
                 }

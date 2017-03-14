@@ -2,11 +2,13 @@ package com.barearild.next.v2.views;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.util.Log;
+import android.support.annotation.NonNull;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.views.departures.items.DepartureListItem;
+import com.barearild.next.v2.views.departures.items.ShowMoreItem;
+import com.barearild.next.v2.views.departures.items.ViewItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.barearild.next.v2.NextOsloApp.DEPARTURES_HEADER_OTHERS;
 import static com.barearild.next.v2.StopVisitFilters.byFirstDepartureDepartureList;
 import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
 
@@ -28,15 +31,32 @@ public class NextOsloStore {
 
     private boolean showFilters = false;
     private boolean showAll = false;
+    private boolean haveMore = false;
 
     private Date lastUpdate = null;
 
     private List<StopVisit> departures = Collections.emptyList();
 
+    private List<DepartureListItem> favourites = Collections.emptyList();
+    private List<DepartureListItem> other = Collections.emptyList();
+    private List<DepartureListItem> more = Collections.emptyList();
+
     private List<StateListener> listeners = new ArrayList<>();
 
     public List<StopVisit> getDepartures() {
         return departures;
+    }
+
+    public List<DepartureListItem> getFavourites() {
+        return favourites;
+    }
+
+    public List<DepartureListItem> getOther() {
+        return other;
+    }
+
+    public List<DepartureListItem> getMore() {
+        return more;
     }
 
     public void setLastUpdate(Date date) {
@@ -54,6 +74,10 @@ public class NextOsloStore {
         notifyListeners();
     }
 
+    public boolean shouldShowAll() {
+        return this.showAll;
+    }
+
     public void setShowFilters(boolean showFilters) {
         this.showFilters = showFilters;
         notifyListeners();
@@ -61,8 +85,19 @@ public class NextOsloStore {
 
     public void setDepartures(List<StopVisit> departures) {
         this.departures = new ArrayList<>(departures);
+        Collections.sort(departures);
+
+        this.favourites = getFavourites(departures);
+        this.other = getOther(departures);
+        this.more = getMore(departures);
+
         this.lastUpdate = departures.isEmpty() ? null : new Date();
+        this.showAll = false;
         notifyListeners();
+    }
+
+    private List<DepartureListItem> getFavourites(List<StopVisit> departures) {
+        return Collections.emptyList();
     }
 
 
@@ -91,6 +126,9 @@ public class NextOsloStore {
         notifyListeners();
     }
 
+    public boolean haveMore() {
+        return haveMore;
+    }
 
     private List<StopVisit> addDeparturePreL24(List<StopVisit> departures, StopVisit item) {
         List<StopVisit> newList = new ArrayList<>(departures);
@@ -113,17 +151,39 @@ public class NextOsloStore {
         listeners.add(listener);
     }
 
-    public List<DepartureListItem> getOther() {
-        Map<Long, List<StopVisit>> stopVisitMap = new LinkedHashMap<>();
+    private List<DepartureListItem> getMore(List<StopVisit> departures) {
+        List<DepartureListItem> items = stopVisitsToDepartureListItems(departures);
 
-        for (StopVisit departure : departures) {
-            if (!stopVisitMap.containsKey(departure.getHash())) {
-                stopVisitMap.put(departure.getHash(), new ArrayList<>());
-            }
-            stopVisitMap.get(departure.getHash()).add(departure);
+        if(items.isEmpty() || items.size() <= 10) {
+            return Collections.emptyList();
         }
 
-        for (Long key : stopVisitMap.keySet()) {
+        return items.subList(10, items.size()-1);
+    }
+
+    private List<DepartureListItem> getOther(List<StopVisit> departures) {
+        List<DepartureListItem> departureListItems = stopVisitsToDepartureListItems(departures);
+
+        if(departureListItems.size() > 10) {
+            return departureListItems.subList(0, 9);
+        }
+//
+//        haveMore = false;
+        return departureListItems;
+    }
+
+    @NonNull
+    private List<DepartureListItem> stopVisitsToDepartureListItems(List<StopVisit> departures) {
+        Map<String, List<StopVisit>> stopVisitMap = new LinkedHashMap<>();
+
+        for (StopVisit departure : departures) {
+            if (!stopVisitMap.containsKey(departure.getId())) {
+                stopVisitMap.put(departure.getId(), new ArrayList<>());
+            }
+            stopVisitMap.get(departure.getId()).add(departure);
+        }
+
+        for (String key : stopVisitMap.keySet()) {
             stopVisitMap.put(key, orderByWalkingDistance(stopVisitMap.get(key)));
         }
 
@@ -138,8 +198,11 @@ public class NextOsloStore {
     }
 
     public List<Object> getData() {
-        List<Object> data = new ArrayList<>();
+        if(departures.isEmpty()) {
+            return Collections.emptyList();
+        }
 
+        List<Object> data = new ArrayList<>();
 //        if (showFilters) {
 //            data.add(new FilterView.FilterType());
 //        }
@@ -148,62 +211,28 @@ public class NextOsloStore {
 //            data.add(lastUpdate);
 //        }
 
-        if (!departures.isEmpty()) {
+        if(!other.isEmpty()) {
+            data.add(DEPARTURES_HEADER_OTHERS);
+            data.addAll(other);
+        }
 
-            Log.d("departures", departures.toString());
-
-            Map<Long, List<StopVisit>> stopVisitMap = new LinkedHashMap<>();
-
-            for (StopVisit departure : departures) {
-                if (!stopVisitMap.containsKey(departure.getHash())) {
-                    stopVisitMap.put(departure.getHash(), new ArrayList<>());
-                }
-                stopVisitMap.get(departure.getHash()).add(departure);
-            }
-
-            for (Long key : stopVisitMap.keySet()) {
-                stopVisitMap.put(key, orderByWalkingDistance(stopVisitMap.get(key)));
-            }
-
-
-            List<DepartureListItem> departureListItems = new ArrayList<>();
-            for (List<StopVisit> stopVisits : stopVisitMap.values()) {
-                departureListItems.add(new DepartureListItem(stopVisits));
-            }
-
-            Collections.sort(departureListItems, byFirstDepartureDepartureList());
-            data.addAll(departureListItems);
-
-//            List<StopVisitListItem> favourites = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(onlyFavorites(removeTransportTypes(departures)))));
-//            List<StopVisitListItem> others = orderedByFirstDeparture(convertToListItems(orderByWalkingDistance(withoutFavourites(removeTransportTypes(departures)))));
-//
-//            List<StopVisitListItem> allStopVisitList = convertToListItems(departures);
-//            for (StopVisitListItem favourite : favourites) {
-//                StopVisitFilters.getOtherStopsForStopVisitListItem(favourite, allStopVisitList);
-//            }
-//            for (StopVisitListItem other : others) {
-//                StopVisitFilters.getOtherStopsForStopVisitListItem(other, allStopVisitList);
-//            }
-//
-//            if (departures.isEmpty()) {
-//                data.add(NextOsloApp.DEPARTURES_HEADER_EMPTY);
-//            }
-//
-//            if (favourites.isEmpty()) {
-//                data.add(NextOsloApp.DEPARTURES_HEADER_NO_FAVOURITES);
-//            } else {
-//                data.add(NextOsloApp.DEPARTURES_HEADER_FAVOURITES);
-//                data.addAll(favourites);
-//                data.add(new SpaceItem());
-//            }
-//
-//            data.add(NextOsloApp.DEPARTURES_HEADER_OTHERS);
-//            data.addAll(others);
-
+        if(showAll && !more.isEmpty()) {
+            data.addAll(more);
+        } else if(!showAll && !more.isEmpty()) {
+            data.add(new ShowMoreItem());
         }
 
         return data;
     }
+
+    private void addOtherDepartures(List<Object> data) {
+        data.add(DEPARTURES_HEADER_OTHERS);
+        data.addAll(getOther(departures));
+        if(haveMore) {
+        }
+
+    }
+
 }
 
 //    public static List<StopVisitListItem> convertToListItems(List<StopVisit> stopVisits) {

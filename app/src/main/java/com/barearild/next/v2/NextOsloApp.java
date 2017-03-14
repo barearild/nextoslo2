@@ -37,6 +37,7 @@ public class NextOsloApp extends Application {
     public static final DeparturesHeader DEPARTURES_HEADER_EMPTY = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_NO_FAVOURITES = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_OTHERS = new DeparturesHeader();
+    public static final DeparturesHeader DEPARTURES_HEADER_DEPARTURES = new DeparturesHeader();
     public static final DeparturesHeader DEPARTURES_HEADER_FAVOURITES = new DeparturesHeader();
 
     public static final String PACKAGE_NAME = "com.barearild.next.v2";
@@ -71,6 +72,7 @@ public class NextOsloApp extends Application {
         DEPARTURES_HEADER_ADDRESSES.text = getString(R.string.addresses);
         DEPARTURES_HEADER_NO_FAVOURITES.text = getString(R.string.no_favourites);
         DEPARTURES_HEADER_FAVOURITES.text = getString(R.string.favourites);
+        DEPARTURES_HEADER_DEPARTURES.text = getString(R.string.departures);
         DEPARTURES_HEADER_OTHERS.text = getString(R.string.all_others);
         DEPARTURES_HEADER_EMPTY.text = getString(R.string.departure_list_empty);
 

@@ -54,11 +54,11 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
 
     public StopVisitListItem(StopVisit stopVisit) {
         this(stopVisit.getId(),
-                stopVisit.getMonitoredVehicleJourney().getLineRef(),
-                stopVisit.getMonitoredVehicleJourney().getPublishedLineName(),
-                stopVisit.getMonitoredVehicleJourney().getDestinationName(),
+                stopVisit.getLineRef(),
+                stopVisit.getPublishedLineName(),
+                stopVisit.getDestinationName(),
                 stopVisit.getStop(),
-                stopVisit.getMonitoredVehicleJourney().getVehicleMode().transporttype()
+                stopVisit.getTransportType()
         );
         addStopVisit(stopVisit);
     }
@@ -226,8 +226,8 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
     public List<Deviation> getDeviations() {
         List<Deviation> allDeviations = new ArrayList<>();
         for (StopVisit stopvisit : stopVisits) {
-            if (stopvisit.getExtensions() != null && stopvisit.getExtensions().getDeviations() != null)
-                allDeviations.addAll(stopvisit.getExtensions().getDeviations());
+            if (stopvisit.getDeviations() != null)
+                allDeviations.addAll(stopvisit.getDeviations());
         }
 
         return allDeviations;
@@ -249,18 +249,9 @@ public class StopVisitListItem implements Comparable<StopVisitListItem>, Parcela
         return stopVisits;
     }
 
-    public static DateTime getExpectedDepartureTime(StopVisit stopVisit) {
-        if (stopVisit != null && stopVisit.getMonitoredVehicleJourney() != null &&
-                stopVisit.getMonitoredVehicleJourney().getMonitoredCall() != null
-                ) {
-            return stopVisit.getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime();
-        }
-
-        return null;
-    }
 
     public static String departureTimeString(StopVisit stopVisit, Context context) {
-        DateTime expectedDepartureTime = getExpectedDepartureTime(stopVisit);
+        DateTime expectedDepartureTime = stopVisit.getExpectedDepartureTime();
 
         return departureTimeString(expectedDepartureTime, context);
     }

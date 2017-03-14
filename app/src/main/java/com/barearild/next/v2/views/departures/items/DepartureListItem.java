@@ -5,6 +5,7 @@ import android.os.Build;
 
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.Transporttype;
+import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.views.departures.DepartureListItemHolder;
 import com.barearild.next.v2.views.departures.StopVisitListItem;
 
@@ -14,23 +15,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DepartureListItem implements ViewItem<DepartureListItemHolder, DepartureListItem> {
+public class DepartureListItem implements ViewItem<DepartureListItemHolder> {
 
     private String lineRef;
     private String destinationName;
-    private String stopName;
-    private List<DateTime> departures;
+    private Stop stop;
+    private List<StopVisit> departures;
     private Transporttype transporttype;
 
     private long hashcode;
 
     public DepartureListItem(List<StopVisit> stopVisits) {
         final StopVisit stopVisit = stopVisits.get(0);
-        this.lineRef = getLineRef(stopVisit);
-        this.destinationName = getDestinationName(stopVisit);
-        this.stopName = getStopName(stopVisit);
-        this.transporttype = getTransportType(stopVisit);
-        this.departures = getDepartures(stopVisits);
+        this.lineRef = stopVisit.getLineRef();
+        this.destinationName = stopVisit.getDestinationName();
+        this.stop = stopVisit.getStop();
+        this.transporttype = stopVisit.getTransportType();
+        this.departures = new ArrayList<>(stopVisits);
 
         hashcode = stopVisit.getId().hashCode() + stopVisit.getStop().getID();
     }
@@ -44,117 +45,47 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
     }
 
     public DateTime getFirstDeparture() {
-        return departures.get(0);
+        return departures.get(0).getExpectedDepartureTime();
     }
 
     public DateTime getSecondDeparture() {
-        return departures.size() >= 2 ? departures.get(1) : null;
+        return departures.size() >= 2 ? departures.get(1).getExpectedDepartureTime() : null;
     }
 
     public String getStopName() {
-        return stopName;
+        return stop.getName();
     }
 
     public Transporttype getTransporttype() {
         return transporttype;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public int getX() {
+        return stop.getX();
+    }
 
-        DepartureListItem that = (DepartureListItem) o;
+    public int getY() {
+        return stop.getY();
+    }
 
-        if (hashcode != that.hashcode) return false;
-        if (!lineRef.equals(that.lineRef)) return false;
-        if (!destinationName.equals(that.destinationName)) return false;
-        if (!stopName.equals(that.stopName)) return false;
-        if (!departures.equals(that.departures)) return false;
-        return transporttype == that.transporttype;
+    public String getLineName() {
+        return lineRef + " " + destinationName;
+    }
 
+    public String getLineAndStopName() {
+        return lineRef + " " + destinationName + " " + stop.getName();
     }
 
     @Override
-    public int hashCode() {
-        int result = lineRef.hashCode();
-        result = 31 * result + destinationName.hashCode();
-        result = 31 * result + stopName.hashCode();
-        result = 31 * result + departures.hashCode();
-        result = 31 * result + transporttype.hashCode();
-        result = 31 * result + (int) (hashcode ^ (hashcode >>> 32));
-        return result;
-    }
+    public void onBindViewHolder(Context context, DepartureListItemHolder viewHolder, int position) {
+        viewHolder.firstDeparture.setText(StopVisitListItem.departureTimeString(getFirstDeparture(), context));
+        viewHolder.secondDeparture.setText(StopVisitListItem.departureTimeString(getSecondDeparture(), context));
 
-    private static String getDestinationName(StopVisit stopVisit) {
-        if (haveMonitoredVehicleJourney(stopVisit)) {
-            return stopVisit.getMonitoredVehicleJourney().getDestinationName();
-        }
+        viewHolder.destinationName.setText(getDestinationName());
+        viewHolder.lineRef.setText(getLineRef());
+        viewHolder.stopName.setText(getStopName());
 
-        return null;
-    }
-
-    private static String getStopName(StopVisit stopVisit) {
-        if (stopVisit != null && stopVisit.getStop() != null) {
-            return stopVisit.getStop().getName();
-        }
-
-        return null;
-    }
-
-    private static Transporttype getTransportType(StopVisit stopVisit) {
-        if (haveMonitoredVehicleJourney(stopVisit) && stopVisit.getMonitoredVehicleJourney().getVehicleMode() != null) {
-            return stopVisit.getMonitoredVehicleJourney().getVehicleMode().transporttype();
-        }
-
-        return null;
-    }
-
-    private static String getLineRef(StopVisit stopVisit) {
-        if (haveMonitoredVehicleJourney(stopVisit)) {
-            return stopVisit.getMonitoredVehicleJourney().getPublishedLineName();
-        }
-        return null;
-    }
-
-    private static List<DateTime> getDepartures(List<StopVisit> stopVisits) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return stopVisits.stream()
-                    .map(DepartureListItem::getExpectedDepartureTime)
-                    .collect(Collectors.toList());
-        } else {
-            List<DateTime> departures = new ArrayList<>();
-            for (StopVisit stopVisit : stopVisits) {
-                departures.add(getExpectedDepartureTime(stopVisit));
-            }
-            return departures;
-        }
-
-    }
-
-    private static DateTime getExpectedDepartureTime(StopVisit stopVisit) {
-        if (haveMonitoredVehicleJourney(stopVisit) && stopVisit.getMonitoredVehicleJourney().getMonitoredCall() != null
-                ) {
-            return stopVisit.getMonitoredVehicleJourney().getMonitoredCall().getExpectedDepartureTime();
-        }
-
-        return null;
-    }
-
-    private static boolean haveMonitoredVehicleJourney(StopVisit stopVisit) {
-        return stopVisit != null && stopVisit.getMonitoredVehicleJourney() != null;
-    }
-
-    @Override
-    public void onBindViewHolder(Context context, DepartureListItemHolder viewHolder, DepartureListItem item, int position) {
-        viewHolder.firstDeparture.setText(StopVisitListItem.departureTimeString(item.getFirstDeparture(), context));
-        viewHolder.secondDeparture.setText(StopVisitListItem.departureTimeString(item.getSecondDeparture(), context));
-
-        viewHolder.destinationName.setText(item.getDestinationName());
-        viewHolder.lineRef.setText(item.getLineRef());
-        viewHolder.stopName.setText(item.getStopName());
-
-        viewHolder.setColor(item.getTransporttype());
+        viewHolder.setColor(getTransporttype());
 
         //        viewHolder.warning.setVisibility(stopVisit.shouldShowWarningInList() ? View.VISIBLE : View.GONE);
 
@@ -163,11 +94,11 @@ public class DepartureListItem implements ViewItem<DepartureListItemHolder, Depa
     @Override
     public String toString() {
         return "DepartureListItem{" +
-                "lineRef='" + lineRef + '\'' +
-                ", destinationName='" + destinationName + '\'' +
+                "lineRef='" + getLineRef() + '\'' +
+                ", destinationName='" + getDestinationName() + '\'' +
                 ", firstDeparture=" + getFirstDeparture() +
                 ", secondDeparture=" + getSecondDeparture() +
-                ", stopName='" + stopName + '\'' +
+                ", stopName='" + getStopName() + '\'' +
                 ", transporttype=" + transporttype +
                 '}';
     }

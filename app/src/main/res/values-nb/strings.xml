@@ -87,4 +87,5 @@
     <string name="valid">Gyldig: %1$s - %2$s</string>
     <string name="request_location_info">Denne applikasjonen trenger tilgang til din lokasjon for å fungere</string>
     <string name="set_permission">Gi tilgang</string>
+    <string name="departures">Avganger</string>
 </resources>
