@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
-import com.barearild.next.v2.views.departures.items.ShowMoreItem;
+import com.barearild.next.v2.views.departures.items.ShowMoreViewItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -218,7 +218,7 @@ public class NextOsloStore {
         if(showAll && !more.isEmpty()) {
             data.addAll(more);
         } else if(!showAll && !more.isEmpty()) {
-            data.add(new ShowMoreItem());
+            data.add(new ShowMoreViewItem());
         }
 
         return data;

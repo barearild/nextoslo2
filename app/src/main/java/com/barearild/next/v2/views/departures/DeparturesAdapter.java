@@ -24,7 +24,7 @@ import com.barearild.next.v2.views.departures.holders.DepartureListItemHolder;
 import com.barearild.next.v2.views.departures.holders.ShowMoreItemHolder;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.HeaderViewItem;
-import com.barearild.next.v2.views.departures.items.ShowMoreItem;
+import com.barearild.next.v2.views.departures.items.ShowMoreViewItem;
 import com.barearild.next.v2.views.departures.items.SpaceItem;
 
 import java.util.ArrayList;
@@ -183,7 +183,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 onBindLineViewHolder((LineViewHolder) viewHolder, position);
                 break;
             case TYPE_DEPARTURE_MORE:
-                onBindShowMoreHolder((ShowMoreItemHolder) viewHolder, (ShowMoreItem) data.get(position), position);
+                onBindShowMoreHolder((ShowMoreItemHolder) viewHolder, (ShowMoreViewItem) data.get(position), position);
                 break;
         }
     }
@@ -230,7 +230,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         setupPopupMenu(viewHolder, stopVisit, position);
     }
 
-    private void onBindShowMoreHolder(ShowMoreItemHolder viewHolder, ShowMoreItem item, int position) {
+    private void onBindShowMoreHolder(ShowMoreItemHolder viewHolder, ShowMoreViewItem item, int position) {
         item.onBindViewHolder(context, viewHolder, position);
         viewHolder.showMore.setOnClickListener(v -> store.showAll());
     }
@@ -289,7 +289,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_LINE;
         } else if (item instanceof DepartureViewItem) {
             return TYPE_DEPARTURE_ITEM;
-        } else if (item instanceof ShowMoreItem) {
+        } else if (item instanceof ShowMoreViewItem) {
             return TYPE_DEPARTURE_MORE;
         } else {
             return TYPE_HEADER;

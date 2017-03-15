@@ -7,10 +7,6 @@ import android.widget.TextView;
 
 import v2.next.barearild.com.R;
 
-/**
- * Created by arild on 12.03.2017.
- */
-
 public class ShowMoreItemHolder extends RecyclerView.ViewHolder {
 
     public Button showMore;
