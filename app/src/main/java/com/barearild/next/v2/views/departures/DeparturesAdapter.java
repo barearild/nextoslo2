@@ -2,7 +2,6 @@ package com.barearild.next.v2.views.departures;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -14,15 +13,19 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.barearild.next.v2.NextOsloApp;
+import com.barearild.next.v2.delete.StopVisitListItem;
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.search.SearchSuggestion;
 import com.barearild.next.v2.views.NextOsloStore;
-import com.barearild.next.v2.views.departures.items.DepartureListItem;
+import com.barearild.next.v2.views.departures.holders.DepartureListItemHolder;
+import com.barearild.next.v2.views.departures.holders.ShowMoreItemHolder;
+import com.barearild.next.v2.views.departures.items.DepartureViewItem;
+import com.barearild.next.v2.views.departures.items.DeparturesHeader;
 import com.barearild.next.v2.views.departures.items.ShowMoreItem;
+import com.barearild.next.v2.views.departures.items.SpaceItem;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -95,7 +98,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public long getItemId(int position) {
         switch (getItemViewType(position)) {
             case TYPE_DEPARTURE_ITEM:
-                DepartureListItem item = (DepartureListItem) getItem(position);
+                DepartureViewItem item = (DepartureViewItem) getItem(position);
                 return item.getLineAndStopName().hashCode();
             case TYPE_DEPARTURE:
                 StopVisitListItem stopVisitListItem = (StopVisitListItem) getItem(position);
@@ -159,7 +162,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         switch (getItemViewType(position)) {
             case TYPE_DEPARTURE_ITEM:
-                onBindDepartureListViewHolder((DepartureListItemHolder) viewHolder, (DepartureListItem) data.get(position), position);
+                onBindDepartureListViewHolder((DepartureListItemHolder) viewHolder, (DepartureViewItem) data.get(position), position);
                 break;
             case TYPE_DEPARTURE:
                 onBindDepartureListViewHolder((DepartureListItemHolder) viewHolder, position);
@@ -232,7 +235,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         viewHolder.showMore.setOnClickListener(v -> store.showAll());
     }
 
-    private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, DepartureListItem item, int position) {
+    private void onBindDepartureListViewHolder(DepartureListItemHolder viewHolder, DepartureViewItem item, int position) {
         item.onBindViewHolder(context, viewHolder, position);
 
         viewHolder.itemView.setOnClickListener(v -> onDepartureItemClickListener.onItemClick(item));
@@ -284,7 +287,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_STOP;
         } else if (item instanceof Line) {
             return TYPE_LINE;
-        } else if (item instanceof DepartureListItem) {
+        } else if (item instanceof DepartureViewItem) {
             return TYPE_DEPARTURE_ITEM;
         } else if (item instanceof ShowMoreItem) {
             return TYPE_DEPARTURE_MORE;
@@ -346,9 +349,9 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    class HeaderViewHolder extends RecyclerView.ViewHolder {
+    public class HeaderViewHolder extends RecyclerView.ViewHolder {
 
-        TextView headerText;
+        public TextView headerText;
 
         public HeaderViewHolder(View itemView) {
             super(itemView);

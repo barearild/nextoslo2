@@ -22,8 +22,8 @@ import com.barearild.next.v2.views.departures.DeparturesAdapter;
 import com.barearild.next.v2.views.departures.DeparturesRecyclerView;
 import com.barearild.next.v2.views.departures.DeparturesSwipeRefreshLayout;
 import com.barearild.next.v2.views.departures.FilterView;
-import com.barearild.next.v2.views.departures.SpaceItem;
-import com.barearild.next.v2.views.departures.StopVisitListItem;
+import com.barearild.next.v2.views.departures.items.SpaceItem;
+import com.barearild.next.v2.delete.StopVisitListItem;
 import com.barearild.next.v2.views.details.DetailsActivity;
 import com.barearild.next.v2.views.map.MapsActivity;
 

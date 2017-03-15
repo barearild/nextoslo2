@@ -1,8 +1,9 @@
-package com.barearild.next.v2.views.departures;
+package com.barearild.next.v2.views.departures.items;
 
 import android.content.Context;
 import android.text.Html;
 
+import com.barearild.next.v2.views.departures.DeparturesAdapter;
 import com.barearild.next.v2.views.departures.items.ViewItem;
 
 public class DeparturesHeader implements ViewItem<DeparturesAdapter.HeaderViewHolder> {

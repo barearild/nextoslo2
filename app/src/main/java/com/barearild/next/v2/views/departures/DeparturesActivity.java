@@ -23,11 +23,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.StopVisitFilters;
+import com.barearild.next.v2.delete.StopVisitListItem;
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
@@ -41,7 +41,8 @@ import com.barearild.next.v2.search.SearchSuggestionProvider;
 import com.barearild.next.v2.search.SearchSuggestionsAdapter;
 import com.barearild.next.v2.tasks.GetAllDeparturesNearLocationTask;
 import com.barearild.next.v2.views.NextOsloStore;
-import com.barearild.next.v2.views.departures.items.DepartureListItem;
+import com.barearild.next.v2.views.departures.items.DepartureViewItem;
+import com.barearild.next.v2.views.departures.items.SpaceItem;
 import com.barearild.next.v2.views.details.DetailsActivity;
 import com.barearild.next.v2.views.stop.StopActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -498,9 +499,9 @@ public class DeparturesActivity extends AppCompatActivity implements
             Intent mapIntent = new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://maps.google.com/maps?daddr=" + ((SearchSuggestion) item).query + "&dirflg=r"));
             startActivity(mapIntent);
-        } else if(item instanceof DepartureListItem) {
+        } else if(item instanceof DepartureViewItem) {
             Intent details = new Intent(this, DetailsActivity.class);
-//            details.putExtra(DepartureListItem.class.getSimpleName(), (DepartureListItem) item);
+            details.putExtra(DepartureViewItem.class.getSimpleName(), (DepartureViewItem) item);
             startActivity(details);
         }
         else if (item instanceof Line) {

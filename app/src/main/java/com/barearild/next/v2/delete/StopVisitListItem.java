@@ -1,4 +1,4 @@
-package com.barearild.next.v2.views.departures;
+package com.barearild.next.v2.delete;
 
 import android.content.Context;
 import android.os.Parcel;

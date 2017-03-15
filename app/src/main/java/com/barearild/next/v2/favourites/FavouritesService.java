@@ -7,7 +7,8 @@ import android.util.Log;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
-import com.barearild.next.v2.views.departures.StopVisitListItem;
+import com.barearild.next.v2.delete.StopVisitListItem;
+import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,6 +84,19 @@ public class FavouritesService {
         return stopIds;
     }
 
+    public void addFavourite(DepartureViewItem item) {
+        Set<Integer> stopIds = favourites.get(item.getLineAndStopName());
+        if (stopIds == null) {
+            stopIds = new HashSet<Integer>();
+        }
+        if (stopIds.iterator().hasNext() && stopIds.iterator().next() == ALL_STOPS) {
+            stopIds.clear();
+        }
+        stopIds.add(item.getStop().getID());
+        favourites.put(item.getLineAndStopName(), stopIds);
+        saveFavouritesToPreferences(favourites);
+    }
+
     public void addFavourite(StopVisitListItem stopvisit) {
         Set<Integer> stopIds = favourites.get(stopvisit.getId());
         if (stopIds == null) {
@@ -93,6 +107,25 @@ public class FavouritesService {
         }
         stopIds.add(stopvisit.getStop().getID());
         favourites.put(stopvisit.getId(), stopIds);
+        saveFavouritesToPreferences(favourites);
+    }
+
+    public void removeFavourite(DepartureViewItem departureViewItem) {
+        Set<Integer> stopIds = favourites.get(departureViewItem.getLineAndStopName());
+        if (stopIds == null) {
+            return;
+        }
+
+        if (stopIds.iterator().hasNext() && stopIds.iterator().next() == ALL_STOPS) {
+            favourites.remove(departureViewItem.getLineAndStopName());
+        } else {
+            stopIds.remove(departureViewItem.getStop().getID());
+            if (stopIds.isEmpty()) {
+                favourites.remove(departureViewItem.getLineAndStopName());
+            } else {
+                favourites.put(departureViewItem.getLineAndStopName(), stopIds);
+            }
+        }
         saveFavouritesToPreferences(favourites);
     }
 
@@ -135,6 +168,11 @@ public class FavouritesService {
         return idAndStopsSplit[0];
     }
 
+    public static boolean isFavourite(DepartureViewItem stopvisit) {
+        Set<Integer> stopIds = favourites.get(stopvisit.getLineAndStopName());
+        return stopIds != null && (stopIds.contains(ALL_STOPS) || stopIds.contains(stopvisit.getStop().getID()));
+    }
+
     public static boolean isFavourite(StopVisitListItem stopvisit) {
         Set<Integer> stopIds = favourites.get(stopvisit.getId());
         return stopIds != null && (stopIds.contains(ALL_STOPS) || stopIds.contains(stopvisit.getStop().getID()));
@@ -152,6 +190,18 @@ public class FavouritesService {
 
     public void addAsFavouriteEverywhere(StopVisitListItem stopvisit) {
         favourites.get(stopvisit.getId()).add(ALL_STOPS);
+        saveFavouritesToPreferences(favourites);
+    }
+
+    public void addAsFavouriteEverywhere(DepartureViewItem item) {
+        favourites.get(item.getLineAndStopName()).add(ALL_STOPS);
+        saveFavouritesToPreferences(favourites);
+    }
+
+
+    public void setAsFavouriteOnStopOnly(DepartureViewItem item) {
+        favourites.get(item.getLineAndStopName()).remove(ALL_STOPS);
+        favourites.get(item.getLineAndStopName()).add(item.getStop().getID());
         saveFavouritesToPreferences(favourites);
     }
 

@@ -9,7 +9,7 @@ import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
-import com.barearild.next.v2.views.departures.DeparturesHeader;
+import com.barearild.next.v2.views.departures.items.DeparturesHeader;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 

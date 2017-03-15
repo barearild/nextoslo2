@@ -6,9 +6,8 @@ import android.support.annotation.NonNull;
 
 import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
-import com.barearild.next.v2.views.departures.items.DepartureListItem;
+import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.ShowMoreItem;
-import com.barearild.next.v2.views.departures.items.ViewItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,9 +36,9 @@ public class NextOsloStore {
 
     private List<StopVisit> departures = Collections.emptyList();
 
-    private List<DepartureListItem> favourites = Collections.emptyList();
-    private List<DepartureListItem> other = Collections.emptyList();
-    private List<DepartureListItem> more = Collections.emptyList();
+    private List<DepartureViewItem> favourites = Collections.emptyList();
+    private List<DepartureViewItem> other = Collections.emptyList();
+    private List<DepartureViewItem> more = Collections.emptyList();
 
     private List<StateListener> listeners = new ArrayList<>();
 
@@ -47,15 +46,15 @@ public class NextOsloStore {
         return departures;
     }
 
-    public List<DepartureListItem> getFavourites() {
+    public List<DepartureViewItem> getFavourites() {
         return favourites;
     }
 
-    public List<DepartureListItem> getOther() {
+    public List<DepartureViewItem> getOther() {
         return other;
     }
 
-    public List<DepartureListItem> getMore() {
+    public List<DepartureViewItem> getMore() {
         return more;
     }
 
@@ -96,7 +95,7 @@ public class NextOsloStore {
         notifyListeners();
     }
 
-    private List<DepartureListItem> getFavourites(List<StopVisit> departures) {
+    private List<DepartureViewItem> getFavourites(List<StopVisit> departures) {
         return Collections.emptyList();
     }
 
@@ -151,8 +150,8 @@ public class NextOsloStore {
         listeners.add(listener);
     }
 
-    private List<DepartureListItem> getMore(List<StopVisit> departures) {
-        List<DepartureListItem> items = stopVisitsToDepartureListItems(departures);
+    private List<DepartureViewItem> getMore(List<StopVisit> departures) {
+        List<DepartureViewItem> items = stopVisitsToDepartureListItems(departures);
 
         if(items.isEmpty() || items.size() <= 10) {
             return Collections.emptyList();
@@ -161,19 +160,19 @@ public class NextOsloStore {
         return items.subList(10, items.size()-1);
     }
 
-    private List<DepartureListItem> getOther(List<StopVisit> departures) {
-        List<DepartureListItem> departureListItems = stopVisitsToDepartureListItems(departures);
+    private List<DepartureViewItem> getOther(List<StopVisit> departures) {
+        List<DepartureViewItem> departureViewItems = stopVisitsToDepartureListItems(departures);
 
-        if(departureListItems.size() > 10) {
-            return departureListItems.subList(0, 9);
+        if(departureViewItems.size() > 10) {
+            return departureViewItems.subList(0, 9);
         }
 //
 //        haveMore = false;
-        return departureListItems;
+        return departureViewItems;
     }
 
     @NonNull
-    private List<DepartureListItem> stopVisitsToDepartureListItems(List<StopVisit> departures) {
+    private List<DepartureViewItem> stopVisitsToDepartureListItems(List<StopVisit> departures) {
         Map<String, List<StopVisit>> stopVisitMap = new LinkedHashMap<>();
 
         for (StopVisit departure : departures) {
@@ -188,13 +187,13 @@ public class NextOsloStore {
         }
 
 
-        List<DepartureListItem> departureListItems = new ArrayList<>();
+        List<DepartureViewItem> departureViewItems = new ArrayList<>();
         for (List<StopVisit> stopVisits : stopVisitMap.values()) {
-            departureListItems.add(new DepartureListItem(stopVisits));
+            departureViewItems.add(new DepartureViewItem(stopVisits));
         }
 
-        Collections.sort(departureListItems, byFirstDepartureDepartureList());
-        return departureListItems;
+        Collections.sort(departureViewItems, byFirstDepartureDepartureList());
+        return departureViewItems;
     }
 
     public List<Object> getData() {

@@ -1,4 +1,4 @@
-package com.barearild.next.v2.views.departures;
+package com.barearild.next.v2.views.departures.holders;
 
 import android.animation.StateListAnimator;
 import android.content.Context;
@@ -22,8 +22,8 @@ public class DepartureListItemHolder extends RecyclerView.ViewHolder implements 
     public final TextView firstDeparture;
     public final TextView secondDeparture;
     public final TextView stopName;
-    final ImageView warning;
-    final Button menu;
+    public final ImageView warning;
+    public final Button menu;
 
     public DepartureListItemHolder(View view) {
         super(view);

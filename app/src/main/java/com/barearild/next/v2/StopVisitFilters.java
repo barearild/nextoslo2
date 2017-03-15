@@ -4,9 +4,8 @@ import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.Transporttype;
-import com.barearild.next.v2.reisrest.VehicleMode;
-import com.barearild.next.v2.views.departures.StopVisitListItem;
-import com.barearild.next.v2.views.departures.items.DepartureListItem;
+import com.barearild.next.v2.delete.StopVisitListItem;
+import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 
 import org.joda.time.DateTime;
 
@@ -81,12 +80,12 @@ public class StopVisitFilters {
     }
 
 
-    public static Comparator<DepartureListItem> byFirstDepartureDepartureList() {
-        return new Comparator<DepartureListItem>() {
+    public static Comparator<DepartureViewItem> byFirstDepartureDepartureList() {
+        return new Comparator<DepartureViewItem>() {
             @Override
-            public int compare(DepartureListItem lhs, DepartureListItem rhs) {
-                DateTime firstDeparture = lhs.getFirstDeparture();
-                DateTime otherFirstDeparture = rhs.getFirstDeparture();
+            public int compare(DepartureViewItem lhs, DepartureViewItem rhs) {
+                DateTime firstDeparture = lhs.getFirstDeparture().getExpectedDepartureTime();
+                DateTime otherFirstDeparture = rhs.getFirstDeparture().getExpectedDepartureTime();
 
 
                 return firstDeparture.compareTo(otherFirstDeparture);

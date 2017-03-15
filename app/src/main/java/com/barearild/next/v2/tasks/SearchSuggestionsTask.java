@@ -1,39 +1,5 @@
 package com.barearild.next.v2.tasks;
 
-import android.app.SearchManager;
-import android.database.Cursor;
-import android.os.AsyncTask;
-import android.util.Log;
-
-import com.barearild.next.v2.NextOsloApp;
-import com.barearild.next.v2.StopVisitFilters;
-import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
-import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
-import com.barearild.next.v2.reisrest.place.Stop;
-import com.barearild.next.v2.reisrest.requests.Requests;
-import com.barearild.next.v2.search.SearchSuggestion;
-import com.barearild.next.v2.search.SearchSuggestionProvider;
-import com.barearild.next.v2.views.departures.DeparturesActivity;
-import com.barearild.next.v2.views.departures.DeparturesAdapter;
-import com.barearild.next.v2.views.departures.FilterView;
-import com.barearild.next.v2.views.departures.SpaceItem;
-import com.barearild.next.v2.views.departures.StopVisitListItem;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import static com.barearild.next.v2.NextOsloApp.LOG_TAG;
-import static com.barearild.next.v2.StopVisitFilters.convertToListItems;
-import static com.barearild.next.v2.StopVisitFilters.onlyFavorites;
-import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
-import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDeparture;
-import static com.barearild.next.v2.StopVisitFilters.removeTransportTypes;
-import static com.barearild.next.v2.StopVisitFilters.withoutFavourites;
-
 public class SearchSuggestionsTask /*extends AsyncTask<String, Object, List<Object>> */{
 
 /*    private final StopVisitsResult result;

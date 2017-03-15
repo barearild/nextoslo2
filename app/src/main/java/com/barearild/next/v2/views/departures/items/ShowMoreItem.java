@@ -1,9 +1,8 @@
 package com.barearild.next.v2.views.departures.items;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 
-import com.barearild.next.v2.views.departures.ShowMoreItemHolder;
+import com.barearild.next.v2.views.departures.holders.ShowMoreItemHolder;
 
 /**
  * Created by arild on 12.03.2017.

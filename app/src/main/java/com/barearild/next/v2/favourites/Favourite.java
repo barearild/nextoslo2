@@ -2,7 +2,7 @@ package com.barearild.next.v2.favourites;
 
 
 import com.barearild.next.v2.reisrest.place.Stop;
-import com.barearild.next.v2.views.departures.StopVisitListItem;
+import com.barearild.next.v2.delete.StopVisitListItem;
 
 import java.util.HashSet;
 import java.util.Set;

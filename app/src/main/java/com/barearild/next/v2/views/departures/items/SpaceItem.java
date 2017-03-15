@@ -1,4 +1,4 @@
-package com.barearild.next.v2.views.departures;
+package com.barearild.next.v2.views.departures.items;
 
 public class SpaceItem {
     private long id = 1L;

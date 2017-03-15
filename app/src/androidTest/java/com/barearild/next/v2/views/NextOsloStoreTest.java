@@ -7,7 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.reisrest.requests.Requests;
-import com.barearild.next.v2.views.departures.items.DepartureListItem;
+import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -55,12 +55,12 @@ public class NextOsloStoreTest {
 
         List<Object> data = store.getData();
 
-        List<DepartureListItem> departures = getDepartureListItemsFrom(data);
+        List<DepartureViewItem> departures = getDepartureListItemsFrom(data);
 
         assertThat(departures.size()).isGreaterThan(1);
 
         DateTime last = null;
-        for (DepartureListItem item : departures) {
+        for (DepartureViewItem item : departures) {
             if (last != null) {
                 assertThat(item.getFirstDeparture().isAfter(last)).isTrue();
             }
@@ -69,18 +69,18 @@ public class NextOsloStoreTest {
 
     }
 
-    private List<DepartureListItem> getDepartureListItemsFrom(List<Object> objects) {
+    private List<DepartureViewItem> getDepartureListItemsFrom(List<Object> objects) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return objects.stream().filter(o -> o instanceof DepartureListItem).map(o -> (DepartureListItem) o).collect(Collectors.toList());
+            return objects.stream().filter(o -> o instanceof DepartureViewItem).map(o -> (DepartureViewItem) o).collect(Collectors.toList());
         } else {
-            List<DepartureListItem> departureListItems = new ArrayList<>();
+            List<DepartureViewItem> departureViewItems = new ArrayList<>();
             for (Object object : objects) {
-                if(object instanceof DepartureListItem) {
-                    departureListItems.add((DepartureListItem) object);
+                if(object instanceof DepartureViewItem) {
+                    departureViewItems.add((DepartureViewItem) object);
                 }
             }
 
-            return departureListItems;
+            return departureViewItems;
         }
     }
 
