@@ -42,7 +42,7 @@ import com.barearild.next.v2.search.SearchSuggestionsAdapter;
 import com.barearild.next.v2.tasks.GetAllDeparturesNearLocationTask;
 import com.barearild.next.v2.views.NextOsloStore;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
-import com.barearild.next.v2.views.departures.items.SpaceItem;
+import com.barearild.next.v2.views.departures.items.SpaceViewItem;
 import com.barearild.next.v2.views.details.DetailsActivity;
 import com.barearild.next.v2.views.stop.StopActivity;
 import com.google.android.gms.common.ConnectionResult;
@@ -827,7 +827,7 @@ public class DeparturesActivity extends AppCompatActivity implements
             } else {
                 data.add(NextOsloApp.DEPARTURES_HEADER_FAVOURITES);
                 data.addAll(favourites);
-                data.add(new SpaceItem());
+                data.add(new SpaceViewItem());
             }
 
             data.add(NextOsloApp.DEPARTURES_HEADER_OTHERS);

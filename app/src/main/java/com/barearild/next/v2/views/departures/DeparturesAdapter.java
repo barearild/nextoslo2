@@ -25,7 +25,7 @@ import com.barearild.next.v2.views.departures.holders.ShowMoreItemHolder;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.HeaderViewItem;
 import com.barearild.next.v2.views.departures.items.ShowMoreViewItem;
-import com.barearild.next.v2.views.departures.items.SpaceItem;
+import com.barearild.next.v2.views.departures.items.SpaceViewItem;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -279,7 +279,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_HEADER;
         } else if (item instanceof FilterView.FilterType) {
             return TYPE_FILTER;
-        } else if (item instanceof SpaceItem) {
+        } else if (item instanceof SpaceViewItem) {
             return TYPE_SPACE;
         } else if (item instanceof SearchSuggestion) {
             return TYPE_SUGGESTION;

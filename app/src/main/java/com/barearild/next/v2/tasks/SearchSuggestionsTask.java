@@ -193,7 +193,7 @@ public class SearchSuggestionsTask /*extends AsyncTask<String, Object, List<Obje
             } else {
                 data.add(NextOsloApp.DEPARTURES_HEADER_FAVOURITES);
                 data.addAll(favourites);
-                data.add(new SpaceItem());
+                data.add(new SpaceViewItem());
             }
 
             data.add(NextOsloApp.DEPARTURES_HEADER_OTHERS);
