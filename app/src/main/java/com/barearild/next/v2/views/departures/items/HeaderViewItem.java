@@ -6,15 +6,15 @@ import android.text.Html;
 import com.barearild.next.v2.views.departures.DeparturesAdapter;
 import com.barearild.next.v2.views.departures.items.ViewItem;
 
-public class DeparturesHeader implements ViewItem<DeparturesAdapter.HeaderViewHolder> {
+public class HeaderViewItem implements ViewItem<DeparturesAdapter.HeaderViewHolder> {
 
     public String text;
 
-    public DeparturesHeader() {
+    public HeaderViewItem() {
         this.text = "";
     }
 
-    public DeparturesHeader(String text) {
+    public HeaderViewItem(String text) {
         this.text = text;
     }
 

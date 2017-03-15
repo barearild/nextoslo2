@@ -23,7 +23,7 @@ import com.barearild.next.v2.views.NextOsloStore;
 import com.barearild.next.v2.views.departures.holders.DepartureListItemHolder;
 import com.barearild.next.v2.views.departures.holders.ShowMoreItemHolder;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
-import com.barearild.next.v2.views.departures.items.DeparturesHeader;
+import com.barearild.next.v2.views.departures.items.HeaderViewItem;
 import com.barearild.next.v2.views.departures.items.ShowMoreItem;
 import com.barearild.next.v2.views.departures.items.SpaceItem;
 
@@ -250,7 +250,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int position) {
-        DeparturesHeader header = (DeparturesHeader) data.get(position);
+        HeaderViewItem header = (HeaderViewItem) data.get(position);
         header.onBindViewHolder(context, viewHolder, position);
     }
 
@@ -275,7 +275,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_DEPARTURE;
         } else if (item instanceof Date) {
             return TYPE_TIMESTAMP;
-        } else if (item instanceof DeparturesHeader) {
+        } else if (item instanceof HeaderViewItem) {
             return TYPE_HEADER;
         } else if (item instanceof FilterView.FilterType) {
             return TYPE_FILTER;

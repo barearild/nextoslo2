@@ -9,7 +9,7 @@ import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
-import com.barearild.next.v2.views.departures.items.DeparturesHeader;
+import com.barearild.next.v2.views.departures.items.HeaderViewItem;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
@@ -30,15 +30,15 @@ public class NextOsloApp extends Application {
     public static final String GOOGLE_API_KEY = "AIzaSyC0XTqTESWXZSYmjset6oXOsY9BmGeTrso";
     public static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
 
-    public static final DeparturesHeader DEPARTURES_HEADER_LINES_NEARBY = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_LINES = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_STOPS = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_ADDRESSES = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_EMPTY = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_NO_FAVOURITES = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_OTHERS = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_DEPARTURES = new DeparturesHeader();
-    public static final DeparturesHeader DEPARTURES_HEADER_FAVOURITES = new DeparturesHeader();
+    public static final HeaderViewItem DEPARTURES_HEADER_LINES_NEARBY = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_LINES = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_STOPS = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_ADDRESSES = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_EMPTY = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_NO_FAVOURITES = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_OTHERS = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_DEPARTURES = new HeaderViewItem();
+    public static final HeaderViewItem DEPARTURES_HEADER_FAVOURITES = new HeaderViewItem();
 
     public static final String PACKAGE_NAME = "com.barearild.next.v2";
     public static final String USER_PREFERENCES = "user_preferences";
