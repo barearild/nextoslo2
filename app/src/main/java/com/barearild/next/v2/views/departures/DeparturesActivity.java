@@ -40,7 +40,7 @@ import com.barearild.next.v2.search.SearchSuggestion;
 import com.barearild.next.v2.search.SearchSuggestionProvider;
 import com.barearild.next.v2.search.SearchSuggestionsAdapter;
 import com.barearild.next.v2.tasks.GetAllDeparturesNearLocationTask;
-import com.barearild.next.v2.views.NextOsloStore;
+import com.barearild.next.v2.store.NextOsloStore;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.SpaceViewItem;
 import com.barearild.next.v2.views.details.DetailsActivity;

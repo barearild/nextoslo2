@@ -1,7 +1,6 @@
 package com.barearild.next.v2.views.stop;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,10 +13,12 @@ import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.StopVisitFilters;
 import com.barearild.next.v2.favourites.FavouritesService;
 import com.barearild.next.v2.location.libs.CoordinateConversion;
-import com.barearild.next.v2.reisrest.requests.Requests;
+import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisitsResult;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.place.Stop;
+import com.barearild.next.v2.tasks.GetAllDeparturesFromStopTask;
+import com.barearild.next.v2.store.NextOsloStore;
 import com.barearild.next.v2.views.departures.DeparturesAdapter;
 import com.barearild.next.v2.views.departures.DeparturesRecyclerView;
 import com.barearild.next.v2.views.departures.DeparturesSwipeRefreshLayout;
@@ -28,7 +29,6 @@ import com.barearild.next.v2.views.details.DetailsActivity;
 import com.barearild.next.v2.views.map.MapsActivity;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import v2.next.barearild.com.R;
@@ -40,11 +40,15 @@ import static com.barearild.next.v2.StopVisitFilters.orderedByFirstDeparture;
 import static com.barearild.next.v2.StopVisitFilters.removeTransportTypes;
 import static com.barearild.next.v2.StopVisitFilters.withoutFavourites;
 
-public class StopActivity extends AppCompatActivity implements DeparturesAdapter.OnDepartureItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class StopActivity extends AppCompatActivity implements
+        DeparturesAdapter.OnDepartureItemClickListener,
+        SwipeRefreshLayout.OnRefreshListener,
+        NextOsloStore.StateListener,
+        GetAllDeparturesFromStopTask.GetAllDeparturesFromStopTaskListener {
 
     private static final String STATE_LAST_RESULT = "lastResult";
 
-    private StopVisitsResult mLastResult;
+    private NextOsloStore mStore;
     private DeparturesSwipeRefreshLayout mSwipeView;
     private DeparturesRecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutParams;
@@ -102,16 +106,14 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_LAST_RESULT, mLastResult);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        mLastResult = savedInstanceState.getParcelable(STATE_LAST_RESULT);
 
-        if (mLastResult != null) {
-            mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, false), this, this), true);
+        if (NextOsloApp.stopStore != null) {
+            mRecyclerView.swapAdapter(new DeparturesAdapter(NextOsloApp.stopStore, this, this), true);
             mSwipeView.setRefreshing(false);
         }
     }
@@ -134,13 +136,13 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
     @Override
     public void addToFavourite(StopVisitListItem item) {
         mFavouriteService.addFavourite(item);
-        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, false), this, this), false);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(NextOsloApp.stopStore, this, this), false);
     }
 
     @Override
     public void removeFromFavourite(StopVisitListItem item) {
         mFavouriteService.removeFavourite(item);
-        mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, false), this, this), false);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(NextOsloApp.stopStore, this, this), false);
     }
 
     @Override
@@ -154,36 +156,18 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
     }
 
     private void updateDepartures() {
-        new GetAllDeparturesTask().execute(mStop);
+        new GetAllDeparturesFromStopTask(this).execute(mStop);
     }
 
-    private class GetAllDeparturesTask extends AsyncTask<Stop, Void, List<Object>> {
-
-        @Override
-        protected List<Object> doInBackground(Stop... stops) {
-
-            mLastResult = new StopVisitsResult(new Date());
-
-            mLastResult.stopVisits.addAll(Requests.getAllDepartures(stops[0]));
-
-            return convertToListData(mLastResult, false);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            mSwipeView.setRefreshing(true);
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(List<Object> result) {
-            super.onPostExecute(result);
-            mRecyclerView.swapAdapter(new DeparturesAdapter(result, StopActivity.this, StopActivity.this), false);
-            mSwipeView.setRefreshing(false);
-        }
+    @Override
+    public void onStateChanged() {
+        mRecyclerView.swapAdapter(new DeparturesAdapter(NextOsloApp.stopStore, StopActivity.this, StopActivity.this), false);
     }
 
-    private static List<Object> convertToListData(StopVisitsResult result, boolean showFilters) {
+
+
+
+        private static List<Object> convertToListData(StopVisitsResult result, boolean showFilters) {
         List<Object> data = new ArrayList<>();
 
         if (showFilters) {
@@ -242,5 +226,17 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
 
 
         return data;
+    }
+
+    @Override
+    public void onGetAllDeparturesFromStopPreExecute() {
+        mSwipeView.setRefreshing(true);
+    }
+
+    @Override
+    public void onGetAllDeparturesFromStopPostExecute(List<StopVisit> result) {
+        NextOsloApp.stopStore.setDepartures(result);
+        mRecyclerView.swapAdapter(new DeparturesAdapter(result, StopActivity.this, StopActivity.this), false);
+        mSwipeView.setRefreshing(false);
     }
 }

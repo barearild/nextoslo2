@@ -7,6 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.reisrest.requests.Requests;
+import com.barearild.next.v2.store.NextOsloStore;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.ViewItem;
 

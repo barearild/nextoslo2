@@ -8,6 +8,7 @@ import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.TransporttypeDeserializer;
 import com.barearild.next.v2.reisrest.VehicleMode;
 import com.barearild.next.v2.reisrest.VehicleModeDeserializer;
+import com.barearild.next.v2.store.NextOsloStore;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.ViewItem;
 import com.google.gson.Gson;

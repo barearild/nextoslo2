@@ -2,8 +2,6 @@ package com.barearild.next.v2.views.departures;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -19,7 +17,6 @@ import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.search.SearchSuggestion;
-import com.barearild.next.v2.views.NextOsloStore;
 import com.barearild.next.v2.views.departures.holders.DepartureListItemHolder;
 import com.barearild.next.v2.views.departures.holders.HeaderViewHolder;
 import com.barearild.next.v2.views.departures.holders.ShowMoreItemHolder;
@@ -32,7 +29,6 @@ import com.barearild.next.v2.views.departures.items.TimestampViewItem;
 import com.barearild.next.v2.views.departures.items.ViewItem;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import v2.next.barearild.com.R;
@@ -52,44 +48,20 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_DEPARTURE_MORE = 10;
 
     private final List<ViewItem> data;
-    private final java.text.DateFormat dateFormat;
-    private final java.text.DateFormat timeFormat;
+    private final DepartureAdapterStore store;
     private final Context context;
 
     private final OnDepartureItemClickListener onDepartureItemClickListener;
-    private final NextOsloStore store;
     private LayoutInflater inflater;
 
-    public DeparturesAdapter(Context context) {
-        this(new ArrayList<>(), context, null);
-    }
-
-    public DeparturesAdapter(NextOsloStore store, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
+    public DeparturesAdapter(DepartureAdapterStore store, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
         super();
         this.store = store;
-        this.data = new ArrayList(store.getData());
+        this.data = new ArrayList<>(store.getData());
         this.context = context;
         this.onDepartureItemClickListener = onDepartureItemClickListener;
 
         setHasStableIds(true);
-
-        dateFormat = DateFormat.getDateFormat(context);
-        timeFormat = DateFormat.getTimeFormat(context);
-
-        inflater = LayoutInflater.from(context);
-    }
-
-    public DeparturesAdapter(List<Object> data, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
-        super();
-        this.store = new NextOsloStore();
-        this.data = new ArrayList(data);
-        this.context = context;
-        this.onDepartureItemClickListener = onDepartureItemClickListener;
-
-        setHasStableIds(true);
-
-        dateFormat = DateFormat.getDateFormat(context);
-        timeFormat = DateFormat.getTimeFormat(context);
 
         inflater = LayoutInflater.from(context);
     }
@@ -405,5 +377,10 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             icon = (ImageView) itemView.findViewById(R.id.icon);
             text = (TextView) itemView.findViewById(R.id.text);
         }
+    }
+
+    public interface DepartureAdapterStore {
+        void showAll();
+        List<ViewItem> getData();
     }
 }

@@ -10,6 +10,8 @@ import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.Transporttype;
 import com.barearild.next.v2.reisrest.line.Line;
 import com.barearild.next.v2.reisrest.place.Stop;
+import com.barearild.next.v2.store.NextOsloStore;
+import com.barearild.next.v2.store.StopStore;
 import com.barearild.next.v2.views.departures.items.HeaderViewItem;
 
 import net.danlew.android.joda.JodaTimeAndroid;
@@ -62,6 +64,9 @@ public class NextOsloApp extends Application {
     public static java.text.DateFormat DATE_FORMAT;
     public static java.text.DateFormat TIME_FORMAT;
 
+    public static NextOsloStore nextOsloStore;
+    public static StopStore stopStore;
+
     private SharedPreferences prefs;
 
     @Override
@@ -69,6 +74,9 @@ public class NextOsloApp extends Application {
         super.onCreate();
 
         prefs = getSharedPreferences(USER_PREFERENCES, MODE_PRIVATE);
+
+        nextOsloStore = new NextOsloStore();
+        stopStore = new StopStore();
 
         DATE_FORMAT = DateFormat.getDateFormat(getApplicationContext());
         TIME_FORMAT = DateFormat.getTimeFormat(getApplicationContext());
