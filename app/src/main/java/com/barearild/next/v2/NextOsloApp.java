@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.text.format.DateFormat;
 
 import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.reisrest.Transporttype;
@@ -58,6 +59,9 @@ public class NextOsloApp extends Application {
 
     public static final List<Stop> ALL_STOPS = new ArrayList<>();
 
+    public static java.text.DateFormat DATE_FORMAT;
+    public static java.text.DateFormat TIME_FORMAT;
+
     private SharedPreferences prefs;
 
     @Override
@@ -65,6 +69,9 @@ public class NextOsloApp extends Application {
         super.onCreate();
 
         prefs = getSharedPreferences(USER_PREFERENCES, MODE_PRIVATE);
+
+        DATE_FORMAT = DateFormat.getDateFormat(getApplicationContext());
+        TIME_FORMAT = DateFormat.getTimeFormat(getApplicationContext());
 
         DEPARTURES_HEADER_STOPS.text = getString(R.string.stops);
         DEPARTURES_HEADER_LINES_NEARBY.text = getString(R.string.lines_nearby);

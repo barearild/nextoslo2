@@ -9,6 +9,7 @@ import com.barearild.next.v2.reisrest.TransporttypeDeserializer;
 import com.barearild.next.v2.reisrest.VehicleMode;
 import com.barearild.next.v2.reisrest.VehicleModeDeserializer;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
+import com.barearild.next.v2.views.departures.items.ViewItem;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -77,7 +78,7 @@ public class NextOsloStoreTest {
         NextOsloStore store = new NextOsloStore();
         store.setDepartures(stopVisitsWithStop);
 
-        List<Object> data = store.getData();
+        List<ViewItem> data = store.getData();
 
         System.out.println(data.toString());
 
@@ -100,11 +101,11 @@ public class NextOsloStoreTest {
     private void assertDeparture(DepartureViewItem item, String lineRef, String destinationName, String firstDeparture, String secondDeparture) {
         assertThat(lineRef + " " + destinationName, item.getLineRef(), is(equalTo(lineRef)));
         assertThat(lineRef + " " + destinationName, item.getDestinationName(), is(equalTo(destinationName)));
-        assertThat(lineRef + " " + destinationName, item.getFirstDeparture().getMillis(), is(equalTo(new DateTime(firstDeparture).getMillis())));
+        assertThat(lineRef + " " + destinationName, item.getFirstDeparture().getExpectedDepartureTime().getMillis(), is(equalTo(new DateTime(firstDeparture).getMillis())));
         if (secondDeparture == null) {
             assertThat(lineRef + " " + destinationName, item.getSecondDeparture(), is(nullValue()));
         } else {
-            assertThat(lineRef + " " + destinationName, item.getSecondDeparture().getMillis(), is(equalTo(new DateTime(secondDeparture).getMillis())));
+            assertThat(lineRef + " " + destinationName, item.getSecondDeparture().getExpectedDepartureTime().getMillis(), is(equalTo(new DateTime(secondDeparture).getMillis())));
         }
     }
 }

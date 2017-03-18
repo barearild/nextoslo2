@@ -45,7 +45,6 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
     private static final String STATE_LAST_RESULT = "lastResult";
 
     private StopVisitsResult mLastResult;
-    private long mLastUpdate;
     private DeparturesSwipeRefreshLayout mSwipeView;
     private DeparturesRecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutParams;
@@ -112,7 +111,6 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
         mLastResult = savedInstanceState.getParcelable(STATE_LAST_RESULT);
 
         if (mLastResult != null) {
-            mLastUpdate = mLastResult.getTimeOfSearch().getTime();
             mRecyclerView.swapAdapter(new DeparturesAdapter(convertToListData(mLastResult, false), this, this), true);
             mSwipeView.setRefreshing(false);
         }
@@ -180,7 +178,6 @@ public class StopActivity extends AppCompatActivity implements DeparturesAdapter
         @Override
         protected void onPostExecute(List<Object> result) {
             super.onPostExecute(result);
-            mLastUpdate = System.currentTimeMillis();
             mRecyclerView.swapAdapter(new DeparturesAdapter(result, StopActivity.this, StopActivity.this), false);
             mSwipeView.setRefreshing(false);
         }

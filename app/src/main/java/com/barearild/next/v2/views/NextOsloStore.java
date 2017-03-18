@@ -8,6 +8,8 @@ import com.barearild.next.v2.NextOsloApp;
 import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.ShowMoreViewItem;
+import com.barearild.next.v2.views.departures.items.TimestampViewItem;
+import com.barearild.next.v2.views.departures.items.ViewItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.barearild.next.v2.NextOsloApp.DEPARTURES_HEADER_DEPARTURES;
 import static com.barearild.next.v2.NextOsloApp.DEPARTURES_HEADER_OTHERS;
 import static com.barearild.next.v2.StopVisitFilters.byFirstDepartureDepartureList;
 import static com.barearild.next.v2.StopVisitFilters.orderByWalkingDistance;
@@ -196,22 +199,22 @@ public class NextOsloStore {
         return departureViewItems;
     }
 
-    public List<Object> getData() {
+    public List<ViewItem> getData() {
         if(departures.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<Object> data = new ArrayList<>();
+        List<ViewItem> data = new ArrayList<>();
 //        if (showFilters) {
 //            data.add(new FilterView.FilterType());
 //        }
 //
-//        if (lastUpdate != null) {
-//            data.add(lastUpdate);
-//        }
+        if (lastUpdate != null) {
+            data.add(new TimestampViewItem(lastUpdate));
+        }
 
         if(!other.isEmpty()) {
-            data.add(DEPARTURES_HEADER_OTHERS);
+            data.add(DEPARTURES_HEADER_DEPARTURES);
             data.addAll(other);
         }
 

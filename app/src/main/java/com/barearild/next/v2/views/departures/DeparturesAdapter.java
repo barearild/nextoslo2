@@ -21,11 +21,15 @@ import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.search.SearchSuggestion;
 import com.barearild.next.v2.views.NextOsloStore;
 import com.barearild.next.v2.views.departures.holders.DepartureListItemHolder;
+import com.barearild.next.v2.views.departures.holders.HeaderViewHolder;
 import com.barearild.next.v2.views.departures.holders.ShowMoreItemHolder;
+import com.barearild.next.v2.views.departures.holders.TimestampViewHolder;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
 import com.barearild.next.v2.views.departures.items.HeaderViewItem;
 import com.barearild.next.v2.views.departures.items.ShowMoreViewItem;
 import com.barearild.next.v2.views.departures.items.SpaceViewItem;
+import com.barearild.next.v2.views.departures.items.TimestampViewItem;
+import com.barearild.next.v2.views.departures.items.ViewItem;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,7 +51,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int TYPE_DEPARTURE_ITEM = 9;
     private static final int TYPE_DEPARTURE_MORE = 10;
 
-    private final List<Object> data;
+    private final List<ViewItem> data;
     private final java.text.DateFormat dateFormat;
     private final java.text.DateFormat timeFormat;
     private final Context context;
@@ -78,7 +82,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public DeparturesAdapter(List<Object> data, Context context, OnDepartureItemClickListener onDepartureItemClickListener) {
         super();
         this.store = new NextOsloStore();
-        this.data = new ArrayList<>(data);
+        this.data = new ArrayList(data);
         this.context = context;
         this.onDepartureItemClickListener = onDepartureItemClickListener;
 
@@ -90,7 +94,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         inflater = LayoutInflater.from(context);
     }
 
-    public List<Object> getData() {
+    public List<ViewItem> getData() {
         return data;
     }
 
@@ -133,8 +137,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return new HeaderViewHolder(inflater.inflate(R.layout.departure_list_header, parent, false));
             case TYPE_DEPARTURE_ITEM:
             case TYPE_DEPARTURE:
-                View departureView = inflater.inflate(R.layout.departure_item, parent, false);
-                return new DepartureListItemHolder(departureView);
+                return new DepartureListItemHolder(inflater.inflate(R.layout.departure_item, parent, false));
             case TYPE_SPACE:
                 return new SpaceViewHolder(inflater.inflate(R.layout.departure_item_space, parent, false));
             case TYPE_TIMESTAMP:
@@ -168,7 +171,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 onBindDepartureListViewHolder((DepartureListItemHolder) viewHolder, position);
                 break;
             case TYPE_TIMESTAMP:
-                onBindTimestampViewHolder((TimestampViewHolder) viewHolder, position);
+                onBindTimestampViewHolder((TimestampViewHolder) viewHolder, (TimestampViewItem) data.get(position), position);
                 break;
             case TYPE_HEADER:
                 onBindHeaderViewHolder((HeaderViewHolder) viewHolder, position);
@@ -243,10 +246,8 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 //        setupPopupMenu(viewHolder, stopVisit, position);
     }
 
-    private void onBindTimestampViewHolder(TimestampViewHolder viewHolder, int position) {
-        Date timeOfLastUpdate = ((Date) data.get(position));
-
-        viewHolder.timestamp.setText(dateFormat.format(timeOfLastUpdate) + " " + timeFormat.format(timeOfLastUpdate));
+    private void onBindTimestampViewHolder(TimestampViewHolder viewHolder, TimestampViewItem timestampViewItem, int position) {
+        timestampViewItem.onBindViewHolder(context, viewHolder, position);
     }
 
     private void onBindHeaderViewHolder(HeaderViewHolder viewHolder, int position) {
@@ -273,7 +274,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         Object item = data.get(position);
         if (item instanceof StopVisitListItem) {
             return TYPE_DEPARTURE;
-        } else if (item instanceof Date) {
+        } else if (item instanceof TimestampViewItem) {
             return TYPE_TIMESTAMP;
         } else if (item instanceof HeaderViewItem) {
             return TYPE_HEADER;
@@ -296,7 +297,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    public Object getItem(int position) {
+    public ViewItem getItem(int position) {
         return data.get(position);
     }
 
@@ -336,28 +337,6 @@ public class DeparturesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 popupMenu.show();
             }
         });
-    }
-
-
-    private class TimestampViewHolder extends RecyclerView.ViewHolder {
-
-        TextView timestamp;
-
-        public TimestampViewHolder(View itemView) {
-            super(itemView);
-            timestamp = (TextView) itemView.findViewById(R.id.departure_list_timestamp);
-        }
-    }
-
-    public class HeaderViewHolder extends RecyclerView.ViewHolder {
-
-        public TextView headerText;
-
-        public HeaderViewHolder(View itemView) {
-            super(itemView);
-            headerText = (TextView) itemView.findViewById(R.id.departure_list_item_header);
-            headerText.setMovementMethod(LinkMovementMethod.getInstance());
-        }
     }
 
     public interface OnDepartureItemClickListener {

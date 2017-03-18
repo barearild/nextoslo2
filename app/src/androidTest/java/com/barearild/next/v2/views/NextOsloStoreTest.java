@@ -8,6 +8,7 @@ import com.barearild.next.v2.reisrest.StopVisit.StopVisit;
 import com.barearild.next.v2.reisrest.place.Stop;
 import com.barearild.next.v2.reisrest.requests.Requests;
 import com.barearild.next.v2.views.departures.items.DepartureViewItem;
+import com.barearild.next.v2.views.departures.items.ViewItem;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class NextOsloStoreTest {
         NextOsloStore store = new NextOsloStore();
         store.setDepartures(allDepartures);
 
-        List<Object> data = store.getData();
+        List<ViewItem> data = store.getData();
 
         List<DepartureViewItem> departures = getDepartureListItemsFrom(data);
 
@@ -62,14 +63,14 @@ public class NextOsloStoreTest {
         DateTime last = null;
         for (DepartureViewItem item : departures) {
             if (last != null) {
-                assertThat(item.getFirstDeparture().isAfter(last)).isTrue();
+                assertThat(item.getFirstDeparture().getExpectedDepartureTime().isAfter(last)).isTrue();
             }
-            last = item.getFirstDeparture();
+            last = item.getFirstDeparture().getExpectedDepartureTime();
         }
 
     }
 
-    private List<DepartureViewItem> getDepartureListItemsFrom(List<Object> objects) {
+    private List<DepartureViewItem> getDepartureListItemsFrom(List<ViewItem> objects) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return objects.stream().filter(o -> o instanceof DepartureViewItem).map(o -> (DepartureViewItem) o).collect(Collectors.toList());
         } else {

@@ -4,9 +4,10 @@ import android.content.Context;
 import android.text.Html;
 
 import com.barearild.next.v2.views.departures.DeparturesAdapter;
+import com.barearild.next.v2.views.departures.holders.HeaderViewHolder;
 import com.barearild.next.v2.views.departures.items.ViewItem;
 
-public class HeaderViewItem implements ViewItem<DeparturesAdapter.HeaderViewHolder> {
+public class HeaderViewItem implements ViewItem<HeaderViewHolder> {
 
     public String text;
 
@@ -14,12 +15,8 @@ public class HeaderViewItem implements ViewItem<DeparturesAdapter.HeaderViewHold
         this.text = "";
     }
 
-    public HeaderViewItem(String text) {
-        this.text = text;
-    }
-
     @Override
-    public void onBindViewHolder(Context context, DeparturesAdapter.HeaderViewHolder viewHolder, int position) {
+    public void onBindViewHolder(Context context, HeaderViewHolder viewHolder, int position) {
         viewHolder.headerText.setText(Html.fromHtml(text));
     }
 }
